@@ -1,7 +1,6 @@
-package com.example.ems.user.auth.map;
+package com.example.ems.user.service.auth;
 
-import com.example.ems.auth.api.IUserAuthenticationService;
-import com.example.ems.user.crud.api.IUserCrudService;
+import com.example.ems.user.service.crud.api.UserCrudService;
 import com.example.ems.user.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,9 +15,9 @@ import java.util.UUID;
 @AllArgsConstructor(access=AccessLevel.PACKAGE)
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 final
-class UuidAuthenticationService implements IUserAuthenticationService {
+class UuidAuthenticationService implements UserAuthenticationService {
     @NonNull
-    IUserCrudService users;
+    UserCrudService users;
 
     @Override
     public
@@ -43,5 +42,5 @@ class UuidAuthenticationService implements IUserAuthenticationService {
 
     @Override
     public
-    void logout(final User user) {}
+    void logout(final User user) {    }
 }

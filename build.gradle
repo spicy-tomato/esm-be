@@ -8,6 +8,13 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
+//apply from:'https://github.com/SpringSource/spring-data-neo4j/raw/master/build/gradle/springdataneo4j.gradle'
+
+configurations {
+    runtime
+    testCompile
+}
+
 repositories {
     mavenCentral()
 }

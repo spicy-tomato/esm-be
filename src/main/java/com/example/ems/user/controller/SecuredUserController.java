@@ -1,7 +1,7 @@
 package com.example.ems.user.controller;
 
-import com.example.ems.auth.api.IUserAuthenticationService;
 import com.example.ems.user.entity.User;
+import com.example.ems.user.service.auth.UserAuthenticationService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 final
 class SecuredUserController {
     @NonNull
-    IUserAuthenticationService authentication;
+    UserAuthenticationService authentication;
 
     @GetMapping("/current")
     User getCurrent(@AuthenticationPrincipal final User user) {

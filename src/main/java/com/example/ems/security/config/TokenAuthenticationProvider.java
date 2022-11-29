@@ -1,6 +1,6 @@
 package com.example.ems.security.config;
 
-import com.example.ems.auth.api.IUserAuthenticationService;
+import com.example.ems.user.service.auth.UserAuthenticationService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -20,7 +20,7 @@ import java.util.Optional;
 final
 class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     @NonNull
-    IUserAuthenticationService auth;
+    UserAuthenticationService auth;
 
     @Override
     protected
@@ -32,6 +32,7 @@ class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticationProvi
     UserDetails retrieveUser(final String username, final UsernamePasswordAuthenticationToken authentication)
     throws AuthenticationException {
         final Object token = authentication.getCredentials();
+        System.out.println("retrieveUser");
         return Optional.ofNullable(token)
             .map(String::valueOf)
             .flatMap(auth::findByToken)

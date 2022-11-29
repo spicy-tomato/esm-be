@@ -1,6 +1,6 @@
-package com.example.ems.user.crud.in.memory;
+package com.example.ems.user.service.crud.memory;
 
-import com.example.ems.user.crud.api.IUserCrudService;
+import com.example.ems.user.service.crud.api.UserCrudService;
 import com.example.ems.user.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Service
 final
-class InMemoryUsers implements IUserCrudService {
-    Map<String, User> users = new HashMap<>();
+class InMemoryUsers implements UserCrudService {
+    final Map<String, User> users = new HashMap<>();
 
     @Override
     public
@@ -34,4 +34,6 @@ class InMemoryUsers implements IUserCrudService {
                     .filter(u -> Objects.equals(username, u.getUsername()))
                     .findFirst();
     }
+
+
 }

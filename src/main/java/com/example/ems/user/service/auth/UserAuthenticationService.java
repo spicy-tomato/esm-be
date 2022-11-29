@@ -1,11 +1,11 @@
-package com.example.ems.auth.api;
+package com.example.ems.user.service.auth;
 
 import com.example.ems.user.entity.User;
 
 import java.util.Optional;
 
 public
-interface IUserAuthenticationService {
+interface UserAuthenticationService {
     Optional<String> login(String username, String password);
 
     Optional<User> findByToken(String token);

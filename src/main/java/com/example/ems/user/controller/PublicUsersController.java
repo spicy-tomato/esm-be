@@ -1,8 +1,7 @@
 package com.example.ems.user.controller;
 
-import com.example.ems.auth.api.IUserAuthenticationService;
-import com.example.ems.user.crud.api.IUserCrudService;
-import com.example.ems.user.entity.User;
+import com.example.ems.user.service.crud.api.UserCrudService;
+import com.example.ems.user.service.auth.UserAuthenticationService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -19,18 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 final
 class PublicUsersController {
     @NonNull
-    IUserAuthenticationService authentication;
+    UserAuthenticationService authentication;
     @NonNull
-    IUserCrudService users;
+    UserCrudService users;
 
     @PostMapping("register")
     String register(@RequestParam("username") final String username, @RequestParam("password") final String password) {
-        users.save(User.builder()
-                       .id(username)
-                       .username(username)
-                       .password(password)
-                       .build());
-
         return login(username, password);
     }
 

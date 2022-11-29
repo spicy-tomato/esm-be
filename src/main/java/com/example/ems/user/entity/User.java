@@ -70,19 +70,7 @@ class User implements UserDetails {
 
     @JsonIgnore
     public
-    String getUsername() {
-        return username;
-    }
-
-    @JsonIgnore
-    public
     String getPassword() {
         return password;
-    }
-
-    @JsonIgnore
-    public
-    String getId() {
-        return id;
     }
 }
