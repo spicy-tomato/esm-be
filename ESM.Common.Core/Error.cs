@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
 namespace ESM.Common.Core;
@@ -6,12 +5,10 @@ namespace ESM.Common.Core;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Error
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Code { get; }
 
     public string Message { get; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Property { get; }
 
     public Error(string message)

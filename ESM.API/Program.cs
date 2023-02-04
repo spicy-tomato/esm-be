@@ -1,5 +1,6 @@
 using System.Text;
 using ESM.API.Contexts;
+using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Core.API.Filters;
 using ESM.Data.Models;
@@ -21,17 +22,22 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 builder.Services.AddAutoMapper(typeof(ModelMapping));
 
 builder.Services.AddIdentityCore<User>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-}).AddEntityFrameworkStores<ApplicationContext>();
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+    })
+   .AddRoles<Role>()
+   .AddEntityFrameworkStores<ApplicationContext>();
 
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<SchoolRepository>();
+builder.Services.AddScoped<FacultyRepository>();
+builder.Services.AddScoped<DepartmentRepository>();
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -68,10 +74,18 @@ builder.Services
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.WebHost.UseUrls("http://*:5001");
 
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseAuthentication();
 
