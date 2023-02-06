@@ -1,3 +1,4 @@
+using ESM.Data.Dtos.Faculty;
 using ESM.Data.Dtos.School;
 using JetBrains.Annotations;
 
@@ -10,4 +11,5 @@ public class SimpleDepartment
     public string DisplayId { get; set; } = null!;
     public string Name { get; set; } = null!;
     public SimpleSchool School { get; set; } = null!;
+    public SimpleFaculty? Faculty { get; set; }
 }

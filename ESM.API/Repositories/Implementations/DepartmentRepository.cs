@@ -17,7 +17,7 @@ public class DepartmentRepository : RepositoryBase<Department>, IDepartmentRepos
     public new Department? GetById(Guid id) =>
         Context.Departments.Include(d => d.School).FirstOrDefault();
 
-    public new Department? Create(Department entity, bool saveChanges = true)
+    public new Department Create(Department entity, bool saveChanges = true)
     {
         Context.Departments.Include(d => d.Faculty);
         Context.Departments.Add(entity);

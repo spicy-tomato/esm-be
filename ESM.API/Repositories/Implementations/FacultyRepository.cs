@@ -2,7 +2,6 @@ using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Interface;
 using ESM.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Repositories.Implementations;
 

@@ -8,5 +8,5 @@ public enum ExamMethod
     Select = 0,
     Write = 1,
     Practice = 2,
-    Oral = 3,
+    Oral = 3
 }

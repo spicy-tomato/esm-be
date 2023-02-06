@@ -9,6 +9,7 @@ public interface IRepositoryBase<T>
     T? GetById(Guid id);
     IEnumerable<T> GetAll();
     IEnumerable<T> Find(Expression<Func<T, bool>> expression);
+    Task<List<T>> FindAsync(Expression<Func<T, bool>> expression);
     T? Create(T entity, bool saveChanges);
     void CreateRange(IEnumerable<T> entities);
     void Update(T entity);

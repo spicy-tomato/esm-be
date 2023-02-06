@@ -7,13 +7,15 @@ namespace ESM.Data.Models;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class User : IdentityUser<Guid>
 {
+    public string? DisplayId { get; set; }
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
     public ICollection<Role> Roles { get; set; } = new List<Role>();
 
-    public Guid DepartmentId { get; set; }
-    public Department Department { get; set; } = null!;
+    public Guid? DepartmentId { get; set; }
+    public Department? Department { get; set; }
 
     public ICollection<Examination> Examinations { get; set; } = new List<Examination>();
 
