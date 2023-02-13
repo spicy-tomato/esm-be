@@ -24,7 +24,7 @@ builder.Services.AddAutoMapper(typeof(ModelMapping));
 builder.Services.AddIdentityCore<User>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
-        options.User.RequireUniqueEmail = true;
+        options.User.RequireUniqueEmail = false;
         options.Password.RequireDigit = false;
         options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
@@ -38,6 +38,7 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<SchoolRepository>();
 builder.Services.AddScoped<FacultyRepository>();
 builder.Services.AddScoped<DepartmentRepository>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

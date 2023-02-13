@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230206152835_Initial")]
+    [Migration("20230213162202_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -170,11 +170,17 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("Credits")
+                        .HasColumnType("int");
+
                     b.Property<int>("DurationInMinutes")
                         .HasColumnType("int");
 
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("ExamsCount")
+                        .HasColumnType("int");
 
                     b.Property<int>("Method")
                         .HasColumnType("int");
@@ -455,6 +461,10 @@ namespace ESM.API.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");

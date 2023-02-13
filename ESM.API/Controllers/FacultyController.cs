@@ -19,7 +19,7 @@ public class FacultyController : BaseController
 {
     #region Properties
 
-    private ApplicationContext Context { get; }
+    private readonly ApplicationContext _context;
     private readonly FacultyRepository _facultyRepository;
 
     #endregion
@@ -30,7 +30,7 @@ public class FacultyController : BaseController
         base(mapper)
     {
         _facultyRepository = facultyRepository;
-        Context = context;
+        _context = context;
     }
 
     #endregion
@@ -57,7 +57,7 @@ public class FacultyController : BaseController
         }
 
         _facultyRepository.Create(faculty);
-        var response = Mapper.ProjectTo<SimpleFaculty>(Context.Faculties, null)
+        var response = Mapper.ProjectTo<SimpleFaculty>(_context.Faculties, null)
            .FirstOrDefault(f => f.Id == faculty.Id);
 
         return Result<SimpleFaculty?>.Get(response);

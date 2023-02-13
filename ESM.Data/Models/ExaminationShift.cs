@@ -14,6 +14,10 @@ public class ExaminationShift
 
     public ExamMethod Method { get; set; }
 
+    public int ExamsCount { get; set; }
+
+    public int Credits { get; set; }
+
     public int DurationInMinutes { get; set; }
     public DateTime StartAt { get; set; }
 

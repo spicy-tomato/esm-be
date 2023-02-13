@@ -19,7 +19,7 @@ public class DepartmentController : BaseController
 {
     #region Properties
 
-    private ApplicationContext Context { get; }
+    private readonly ApplicationContext _context;
     private readonly DepartmentRepository _departmentRepository;
 
     #endregion
@@ -30,7 +30,7 @@ public class DepartmentController : BaseController
         base(mapper)
     {
         _departmentRepository = departmentRepository;
-        Context = context;
+        _context = context;
     }
 
     #endregion
@@ -59,7 +59,7 @@ public class DepartmentController : BaseController
         }
 
         _departmentRepository.Create(department);
-        var response = Mapper.ProjectTo<SimpleDepartment>(Context.Departments, null)
+        var response = Mapper.ProjectTo<SimpleDepartment>(_context.Departments, null)
            .FirstOrDefault(d => d.Id == department.Id);
 
         return Result<SimpleDepartment?>.Get(response);

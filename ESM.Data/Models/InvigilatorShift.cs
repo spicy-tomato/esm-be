@@ -10,7 +10,7 @@ public class InvigilatorShift
     public int Id { get; set; }
 
     public int OrderIndex { get; set; }
-
+    
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
