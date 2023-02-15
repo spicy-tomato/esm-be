@@ -8,17 +8,18 @@ namespace ESM.Core.API.Controllers;
 public class BaseController : ControllerBase
 {
     protected readonly IMapper Mapper;
-    
+
     public BaseController(IMapper mapper)
     {
         Mapper = mapper;
     }
 
-    protected string GetUserId()
+    protected Guid GetUserId()
     {
         try
         {
-            return User.Claims.First(i => i.Type == ClaimTypes.NameIdentifier).Value;
+            var valueFromClaims = User.Claims.First(i => i.Type == ClaimTypes.NameIdentifier).Value;
+            return Guid.Parse(valueFromClaims);
         }
         catch
         {

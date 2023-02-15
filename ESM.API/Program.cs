@@ -38,6 +38,7 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<SchoolRepository>();
 builder.Services.AddScoped<FacultyRepository>();
 builder.Services.AddScoped<DepartmentRepository>();
+builder.Services.AddScoped<ExaminationRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
 

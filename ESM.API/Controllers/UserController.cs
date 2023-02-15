@@ -43,7 +43,8 @@ public class UserController : BaseController
 
     #region Public Methods
 
-    public async Task<Result<SimpleUser?>> SignUp(CreateUserRequest request)
+    [HttpPost]
+    public async Task<Result<UserSummary?>> SignUp(CreateUserRequest request)
     {
         // ReSharper disable once MethodHasAsyncOverload
         new CreateUserRequestValidator().ValidateAndThrow(request);
@@ -63,8 +64,8 @@ public class UserController : BaseController
             throw new InternalServerErrorException("Cannot create account");
         }
         
-        var response = Mapper.Map<SimpleUser?>(await _userManager.FindByNameAsync(user.UserName));
-        return Result<SimpleUser?>.Get(response);
+        var response = Mapper.Map<UserSummary?>(await _userManager.FindByNameAsync(user.UserName));
+        return Result<UserSummary?>.Get(response);
     }
 
     [HttpPost("login")]
@@ -94,5 +95,19 @@ public class UserController : BaseController
         return Result<GeneratedToken>.Get(token);
     }
 
+    [HttpGet("summary")]
+    public Result<UserSummary> GetMySummaryInfo()
+    {
+        var userId = GetUserId();
+        var result = _userRepository.GetById(userId);
+
+        if (result == null)
+        {
+            throw new NotFoundException("User does not exist!");
+        }
+        
+        return Result<UserSummary>.Get(result);
+    }
+    
     #endregion
 }

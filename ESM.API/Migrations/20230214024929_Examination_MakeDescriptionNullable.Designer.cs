@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230213164314_Examination_AddExpectTime")]
-    partial class Examination_AddExpectTime
+    [Migration("20230214024929_Examination_MakeDescriptionNullable")]
+    partial class Examination_MakeDescriptionNullable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -145,6 +145,9 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("CreatedById")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("DisplayId")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -154,6 +157,9 @@ namespace ESM.API.Migrations
 
                     b.Property<DateTime?>("ExpectStartAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()

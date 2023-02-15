@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 namespace ESM.Data.Dtos.Department;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class SimpleDepartment
+public class DepartmentSummary
 {
     public Guid Id { get; set; }
-    public string DisplayId { get; set; } = null!;
+    public string? DisplayId { get; set; }
     public string Name { get; set; } = null!;
-    public SimpleSchool School { get; set; } = null!;
-    public SimpleFaculty? Faculty { get; set; }
+    public SchoolSummary SchoolSummary { get; set; } = null!;
+    public FacultySummary? Faculty { get; set; }
 }

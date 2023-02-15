@@ -15,9 +15,13 @@ public class Examination
 
     public string Name { get; set; } = null!;
 
+    public string? Description { get; set; }
+
     public DateTime? ExpectStartAt { get; set; }
 
     public DateTime? ExpectEndAt { get; set; }
+
+    public bool IsActive { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }

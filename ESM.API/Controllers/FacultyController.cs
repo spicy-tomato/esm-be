@@ -43,7 +43,7 @@ public class FacultyController : BaseController
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
-    public Result<SimpleFaculty?> Create(CreateFacultyRequest request)
+    public Result<FacultySummary?> Create(CreateFacultyRequest request)
     {
         new CreateFacultyRequestValidator().ValidateAndThrow(request);
         var faculty = Mapper.Map<Faculty>(request);
@@ -57,10 +57,10 @@ public class FacultyController : BaseController
         }
 
         _facultyRepository.Create(faculty);
-        var response = Mapper.ProjectTo<SimpleFaculty>(_context.Faculties, null)
+        var response = Mapper.ProjectTo<FacultySummary>(_context.Faculties, null)
            .FirstOrDefault(f => f.Id == faculty.Id);
 
-        return Result<SimpleFaculty?>.Get(response);
+        return Result<FacultySummary?>.Get(response);
     }
 
     #endregion

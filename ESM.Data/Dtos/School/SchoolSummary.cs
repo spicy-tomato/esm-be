@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 namespace ESM.Data.Dtos.School;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class SimpleSchool
+public class SchoolSummary
 {
-    public string Id { get; set; } = null!;
-    public string DisplayId { get; set; } = null!;
+    public Guid Id { get; set; }
+    public string? DisplayId { get; set; }
     public string Name { get; set; } = null!;
 }

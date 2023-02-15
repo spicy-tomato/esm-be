@@ -11,6 +11,8 @@ public class User : IdentityUser<Guid>
 
     public string FullName { get; set; } = null!;
 
+    public bool IsMale { get; set; }
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 

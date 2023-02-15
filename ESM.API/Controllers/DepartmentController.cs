@@ -43,7 +43,7 @@ public class DepartmentController : BaseController
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
-    public Result<SimpleDepartment?> Create(CreateDepartmentRequest request)
+    public Result<DepartmentSummary?> Create(CreateDepartmentRequest request)
     {
         new CreateDepartmentRequestValidator().ValidateAndThrow(request);
         var department = Mapper.Map<Department>(request);
@@ -59,10 +59,10 @@ public class DepartmentController : BaseController
         }
 
         _departmentRepository.Create(department);
-        var response = Mapper.ProjectTo<SimpleDepartment>(_context.Departments, null)
+        var response = Mapper.ProjectTo<DepartmentSummary>(_context.Departments, null)
            .FirstOrDefault(d => d.Id == department.Id);
 
-        return Result<SimpleDepartment?>.Get(response);
+        return Result<DepartmentSummary?>.Get(response);
     }
 
     #endregion
