@@ -50,12 +50,11 @@ public class UserController : BaseController
         new CreateUserRequestValidator().ValidateAndThrow(request);
         var user = Mapper.Map<User>(request);
 
-        var existedUser = _userRepository.FindOne(u =>
-            u.DepartmentId == user.DepartmentId && (u.UserName == user.UserName || u.DisplayId == user.DisplayId));
+        var existedUser =
+            _userRepository.FindOne(u => u.DepartmentId == user.DepartmentId && u.UserName == user.UserName);
         if (existedUser != null)
         {
-            var conflictProperty = existedUser.UserName == user.DisplayId ? "username" : "id";
-            throw new ConflictException($"This user {conflictProperty} has been taken");
+            throw new ConflictException("This user username has been taken");
         }
 
         var result = await _userManager.CreateAsync(user, request.Password);
@@ -63,7 +62,7 @@ public class UserController : BaseController
         {
             throw new InternalServerErrorException("Cannot create account");
         }
-        
+
         var response = Mapper.Map<UserSummary?>(await _userManager.FindByNameAsync(user.UserName));
         return Result<UserSummary?>.Get(response);
     }
@@ -103,11 +102,11 @@ public class UserController : BaseController
 
         if (result == null)
         {
-            throw new NotFoundException("User does not exist!");
+            throw new UnauthorizedException("User does not exist!");
         }
-        
+
         return Result<UserSummary>.Get(result);
     }
-    
+
     #endregion
 }

@@ -7,8 +7,6 @@ namespace ESM.Data.Models;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class User : IdentityUser<Guid>
 {
-    public string? DisplayId { get; set; }
-
     public string FullName { get; set; } = null!;
 
     public bool IsMale { get; set; }

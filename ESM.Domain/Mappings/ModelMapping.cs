@@ -41,7 +41,14 @@ public class ModelMapping : Profile
         #region Department
 
         CreateMap<CreateDepartmentRequest, Department>();
-        CreateMap<Department, SimpleDepartment>();
+        CreateMap<Department, DepartmentSummary>();
+
+        #endregion
+
+        #region Examination
+
+        CreateMap<CreateExaminationRequest, Examination>();
+        CreateMap<Examination, ExaminationSummary>();
 
         #endregion
     }

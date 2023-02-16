@@ -462,9 +462,6 @@ namespace ESM.API.Migrations
                     b.Property<Guid?>("DepartmentId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("DisplayId")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
@@ -524,6 +521,24 @@ namespace ESM.API.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "83af62be-91da-4c3a-bf2d-f3b1d4876c2a",
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EmailConfirmed = false,
+                            FullName = "Admin",
+                            IsMale = false,
+                            LockoutEnabled = false,
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAEMZHDpFLut3HSqPzXS80ooRhrg+GUoX/Cwq2zUkC7tQlyc5pQ6rWWd8VEe6C+N/Z9g==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
