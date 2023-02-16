@@ -33,21 +33,6 @@ namespace ESM.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Rights",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rights", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Room",
                 columns: table => new
                 {
@@ -303,13 +288,13 @@ namespace ESM.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NormalizedName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -319,44 +304,6 @@ namespace ESM.API.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "TemporaryRights",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ExpiredAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    GrantedById = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    RightId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TemporaryRights", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TemporaryRights_AspNetUsers_GrantedById",
-                        column: x => x.GrantedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TemporaryRights_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TemporaryRights_Rights_RightId",
-                        column: x => x.RightId,
-                        principalTable: "Rights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -472,31 +419,6 @@ namespace ESM.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "RightRole",
-                columns: table => new
-                {
-                    RightsId = table.Column<int>(type: "int", nullable: false),
-                    RolesId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RightRole", x => new { x.RightsId, x.RolesId });
-                    table.ForeignKey(
-                        name: "FK_RightRole_Rights_RightsId",
-                        column: x => x.RightsId,
-                        principalTable: "Rights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RightRole_Roles_RolesId",
-                        column: x => x.RolesId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "CandidateShift",
                 columns: table => new
                 {
@@ -531,6 +453,7 @@ namespace ESM.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     OrderIndex = table.Column<int>(type: "int", nullable: false),
+                    Paid = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     DeletedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -565,7 +488,7 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "83af62be-91da-4c3a-bf2d-f3b1d4876c2a", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEMZHDpFLut3HSqPzXS80ooRhrg+GUoX/Cwq2zUkC7tQlyc5pQ6rWWd8VEe6C+N/Z9g==", null, false, null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "203cb277-8338-4df3-b631-664b706b97d3", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEOtZVfL0Pk95d39p7ooZMDh2Ftjt+FABSjBzAGV5RBuRfDEh9dK0mFL4/QsI0L0LpQ==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -689,28 +612,8 @@ namespace ESM.API.Migrations
                 column: "FacultyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RightRole_RolesId",
-                table: "RightRole",
-                column: "RolesId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Roles_UserId",
                 table: "Roles",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TemporaryRights_GrantedById",
-                table: "TemporaryRights",
-                column: "GrantedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TemporaryRights_RightId",
-                table: "TemporaryRights",
-                column: "RightId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TemporaryRights_UserId",
-                table: "TemporaryRights",
                 column: "UserId");
         }
 
@@ -738,22 +641,13 @@ namespace ESM.API.Migrations
                 name: "InvigilatorShift");
 
             migrationBuilder.DropTable(
-                name: "RightRole");
-
-            migrationBuilder.DropTable(
-                name: "TemporaryRights");
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Candidate");
 
             migrationBuilder.DropTable(
                 name: "ExaminationShift");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "Rights");
 
             migrationBuilder.DropTable(
                 name: "Examinations");

@@ -11,6 +11,8 @@ public class InvigilatorShift
 
     public int OrderIndex { get; set; }
     
+    public int Paid { get; set; }
+    
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 

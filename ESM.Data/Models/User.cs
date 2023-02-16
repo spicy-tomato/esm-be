@@ -14,7 +14,7 @@ public class User : IdentityUser<Guid>
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
-    public ICollection<Role> Roles { get; set; } = new List<Role>();
+    public ICollection<IdentityRole<Guid>> Roles { get; set; } = new List<IdentityRole<Guid>>();
 
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
@@ -29,10 +29,4 @@ public class User : IdentityUser<Guid>
 
     [InverseProperty("CreatedBy")]
     public ICollection<InvigilatorShift> CreatorInvigilatorShift { get; set; } = new List<InvigilatorShift>();
-
-    [InverseProperty("User")]
-    public ICollection<TemporaryRight> TemporaryRights { get; set; } = new List<TemporaryRight>();
-
-    [InverseProperty("GrantedBy")]
-    public ICollection<TemporaryRight> GrantedTemporaryRights { get; set; } = new List<TemporaryRight>();
 }

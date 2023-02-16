@@ -1,6 +1,6 @@
 using ESM.Data.Dtos.Department;
-using ESM.Data.Models;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace ESM.Data.Dtos.User;
 
@@ -14,5 +14,5 @@ public class UserSummary
     public bool IsMale { get; set; }
     public DateTime CreatedAt { get; set; }
     public DepartmentSummary DepartmentSummary { get; set; } = null!;
-    public ICollection<Role> Roles { get; set; } = new List<Role>();
+    public ICollection<IdentityRole<Guid>> Roles { get; set; } = new List<IdentityRole<Guid>>();
 }
