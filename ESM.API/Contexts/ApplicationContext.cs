@@ -14,6 +14,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<Faculty> Faculties { get; set; } = null!;
     public DbSet<Department> Departments { get; set; } = null!;
     public DbSet<Examination> Examinations { get; set; } = null!;
+    public DbSet<ExaminationData> ExaminationData { get; set; } = null!;
     public DbSet<IdentityRole<Guid>> Roles { get; set; } = null!;
     public override DbSet<User> Users { get; set; } = null!;
 

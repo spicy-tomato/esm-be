@@ -1,5 +1,7 @@
 using AutoMapper;
+using DocumentFormat.OpenXml.Packaging;
 using ESM.API.Repositories.Implementations;
+using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
@@ -20,14 +22,18 @@ public class ExaminationController : BaseController
     #region Properties
 
     private readonly ExaminationRepository _examinationRepository;
+    private readonly ExaminationDataRepository _examinationDataRepository;
 
     #endregion
 
     #region Constructor
 
-    public ExaminationController(IMapper mapper, ExaminationRepository examinationRepository) : base(mapper)
+    public ExaminationController(IMapper mapper,
+        ExaminationRepository examinationRepository,
+        ExaminationDataRepository examinationDataRepository) : base(mapper)
     {
         _examinationRepository = examinationRepository;
+        _examinationDataRepository = examinationDataRepository;
     }
 
     #endregion
@@ -69,6 +75,60 @@ public class ExaminationController : BaseController
             _examinationRepository.Find(e => e.CreatedBy.Id == userId && (!filterActive || e.IsActive));
 
         return Result<IEnumerable<ExaminationSummary>>.Get(createdExamination);
+    }
+
+    /// <summary>
+    /// Get data
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns> 
+    [HttpGet("{id}")]
+    [Authorize]
+    public Result<IEnumerable<ExaminationData>> GetData(string id)
+    {
+        if (!Guid.TryParse(id, out var guid))
+        {
+            throw new NotFoundException("Examination does not exist!");
+        }
+
+        var data = _examinationDataRepository.Find(e => e.ExaminationId == guid);
+        data = ExaminationService.ValidateData(data);
+
+        return Result<IEnumerable<ExaminationData>>.Get(data);
+    }
+
+    /// <summary>
+    /// Import data
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}")]
+    [Authorize]
+    public Result<List<ExaminationData>> Import(string id)
+    {
+        IFormFile file;
+        try
+        {
+            file = Request.Form.Files[0];
+        }
+        catch (Exception)
+        {
+            throw new UnsupportedMediaTypeException();
+        }
+
+        List<ExaminationData> readDataResult;
+        try
+        {
+            readDataResult = ExaminationService.Import(file, id);
+        }
+        catch (OpenXmlPackageException)
+        {
+            throw new UnsupportedMediaTypeException();
+        }
+
+        _examinationDataRepository.CreateRange(readDataResult);
+
+        return Result<List<ExaminationData>>.Get(readDataResult);
     }
 
     /// <summary>

@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Text;
 using ESM.Data.Dtos;
 using ESM.Data.Models;
-using JetBrains.Annotations;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ESM.API.Services;
@@ -19,7 +18,6 @@ public class JwtService
         _configuration = configuration;
     }
 
-    [UsedImplicitly]
     public GeneratedToken CreateToken(User user)
     {
         var expiration = DateTime.UtcNow.AddMinutes(EXPIRATION_MINUTES);
