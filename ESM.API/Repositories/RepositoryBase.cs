@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using AutoMapper;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ESM.API.Repositories;
 
@@ -37,8 +38,21 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
         return result;
     }
+    
+    public ValueTask<EntityEntry<T>> CreateAsync(T entity, bool saveChanges = true)
+    {
+        var result = Context.Set<T>().AddAsync(entity);
+        if (saveChanges)
+        {
+            Context.SaveChangesAsync();
+        }
+
+        return result;
+    }
 
     public void CreateRange(IEnumerable<T> entities) => Context.Set<T>().AddRange(entities);
+    
+    public Task CreateRangeAsync(IEnumerable<T> entities) => Context.Set<T>().AddRangeAsync(entities);
 
     public void Update(T entity) => Context.Set<T>().Update(entity);
 

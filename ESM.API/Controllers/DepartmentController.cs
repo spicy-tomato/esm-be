@@ -1,6 +1,7 @@
 using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
+using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
@@ -21,16 +22,24 @@ public class DepartmentController : BaseController
 
     private readonly ApplicationContext _context;
     private readonly DepartmentRepository _departmentRepository;
+    private readonly FacultyRepository _facultyRepository;
+    private readonly UserRepository _userRepository;
 
     #endregion
 
     #region Constructor
 
-    public DepartmentController(IMapper mapper, DepartmentRepository departmentRepository, ApplicationContext context) :
+    public DepartmentController(IMapper mapper,
+        DepartmentRepository departmentRepository,
+        ApplicationContext context,
+        FacultyRepository facultyRepository,
+        UserRepository userRepository) :
         base(mapper)
     {
         _departmentRepository = departmentRepository;
         _context = context;
+        _userRepository = userRepository;
+        _facultyRepository = facultyRepository;
     }
 
     #endregion
@@ -63,6 +72,59 @@ public class DepartmentController : BaseController
            .FirstOrDefault(d => d.Id == department.Id);
 
         return Result<DepartmentSummary?>.Get(response);
+    }
+
+    /// <summary>
+    /// Import departments and faculties
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("import")]
+    public async Task<Result<bool>> Import()
+    {
+        IFormFile file;
+        try
+        {
+            file = Request.Form.Files[0];
+        }
+        catch (Exception)
+        {
+            throw new UnsupportedMediaTypeException();
+        }
+
+        var userId = GetUserId();
+        var user = _userRepository.GetById(userId);
+        var userSchoolId = user?.Department?.School.Id;
+
+        if (userSchoolId == null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        var importResult = DepartmentService.Import(file, userSchoolId.Value);
+        var tasks = importResult.Select(async (pair) =>
+        {
+            var facultyName = pair.Key;
+            var departmentNames = pair.Value;
+            
+            var faculty = await _facultyRepository.CreateAsync(new Faculty
+                {
+                    Name = facultyName,
+                    SchoolId = userSchoolId.Value
+                },
+                false);
+        
+            await _departmentRepository.CreateRangeAsync(departmentNames.Select(name => new Department
+            {
+                Name = name,
+                FacultyId = faculty.Entity.Id,
+                SchoolId = userSchoolId.Value
+            }));
+        });
+        
+        await Task.WhenAll(tasks);
+        await _context.SaveChangesAsync();
+
+        return Result<bool>.Get(true);
     }
 
     #endregion
