@@ -79,14 +79,14 @@ public class FacultyController : BaseController
     /// Create module
     /// </summary>
     /// <param name="request"></param>
-    /// <param name="id"></param>
+    /// <param name="facultyId"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPost("{id}/modules")]
-    public Result<ModuleSimple?> AddModule([FromBody] CreateModuleRequest request, string id)
+    [HttpPost("{facultyId}/modules")]
+    public Result<ModuleSimple?> CreateModule([FromBody] CreateModuleRequest request, string facultyId)
     {
         new CreateModuleRequestValidator().ValidateAndThrow(request);
-        if (!Guid.TryParse(id, out var guid))
+        if (!Guid.TryParse(facultyId, out var guid))
         {
             throw new NotFoundException("Faculty id does not exist!");
         }

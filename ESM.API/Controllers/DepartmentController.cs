@@ -47,12 +47,11 @@ public class DepartmentController : BaseController
     #region Public Methods
 
     /// <summary>
-    /// Get departments
+    /// Get all departments
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="NotFoundException"></exception>
     [HttpGet]
-    public Result<IEnumerable<FacultyWithDepartments>> GetDepartments()
+    public Result<IEnumerable<FacultyWithDepartments>> GetAll()
     {
         var result = _facultyRepository.GetAllWithDepartments();
         return Result<IEnumerable<FacultyWithDepartments>>.Get(result);
@@ -63,6 +62,7 @@ public class DepartmentController : BaseController
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    /// <exception cref="ConflictException"></exception>
     [HttpPost]
     public Result<DepartmentSummary?> Create(CreateDepartmentRequest request)
     {

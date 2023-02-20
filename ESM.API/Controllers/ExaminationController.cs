@@ -80,31 +80,32 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
-    /// Get data
+    /// Get temporary data
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns> 
-    [HttpGet("{id}")]
-    public async Task<Result<IEnumerable<ExaminationData>>> GetData(string id)
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    [HttpGet("{examinationId}")]
+    public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
     {
-        if (!Guid.TryParse(id, out var guid))
-        {
+        if (!Guid.TryParse(examinationId, out var guid))
             throw new NotFoundException("Examination does not exist!");
-        }
 
-        var data = _examinationDataRepository.Find(e => e.ExaminationId == guid);
-        data = await _examinationService.ValidateData(data);
+        var data = await _examinationDataRepository.FindAsync(e => e.ExaminationId == guid);
+        if (data.Count > 0)
+            data = await _examinationService.ValidateData(data);
 
-        return Result<IEnumerable<ExaminationData>>.Get(data);
+        return Result<List<ExaminationData>>.Get(data);
     }
 
     /// <summary>
     /// Import data
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpPost("{id}")]
-    public Result<bool> Import(string id)
+    /// <exception cref="UnsupportedMediaTypeException"></exception>
+    [HttpPost("{examinationId}")]
+    public Result<bool> Import(string examinationId)
     {
         IFormFile file;
         try
@@ -119,7 +120,7 @@ public class ExaminationController : BaseController
         List<ExaminationData> readDataResult;
         try
         {
-            readDataResult = ExaminationService.Import(file, id);
+            readDataResult = ExaminationService.Import(file, examinationId);
         }
         catch (OpenXmlPackageException)
         {
@@ -141,15 +142,11 @@ public class ExaminationController : BaseController
     {
         const string notFoundMessage = "Examination does not exist!";
         if (!Guid.TryParse(id, out var guid))
-        {
             throw new NotFoundException(notFoundMessage);
-        }
 
         var createdExamination = _examinationRepository.GetById(guid);
         if (createdExamination == null)
-        {
             throw new NotFoundException(notFoundMessage);
-        }
 
         return Result<ExaminationSummary>.Get(createdExamination);
     }

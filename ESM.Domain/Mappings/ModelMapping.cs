@@ -9,6 +9,7 @@ using ESM.Data.Request.Department;
 using ESM.Data.Request.Examination;
 using ESM.Data.Request.Faculty;
 using ESM.Data.Request.Module;
+using ESM.Data.Request.Room;
 using ESM.Data.Request.User;
 
 namespace ESM.Domain.Mappings;
@@ -17,13 +18,6 @@ public class ModelMapping : Profile
 {
     public ModelMapping()
     {
-        #region User
-
-        CreateMap<CreateUserRequest, User>();
-        CreateMap<User, UserSummary>();
-
-        #endregion
-
         #region Faculty
 
         CreateMap<CreateFacultyRequest, Faculty>();
@@ -51,6 +45,19 @@ public class ModelMapping : Profile
 
         CreateMap<CreateModuleRequest, Module>();
         CreateMap<Module, ModuleSimple>();
+
+        #endregion
+
+        #region Module
+
+        CreateMap<CreateRoomRequest, Room>();
+
+        #endregion
+        
+        #region User
+
+        CreateMap<CreateUserRequest, User>();
+        CreateMap<User, UserSummary>();
 
         #endregion
     }

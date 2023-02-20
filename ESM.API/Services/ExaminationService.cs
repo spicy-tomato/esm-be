@@ -25,7 +25,7 @@ public class ExaminationService
         { 4, "ModuleClass" },
         { 12, "Rooms" },
         { 13, "Department" },
-        { 14, "Faculty" },
+        { 14, "Faculty" }
     };
 
     private static readonly Dictionary<int, string> ExaminationDataIntMapping = new()
@@ -172,7 +172,7 @@ public class ExaminationService
             var fields = new[]
             {
                 "ModuleId", "ModuleName", "ModuleClass", "Credit", "Method", "Date", "StartAt", "EndAt", "Shift",
-                "CandidateCount", "RoomsCount", "Rooms", "Faculty", "Department", "DepartmentAssign",
+                "CandidateCount", "RoomsCount", "Rooms", "Faculty", "Department", "DepartmentAssign"
             };
             var acceptNullFields = new[] { "Shift", "Department" };
 

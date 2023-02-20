@@ -22,7 +22,7 @@ public static class ExamMethodHelper
         { "thực hành", ExamMethod.Practice },
         { "vấn đáp", ExamMethod.Oral },
         { "báo cáo 1", ExamMethod.Report1 },
-        { "báo cáo 2", ExamMethod.Report2 },
+        { "báo cáo 2", ExamMethod.Report2 }
     };
 
     public static ExamMethod? FromString(string method) => Mapping.GetValueOrDefault(method);
