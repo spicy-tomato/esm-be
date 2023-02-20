@@ -10,6 +10,5 @@ public class CreateDepartmentRequestValidator : AbstractValidator<CreateDepartme
     public CreateDepartmentRequestValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.SchoolId).NotEmpty();
     }
 }

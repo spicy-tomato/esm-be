@@ -7,5 +7,4 @@ public class CreateFacultyRequest
 {
     public string? DisplayId { get; set; }
     public string Name { get; set; } = null!;
-    public Guid SchoolId { get; set; }
 }

@@ -16,11 +16,14 @@ public class FacultyRepository : RepositoryBase<Faculty>, IFacultyRepository
 
     #endregion
 
-    public new IEnumerable<FacultyWithDepartments> Find(Expression<Func<Faculty, bool>> expression)
+    #region Public methods
+    
+    public IEnumerable<FacultyWithDepartments> GetAllWithDepartments()
     {
         return Mapper.ProjectTo<FacultyWithDepartments>(Context.Faculties.
             Include(f => f.Departments)
-           .Where(expression)
         );
     }
+
+    #endregion
 }

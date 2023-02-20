@@ -17,6 +17,7 @@ namespace ESM.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class ExaminationController : BaseController
 {
     #region Properties
@@ -49,7 +50,6 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns> 
     [HttpPost]
-    [Authorize]
     public Result<ExaminationSummary> Create(CreateExaminationRequest request)
     {
         new CreateExaminationRequestValidator().ValidateAndThrow(request);
@@ -68,7 +68,6 @@ public class ExaminationController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpGet("related")]
-    [Authorize]
     public Result<IEnumerable<ExaminationSummary>> GetRelated()
     {
         var filterActive = Request.Query["isActive"].ToString() == "true";
@@ -86,7 +85,6 @@ public class ExaminationController : BaseController
     /// <param name="id"></param>
     /// <returns></returns> 
     [HttpGet("{id}")]
-    [Authorize]
     public async Task<Result<IEnumerable<ExaminationData>>> GetData(string id)
     {
         if (!Guid.TryParse(id, out var guid))
@@ -106,7 +104,6 @@ public class ExaminationController : BaseController
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpPost("{id}")]
-    [Authorize]
     public Result<bool> Import(string id)
     {
         IFormFile file;
@@ -140,7 +137,6 @@ public class ExaminationController : BaseController
     /// <param name="id"></param>
     /// <returns></returns> 
     [HttpGet("{id}/summary")]
-    [Authorize]
     public Result<ExaminationSummary> GetSummary(string id)
     {
         const string notFoundMessage = "Examination does not exist!";

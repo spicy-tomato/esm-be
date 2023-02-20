@@ -14,7 +14,7 @@ namespace ESM.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Candidate",
+                name: "Candidates",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
@@ -28,38 +28,7 @@ namespace ESM.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Candidate", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Room",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    DisplayId = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Size = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Room", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Schools",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    DisplayId = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Schools", x => x.Id);
+                    table.PrimaryKey("PK_Candidates", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -71,18 +40,26 @@ namespace ESM.API.Migrations
                     DisplayId = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    SchoolId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Faculties", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Faculties_Schools_SchoolId",
-                        column: x => x.SchoolId,
-                        principalTable: "Schools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    DisplayId = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Size = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -95,40 +72,13 @@ namespace ESM.API.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    SchoolId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Departments_Faculties_FacultyId",
-                        column: x => x.FacultyId,
-                        principalTable: "Faculties",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Departments_Schools_SchoolId",
-                        column: x => x.SchoolId,
-                        principalTable: "Schools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Module",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    DisplayId = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Module", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Module_Faculties_FacultyId",
                         column: x => x.FacultyId,
                         principalTable: "Faculties",
                         principalColumn: "Id");
@@ -177,6 +127,35 @@ namespace ESM.API.Migrations
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
                         principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Modules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    DisplayId = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    DepartmentId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Modules_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Modules_Faculties_FacultyId",
+                        column: x => x.FacultyId,
+                        principalTable: "Faculties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -324,9 +303,9 @@ namespace ESM.API.Migrations
                 {
                     table.PrimaryKey("PK_CandidateExaminationModule", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CandidateExaminationModule_Candidate_CandidateId",
+                        name: "FK_CandidateExaminationModule_Candidates_CandidateId",
                         column: x => x.CandidateId,
-                        principalTable: "Candidate",
+                        principalTable: "Candidates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -336,9 +315,49 @@ namespace ESM.API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CandidateExaminationModule_Module_ModuleId",
+                        name: "FK_CandidateExaminationModule_Modules_ModuleId",
                         column: x => x.ModuleId,
-                        principalTable: "Module",
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ExaminationData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ModuleId = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ModuleName = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ModuleClass = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Credit = table.Column<int>(type: "int", nullable: true),
+                    Method = table.Column<int>(type: "int", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    StartAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    EndAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Shift = table.Column<int>(type: "int", nullable: true),
+                    CandidateCount = table.Column<int>(type: "int", nullable: true),
+                    RoomsCount = table.Column<int>(type: "int", nullable: true),
+                    Rooms = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Faculty = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Department = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DepartmentAssign = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    ExaminationId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExaminationData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExaminationData_Examinations_ExaminationId",
+                        column: x => x.ExaminationId,
+                        principalTable: "Examinations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -369,14 +388,14 @@ namespace ESM.API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ExaminationShift_Module_ModuleId",
+                        name: "FK_ExaminationShift_Modules_ModuleId",
                         column: x => x.ModuleId,
-                        principalTable: "Module",
+                        principalTable: "Modules",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_ExaminationShift_Room_RoomId",
+                        name: "FK_ExaminationShift_Rooms_RoomId",
                         column: x => x.RoomId,
-                        principalTable: "Room",
+                        principalTable: "Rooms",
                         principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -410,9 +429,9 @@ namespace ESM.API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InvigilatorExaminationModule_Module_ModuleId",
+                        name: "FK_InvigilatorExaminationModule_Modules_ModuleId",
                         column: x => x.ModuleId,
-                        principalTable: "Module",
+                        principalTable: "Modules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -432,9 +451,9 @@ namespace ESM.API.Migrations
                 {
                     table.PrimaryKey("PK_CandidateShift", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CandidateShift_Candidate_CandidateId",
+                        name: "FK_CandidateShift_Candidates_CandidateId",
                         column: x => x.CandidateId,
-                        principalTable: "Candidate",
+                        principalTable: "Candidates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -488,7 +507,7 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "203cb277-8338-4df3-b631-664b706b97d3", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEOtZVfL0Pk95d39p7ooZMDh2Ftjt+FABSjBzAGV5RBuRfDEh9dK0mFL4/QsI0L0LpQ==", null, false, null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "db5ae524-0426-4b31-a7a3-0b2213309989", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEMcMW5DmS3L9GGNUOwzXauGZE4XmYOQTb2lvDwcNtZo9bFB8Mcz7nXNGBRK5jLqJtg==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -547,9 +566,9 @@ namespace ESM.API.Migrations
                 column: "FacultyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Departments_SchoolId",
-                table: "Departments",
-                column: "SchoolId");
+                name: "IX_ExaminationData_ExaminationId",
+                table: "ExaminationData",
+                column: "ExaminationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Examinations_CreatedById",
@@ -570,11 +589,6 @@ namespace ESM.API.Migrations
                 name: "IX_ExaminationShift_RoomId",
                 table: "ExaminationShift",
                 column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Faculties_SchoolId",
-                table: "Faculties",
-                column: "SchoolId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvigilatorExaminationModule_ExaminationId",
@@ -607,8 +621,13 @@ namespace ESM.API.Migrations
                 column: "InvigilatorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Module_FacultyId",
-                table: "Module",
+                name: "IX_Modules_DepartmentId",
+                table: "Modules",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Modules_FacultyId",
+                table: "Modules",
                 column: "FacultyId");
 
             migrationBuilder.CreateIndex(
@@ -635,6 +654,9 @@ namespace ESM.API.Migrations
                 name: "CandidateShift");
 
             migrationBuilder.DropTable(
+                name: "ExaminationData");
+
+            migrationBuilder.DropTable(
                 name: "InvigilatorExaminationModule");
 
             migrationBuilder.DropTable(
@@ -644,7 +666,7 @@ namespace ESM.API.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "Candidate");
+                name: "Candidates");
 
             migrationBuilder.DropTable(
                 name: "ExaminationShift");
@@ -653,10 +675,10 @@ namespace ESM.API.Migrations
                 name: "Examinations");
 
             migrationBuilder.DropTable(
-                name: "Module");
+                name: "Modules");
 
             migrationBuilder.DropTable(
-                name: "Room");
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
@@ -666,9 +688,6 @@ namespace ESM.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Faculties");
-
-            migrationBuilder.DropTable(
-                name: "Schools");
         }
     }
 }

@@ -16,6 +16,7 @@ public class ExaminationService
     private const int SHIFT_COLUMN = 9;
     private const int DEPARTMENT_ASSIGN = 15;
     private readonly ModuleRepository _moduleRepository;
+    private readonly RoomRepository _roomRepository;
 
     private static readonly Dictionary<int, string> ExaminationDataMapping = new()
     {
@@ -41,9 +42,10 @@ public class ExaminationService
 
     #region Constructor
 
-    public ExaminationService(ModuleRepository moduleRepository)
+    public ExaminationService(ModuleRepository moduleRepository, RoomRepository roomRepository)
     {
         _moduleRepository = moduleRepository;
+        _roomRepository = roomRepository;
     }
 
     #endregion
@@ -84,7 +86,7 @@ public class ExaminationService
                         continue;
                     }
 
-                    var cellValue = row.Cell(c).GetText();
+                    var cellValue = row.Cell(c).GetText().Trim();
                     var field = ExaminationDataMapping[c];
                     typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
                     continue;
@@ -158,10 +160,12 @@ public class ExaminationService
         var examinationData = data.ToList();
 
         var modulesTask = _moduleRepository.GetIdsAsync();
+        var roomsTask = _roomRepository.GetIdsAsync();
 
-        await Task.WhenAll(modulesTask);
+        await Task.WhenAll(modulesTask, roomsTask);
 
-        var existedModule = modulesTask.Result.ToDictionary(m => m, _ => true);
+        var existedModules = modulesTask.Result.ToDictionary(m => m, _ => true);
+        var existedRooms = roomsTask.Result.ToDictionary(m => m, _ => true);
 
         foreach (var row in examinationData)
         {
@@ -186,13 +190,52 @@ public class ExaminationService
                 }
             }
 
-            if (row.ModuleId != null && !existedModule.ContainsKey(row.ModuleId))
-            {
-                row.Errors.Add("ModuleId", "Mã học phần này không tồn tại");
-            }
+            ValidateModuleId(row, existedModules);
+            ValidateRoom(row, existedRooms);
         }
 
         return examinationData;
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private static void ValidateModuleId(ExaminationData row, IReadOnlyDictionary<string, bool> existedModules)
+    {
+        if (row.ModuleId != null && !existedModules.ContainsKey(row.ModuleId))
+            row.Errors.Add("ModuleId", "Mã học phần này không tồn tại");
+    }
+
+    private static void ValidateRoom(ExaminationData row, IReadOnlyDictionary<string, bool> existedRooms)
+    {
+        var rooms = row.Rooms?.Split(",");
+        if (rooms == null || rooms.Length == 0)
+        {
+            row.Errors.Add("Rooms", "Chưa có phòng thi");
+            return;
+        }
+
+        var notExistedRooms = new List<string>();
+        foreach (var room in rooms)
+        {
+            if (existedRooms.ContainsKey(room))
+                continue;
+
+            notExistedRooms.Add(room);
+            // E.g: P102 -> 102
+            var shortenName = room[1..];
+
+            if (room[0] != 'P' || !existedRooms.ContainsKey(shortenName)) 
+                continue;
+            
+            if (!row.Suggestions.ContainsKey("Rooms"))
+                row.Suggestions.Add("Rooms", new List<KeyValuePair<string, string>>());
+            row.Suggestions["Rooms"].Add(new KeyValuePair<string, string>(room, shortenName));
+        }
+
+        if (notExistedRooms.Count > 0)
+            row.Errors.Add("Rooms", "Các phòng thi sau không tồn tại: " + string.Join(", ", notExistedRooms));
     }
 
     #endregion

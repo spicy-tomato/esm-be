@@ -2,4 +2,4 @@ using ESM.Data.Models;
 
 namespace ESM.API.Repositories.Interface;
 
-public interface ISchoolRepository : IRepositoryBase<School> { }
+public interface IRoomRepository : IRepositoryBase<Room> { }

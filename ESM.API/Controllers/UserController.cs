@@ -10,6 +10,7 @@ using ESM.Data.Models;
 using ESM.Data.Request.User;
 using ESM.Data.Validations.User;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -95,6 +96,7 @@ public class UserController : BaseController
     }
 
     [HttpGet("summary")]
+    [Authorize]
     public Result<UserSummary> GetMySummaryInfo()
     {
         var userId = GetUserId();

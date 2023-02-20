@@ -37,13 +37,13 @@ builder.Services.AddIdentityCore<User>(options =>
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<ExaminationService>();
-builder.Services.AddScoped<SchoolRepository>();
-builder.Services.AddScoped<FacultyRepository>();
-builder.Services.AddScoped<DepartmentRepository>();
-builder.Services.AddScoped<ExaminationRepository>();
-builder.Services.AddScoped<ExaminationDataRepository>();
-builder.Services.AddScoped<ModuleRepository>();
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<DepartmentRepository>();
+builder.Services.AddScoped<ExaminationDataRepository>();
+builder.Services.AddScoped<ExaminationRepository>();
+builder.Services.AddScoped<FacultyRepository>();
+builder.Services.AddScoped<ModuleRepository>();
+builder.Services.AddScoped<RoomRepository>();
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -47,4 +47,7 @@ public class ExaminationData
 
     [NotMapped]
     public Dictionary<string, string> Errors { get; set; } = new();
+
+    [NotMapped]
+    public Dictionary<string, List<KeyValuePair<string, string>>> Suggestions { get; set; } = new();
 }

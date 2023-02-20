@@ -1,37 +1,32 @@
 using AutoMapper;
 using ESM.API.Repositories.Implementations;
-using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
-using ESM.Data.Dtos.Faculty;
 using ESM.Data.Models;
-using ESM.Data.Request.School;
-using ESM.Data.Validations.School;
+using ESM.Data.Request.Room;
+using ESM.Data.Validations.Room;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SchoolController : BaseController
+[Authorize]
+public class RoomController : BaseController
 {
     #region Properties
 
-    private readonly SchoolRepository _schoolRepository;
-    private readonly FacultyRepository _facultyRepository;
+    private readonly RoomRepository _roomRepository;
 
     #endregion
 
     #region Constructor
 
-    public SchoolController(IMapper mapper,
-        SchoolRepository schoolRepository,
-        FacultyRepository facultyRepository) :
-        base(mapper)
+    public RoomController(IMapper mapper, RoomRepository roomRepository) : base(mapper)
     {
-        _schoolRepository = schoolRepository;
-        _facultyRepository = facultyRepository;
+        _roomRepository = roomRepository;
     }
 
     #endregion
@@ -39,38 +34,19 @@ public class SchoolController : BaseController
     #region Public Methods
 
     /// <summary>
-    /// Add new school
+    /// Create room
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
-    public Result<bool> Create(CreateSchoolRequest request)
+    public Result<bool> Create([FromBody] CreateRoomRequest request)
     {
-        new CreateSchoolRequestValidator().ValidateAndThrow(request);
-        var school = Mapper.Map<School>(request);
+        new CreateRoomRequestValidator().ValidateAndThrow(request);
+        var room = Mapper.Map<Room>(request);
 
-        _schoolRepository.Create(school);
+        _roomRepository.Create(room);
 
         return Result<bool>.Get(true);
-    }
-
-    /// <summary>
-    /// Get departments in school
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    /// <exception cref="NotFoundException"></exception>
-    [HttpGet("{id}/departments")]
-    public Result<IEnumerable<FacultyWithDepartments>> GetDepartments(string id)
-    {
-        if (!Guid.TryParse(id, out var guid))
-        {
-            throw new NotFoundException("School ID does not exist!");
-        }
-
-        var result = _facultyRepository.Find(f => f.SchoolId == guid);
-
-        return Result<IEnumerable<FacultyWithDepartments>>.Get(result);
     }
 
     #endregion

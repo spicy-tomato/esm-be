@@ -15,8 +15,5 @@ public class Faculty
 
     public string Name { get; set; } = null!;
 
-    public Guid SchoolId { get; set; }
-    public School School { get; set; } = null!;
-
     public ICollection<Department> Departments { get; set; } = new List<Department>();
 }

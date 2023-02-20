@@ -10,6 +10,5 @@ public class CreateFacultyRequestValidator : AbstractValidator<CreateFacultyRequ
     public CreateFacultyRequestValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.SchoolId).NotEmpty();
     }
 }

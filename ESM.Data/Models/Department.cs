@@ -18,8 +18,5 @@ public class Department
     public Guid? FacultyId { get; set; }
     public Faculty Faculty { get; set; } = null!;
 
-    public Guid SchoolId { get; set; }
-    public School School { get; set; } = null!;
-
     public ICollection<User> Users { get; set; } = new List<User>();
 }

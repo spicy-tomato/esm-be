@@ -12,12 +12,14 @@ using ESM.Data.Request.Module;
 using ESM.Data.Validations.Faculty;
 using ESM.Data.Validations.Module;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class FacultyController : BaseController
 {
     #region Properties
@@ -30,7 +32,10 @@ public class FacultyController : BaseController
 
     #region Constructor
 
-    public FacultyController(IMapper mapper, FacultyRepository facultyRepository, ApplicationContext context, ModuleRepository moduleRepository) :
+    public FacultyController(IMapper mapper,
+        FacultyRepository facultyRepository,
+        ApplicationContext context,
+        ModuleRepository moduleRepository) :
         base(mapper)
     {
         _facultyRepository = facultyRepository;
@@ -54,7 +59,9 @@ public class FacultyController : BaseController
         var faculty = Mapper.Map<Faculty>(request);
 
         var existedFaculty = _facultyRepository.FindOne(f =>
-            f.SchoolId == faculty.SchoolId && (f.Name == faculty.Name || f.DisplayId == faculty.DisplayId));
+            f.Name == faculty.Name ||
+            (f.DisplayId != null && f.DisplayId == faculty.DisplayId)
+        );
         if (existedFaculty != null)
         {
             var conflictProperty = existedFaculty.Name == faculty.Name ? "name" : "id";

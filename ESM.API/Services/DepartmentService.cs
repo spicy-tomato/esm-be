@@ -7,7 +7,7 @@ public static class DepartmentService
 {
     #region Public methods
 
-    public static Dictionary<string, List<string>> Import(IFormFile file, Guid schoolId)
+    public static Dictionary<string, List<string>> Import(IFormFile file)
     {
         using var wb = new XLWorkbook(file.OpenReadStream());
         var result = new Dictionary<string, List<string>>();
