@@ -24,7 +24,7 @@ public static class DepartmentService
         {
             currCol++;
             var facultyName = ws.Row(1).Cell(currCol).GetText();
-            var currRow = 1;
+            var currRow = 2;
 
             result.Add(facultyName, new List<string>());
 

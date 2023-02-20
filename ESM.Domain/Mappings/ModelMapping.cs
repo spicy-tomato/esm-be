@@ -35,6 +35,7 @@ public class ModelMapping : Profile
 
         CreateMap<CreateFacultyRequest, Faculty>();
         CreateMap<Faculty, FacultySummary>();
+        CreateMap<Faculty, FacultyWithDepartments>();
 
         #endregion
 
@@ -42,6 +43,7 @@ public class ModelMapping : Profile
 
         CreateMap<CreateDepartmentRequest, Department>();
         CreateMap<Department, DepartmentSummary>();
+        CreateMap<Department, DepartmentSimple>();
 
         #endregion
 

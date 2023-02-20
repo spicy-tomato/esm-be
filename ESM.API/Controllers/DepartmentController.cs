@@ -60,7 +60,7 @@ public class DepartmentController : BaseController
         var existedDepartment = _departmentRepository.FindOne(f =>
             f.SchoolId == department.SchoolId &&
             f.FacultyId == department.FacultyId &&
-            (f.Name == department.Name || f.DisplayId == department.DisplayId));
+            (f.Name == department.Name || (f.DisplayId != null && f.DisplayId == department.DisplayId)));
         if (existedDepartment != null)
         {
             var conflictProperty = existedDepartment.Name == department.Name ? "name" : "id";
@@ -101,18 +101,18 @@ public class DepartmentController : BaseController
         }
 
         var importResult = DepartmentService.Import(file, userSchoolId.Value);
-        var tasks = importResult.Select(async (pair) =>
+        var tasks = importResult.Select(async pair =>
         {
             var facultyName = pair.Key;
             var departmentNames = pair.Value;
-            
+
             var faculty = await _facultyRepository.CreateAsync(new Faculty
                 {
                     Name = facultyName,
                     SchoolId = userSchoolId.Value
                 },
                 false);
-        
+
             await _departmentRepository.CreateRangeAsync(departmentNames.Select(name => new Department
             {
                 Name = name,
@@ -120,7 +120,7 @@ public class DepartmentController : BaseController
                 SchoolId = userSchoolId.Value
             }));
         });
-        
+
         await Task.WhenAll(tasks);
         await _context.SaveChangesAsync();
 

@@ -67,7 +67,7 @@ public class ExaminationService
                         continue;
                     }
 
-                    var cellValue = row.Cell(c).Value.GetText();
+                    var cellValue = row.Cell(c).GetText();
                     var field = ExaminationDataMapping[c];
                     typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
                     continue;
@@ -80,7 +80,7 @@ public class ExaminationService
                         continue;
                     }
 
-                    var cellValue = Convert.ToInt32(row.Cell(c).Value.GetNumber());
+                    var cellValue = Convert.ToInt32(row.Cell(c).GetDouble());
                     var field = ExaminationDataIntMapping[c];
                     typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
                     continue;

@@ -23,6 +23,7 @@ public class ExaminationController : BaseController
 
     private readonly ExaminationRepository _examinationRepository;
     private readonly ExaminationDataRepository _examinationDataRepository;
+    private readonly ExaminationService _examinationService;
 
     #endregion
 
@@ -30,10 +31,12 @@ public class ExaminationController : BaseController
 
     public ExaminationController(IMapper mapper,
         ExaminationRepository examinationRepository,
-        ExaminationDataRepository examinationDataRepository) : base(mapper)
+        ExaminationDataRepository examinationDataRepository,
+        ExaminationService examinationService) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
+        _examinationService = examinationService;
     }
 
     #endregion
@@ -84,7 +87,7 @@ public class ExaminationController : BaseController
     /// <returns></returns> 
     [HttpGet("{id}")]
     [Authorize]
-    public Result<IEnumerable<ExaminationData>> GetData(string id)
+    public async Task<Result<IEnumerable<ExaminationData>>> GetData(string id)
     {
         if (!Guid.TryParse(id, out var guid))
         {
@@ -92,7 +95,7 @@ public class ExaminationController : BaseController
         }
 
         var data = _examinationDataRepository.Find(e => e.ExaminationId == guid);
-        data = ExaminationService.ValidateData(data);
+        data = await _examinationService.ValidateData(data);
 
         return Result<IEnumerable<ExaminationData>>.Get(data);
     }
@@ -104,7 +107,7 @@ public class ExaminationController : BaseController
     /// <returns></returns>
     [HttpPost("{id}")]
     [Authorize]
-    public Result<List<ExaminationData>> Import(string id)
+    public Result<bool> Import(string id)
     {
         IFormFile file;
         try
@@ -128,7 +131,7 @@ public class ExaminationController : BaseController
 
         _examinationDataRepository.CreateRange(readDataResult);
 
-        return Result<List<ExaminationData>>.Get(readDataResult);
+        return Result<bool>.Get(true);
     }
 
     /// <summary>
