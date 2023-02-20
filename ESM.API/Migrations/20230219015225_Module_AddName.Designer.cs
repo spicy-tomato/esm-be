@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230219015225_Module_AddName")]
+    partial class Module_AddName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,14 +379,11 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("DepartmentId")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("DisplayId")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("FacultyId")
+                    b.Property<Guid?>("FacultyId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
@@ -392,8 +391,6 @@ namespace ESM.API.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("FacultyId");
 
@@ -520,14 +517,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7b7e41e1-4d63-4b28-acf5-8c1ba43cde23",
+                            ConcurrencyStamp = "c099dd61-b6ae-483d-9d8e-4b68520938ce",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFoVREJzhoVjt551hAYwoHjU0THS/bD+QpRwwV9uSOLk+feH65qa5PX1AzGO+1LcPQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKP08Xs4Qo15TI7EbRO1pllw9e/Daz2ijjJogeDoIbdVXd0zabGBd+Yn5X1wKJouOA==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -796,17 +793,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
                 {
-                    b.HasOne("ESM.Data.Models.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId");
-
                     b.HasOne("ESM.Data.Models.Faculty", "Faculty")
                         .WithMany()
-                        .HasForeignKey("FacultyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
+                        .HasForeignKey("FacultyId");
 
                     b.Navigation("Faculty");
                 });

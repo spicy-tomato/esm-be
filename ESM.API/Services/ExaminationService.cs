@@ -2,16 +2,20 @@ using ClosedXML.Excel;
 using ESM.Common.Core.Exceptions;
 using ESM.Data.Models;
 using System.Text.RegularExpressions;
+using ESM.API.Repositories.Implementations;
 using ESM.Data.Enums;
 
 namespace ESM.API.Services;
 
 public class ExaminationService
 {
+    #region Properties
+
     private const int METHOD_COLUMN = 7;
     private const int DATE_COLUMN = 8;
     private const int SHIFT_COLUMN = 9;
     private const int DEPARTMENT_ASSIGN = 15;
+    private readonly ModuleRepository _moduleRepository;
 
     private static readonly Dictionary<int, string> ExaminationDataMapping = new()
     {
@@ -32,6 +36,19 @@ public class ExaminationService
 
     private static readonly int[] ExaminationDataHandleFields =
         { METHOD_COLUMN, DATE_COLUMN, SHIFT_COLUMN, DEPARTMENT_ASSIGN };
+
+    #endregion
+
+    #region Constructor
+
+    public ExaminationService(ModuleRepository moduleRepository)
+    {
+        _moduleRepository = moduleRepository;
+    }
+
+    #endregion
+
+    #region Public methods
 
     public static List<ExaminationData> Import(IFormFile file, string examinationId)
     {
@@ -136,9 +153,16 @@ public class ExaminationService
         return examinationsList;
     }
 
-    public static IEnumerable<ExaminationData> ValidateData(IEnumerable<ExaminationData> data)
+    public async Task<List<ExaminationData>> ValidateData(IEnumerable<ExaminationData> data)
     {
         var examinationData = data.ToList();
+
+        var modulesTask = _moduleRepository.GetIdsAsync();
+
+        await Task.WhenAll(modulesTask);
+
+        var existedModule = modulesTask.Result.ToDictionary(m => m, _ => true);
+
         foreach (var row in examinationData)
         {
             var fields = new[]
@@ -161,8 +185,15 @@ public class ExaminationService
                     row.Errors.Add(field, "Trường này chưa có giá trị");
                 }
             }
+
+            if (row.ModuleId != null && !existedModule.ContainsKey(row.ModuleId))
+            {
+                row.Errors.Add("ModuleId", "Mã học phần này không tồn tại");
+            }
         }
 
         return examinationData;
     }
+
+    #endregion
 }

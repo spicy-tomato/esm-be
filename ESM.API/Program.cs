@@ -42,6 +42,7 @@ builder.Services.AddScoped<FacultyRepository>();
 builder.Services.AddScoped<DepartmentRepository>();
 builder.Services.AddScoped<ExaminationRepository>();
 builder.Services.AddScoped<ExaminationDataRepository>();
+builder.Services.AddScoped<ModuleRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
 

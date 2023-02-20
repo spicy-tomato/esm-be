@@ -13,8 +13,13 @@ public class Module
 
     public string DisplayId { get; set; } = null!;
 
-    public Guid? FacultyId { get; set; }
+    public string Name { get; set; } = null!;
+
+    public Guid FacultyId { get; set; }
     public Faculty Faculty { get; set; } = null!;
+
+    public Guid? DepartmentId { get; set; }
+    public Department? Department { get; set; }
 
     public ICollection<CandidateExaminationModule> CandidatesOfExamination { get; set; } =
         new List<CandidateExaminationModule>();

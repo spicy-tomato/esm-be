@@ -13,6 +13,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<School> Schools { get; set; } = null!;
     public DbSet<Faculty> Faculties { get; set; } = null!;
     public DbSet<Department> Departments { get; set; } = null!;
+    public DbSet<Module> Modules { get; set; } = null!;
     public DbSet<Examination> Examinations { get; set; } = null!;
     public DbSet<ExaminationData> ExaminationData { get; set; } = null!;
     public DbSet<IdentityRole<Guid>> Roles { get; set; } = null!;
