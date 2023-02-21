@@ -396,12 +396,12 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("int");
+
                     b.Property<string>("DisplayId")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<int?>("Size")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -493,14 +493,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "db5ae524-0426-4b31-a7a3-0b2213309989",
+                            ConcurrencyStamp = "02b0114e-edde-4290-945c-901f73980868",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMcMW5DmS3L9GGNUOwzXauGZE4XmYOQTb2lvDwcNtZo9bFB8Mcz7nXNGBRK5jLqJtg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAlnws26JLqfgIi2HZiYRrUxip7rtgQUZa+cpEfyhuDmEhRRETLfqnR7AKw8BaeIqA==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"

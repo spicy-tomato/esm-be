@@ -55,7 +55,7 @@ namespace ESM.API.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     DisplayId = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Size = table.Column<int>(type: "int", nullable: true)
+                    Capacity = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -507,7 +507,7 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "db5ae524-0426-4b31-a7a3-0b2213309989", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEMcMW5DmS3L9GGNUOwzXauGZE4XmYOQTb2lvDwcNtZo9bFB8Mcz7nXNGBRK5jLqJtg==", null, false, null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "02b0114e-edde-4290-945c-901f73980868", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEAlnws26JLqfgIi2HZiYRrUxip7rtgQUZa+cpEfyhuDmEhRRETLfqnR7AKw8BaeIqA==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",

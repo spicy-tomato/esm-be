@@ -6,5 +6,5 @@ namespace ESM.Data.Request.Room;
 public class CreateRoomRequest
 {
     public string DisplayId { get; set; } = null!;
-    public int? Size { get; set; }
+    public int? Capacity { get; set; }
 }

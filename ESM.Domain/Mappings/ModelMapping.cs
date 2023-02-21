@@ -3,6 +3,7 @@ using ESM.Data.Dtos.Department;
 using ESM.Data.Dtos.Examination;
 using ESM.Data.Dtos.Faculty;
 using ESM.Data.Dtos.Module;
+using ESM.Data.Dtos.Room;
 using ESM.Data.Dtos.User;
 using ESM.Data.Models;
 using ESM.Data.Request.Department;
@@ -48,9 +49,10 @@ public class ModelMapping : Profile
 
         #endregion
 
-        #region Module
+        #region Room
 
         CreateMap<CreateRoomRequest, Room>();
+        CreateMap<Room, RoomSummary>();
 
         #endregion
         

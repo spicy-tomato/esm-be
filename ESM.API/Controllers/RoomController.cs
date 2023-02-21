@@ -46,6 +46,7 @@ public class RoomController : BaseController
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    /// <exception cref="ConflictException"></exception>
     [HttpPost]
     public Result<RoomSummary?> Create(CreateRoomRequest request)
     {

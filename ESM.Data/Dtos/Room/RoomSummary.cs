@@ -7,5 +7,5 @@ public class RoomSummary
 {
     public Guid Id { get; set; }
     public string DisplayId { get; set; } = null!;
-    public int? Size { get; set; }
+    public int? Capacity { get; set; }
 }

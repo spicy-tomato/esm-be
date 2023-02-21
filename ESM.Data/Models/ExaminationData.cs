@@ -46,8 +46,31 @@ public class ExaminationData
     public Examination Examination { get; set; } = null!;
 
     [NotMapped]
-    public Dictionary<string, string> Errors { get; set; } = new();
+    public Dictionary<string, ExaminationDataError> Errors { get; set; } = new();
 
     [NotMapped]
     public Dictionary<string, List<KeyValuePair<string, string>>> Suggestions { get; set; } = new();
+}
+
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+public class ExaminationDataError
+{
+    public string Message { get; set; }
+
+    public ExaminationDataError(string message)
+    {
+        Message = message;
+    }
+}
+
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+public class ExaminationDataError<T> : ExaminationDataError
+{
+    public List<T>? Data { get; set; }
+
+    public ExaminationDataError(string message, List<T>? data = null) : base(message)
+    {
+        Message = message;
+        Data = data;
+    }
 }

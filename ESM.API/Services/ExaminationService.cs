@@ -50,6 +50,13 @@ public class ExaminationService
 
     #endregion
 
+    /// <summary>
+    /// Import examination temporary data
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    /// <exception cref="BadRequestException"></exception>
     #region Public methods
 
     public static List<ExaminationData> Import(IFormFile file, string examinationId)
@@ -60,9 +67,7 @@ public class ExaminationService
         var ws = wb.Worksheets.FirstOrDefault();
 
         if (ws == null)
-        {
             throw new BadRequestException("Worksheet is empty!");
-        }
 
         var rowsCount = 0;
         var colsCount = 0;
@@ -82,9 +87,7 @@ public class ExaminationService
                 if (ExaminationDataMapping.ContainsKey(c))
                 {
                     if (row.Cell(c).IsEmpty())
-                    {
                         continue;
-                    }
 
                     var cellValue = row.Cell(c).GetText().Trim();
                     var field = ExaminationDataMapping[c];
@@ -95,9 +98,7 @@ public class ExaminationService
                 if (ExaminationDataIntMapping.ContainsKey(c))
                 {
                     if (row.Cell(c).IsEmpty())
-                    {
                         continue;
-                    }
 
                     var cellValue = Convert.ToInt32(row.Cell(c).GetDouble());
                     var field = ExaminationDataIntMapping[c];
@@ -108,9 +109,7 @@ public class ExaminationService
                 if (ExaminationDataHandleFields.Contains(c))
                 {
                     if (row.Cell(c).IsEmpty())
-                    {
                         continue;
-                    }
 
                     var cellValue = row.Cell(c).Value;
 
@@ -155,17 +154,17 @@ public class ExaminationService
         return examinationsList;
     }
 
+    /// <summary>
+    /// Validate temporary data
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
     public async Task<List<ExaminationData>> ValidateData(IEnumerable<ExaminationData> data)
     {
         var examinationData = data.ToList();
 
-        var modulesTask = _moduleRepository.GetIdsAsync();
-        var roomsTask = _roomRepository.GetIdsAsync();
-
-        await Task.WhenAll(modulesTask, roomsTask);
-
-        var existedModules = modulesTask.Result.ToDictionary(m => m, _ => true);
-        var existedRooms = roomsTask.Result.ToDictionary(m => m, _ => true);
+        var existedModules = (await _moduleRepository.GetIdsAsync()).ToDictionary(m => m, _ => true);
+        var existedRooms = (await _roomRepository.GetIdsAsync()).ToDictionary(m => m, _ => true);
 
         foreach (var row in examinationData)
         {
@@ -179,14 +178,14 @@ public class ExaminationService
             foreach (var field in fields)
             {
                 if (acceptNullFields.Contains(field))
-                {
                     continue;
-                }
 
                 var fieldValue = typeof(ExaminationData).GetProperty(field)?.GetValue(row);
+                var normalizeField = string.Concat(field[..1].ToLower(), field[1..]);
+                
                 if (fieldValue is null or "")
                 {
-                    row.Errors.Add(field, "Trường này chưa có giá trị");
+                    row.Errors.Add(normalizeField, new ExaminationDataError("Trường này chưa có giá trị"));
                 }
             }
 
@@ -201,18 +200,28 @@ public class ExaminationService
 
     #region Private methods
 
+    /// <summary>
+    /// Validate module ID
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="existedModules"></param>
     private static void ValidateModuleId(ExaminationData row, IReadOnlyDictionary<string, bool> existedModules)
     {
         if (row.ModuleId != null && !existedModules.ContainsKey(row.ModuleId))
-            row.Errors.Add("ModuleId", "Mã học phần này không tồn tại");
+            row.Errors.Add("moduleId", new ExaminationDataError("Mã học phần này không tồn tại"));
     }
 
+    /// <summary>
+    /// Validate rooms
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="existedRooms"></param>
     private static void ValidateRoom(ExaminationData row, IReadOnlyDictionary<string, bool> existedRooms)
     {
         var rooms = row.Rooms?.Split(",");
         if (rooms == null || rooms.Length == 0)
         {
-            row.Errors.Add("Rooms", "Chưa có phòng thi");
+            row.Errors.Add("rooms", new ExaminationDataError("Chưa có phòng thi"));
             return;
         }
 
@@ -226,16 +235,20 @@ public class ExaminationService
             // E.g: P102 -> 102
             var shortenName = room[1..];
 
-            if (room[0] != 'P' || !existedRooms.ContainsKey(shortenName)) 
+            if (room[0] != 'P' || !existedRooms.ContainsKey(shortenName))
                 continue;
-            
-            if (!row.Suggestions.ContainsKey("Rooms"))
-                row.Suggestions.Add("Rooms", new List<KeyValuePair<string, string>>());
-            row.Suggestions["Rooms"].Add(new KeyValuePair<string, string>(room, shortenName));
+
+            if (!row.Suggestions.ContainsKey("rooms"))
+                row.Suggestions.Add("rooms", new List<KeyValuePair<string, string>>());
+            row.Suggestions["rooms"].Add(new KeyValuePair<string, string>(room, shortenName));
         }
 
         if (notExistedRooms.Count > 0)
-            row.Errors.Add("Rooms", "Các phòng thi sau không tồn tại: " + string.Join(", ", notExistedRooms));
+            row.Errors.Add("rooms",
+                new ExaminationDataError<string>(
+                    "Các phòng thi sau không tồn tại: " + string.Join(", ", notExistedRooms),
+                    notExistedRooms)
+            );
     }
 
     #endregion
