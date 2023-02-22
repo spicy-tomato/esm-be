@@ -16,12 +16,9 @@ public class ExaminationShift
 
     public int ExamsCount { get; set; }
 
-    public int Credits { get; set; }
-
-    public int DurationInMinutes { get; set; }
     public DateTime StartAt { get; set; }
 
-    public DateTime EndAt => StartAt.AddMinutes(DurationInMinutes);
+    public DateTime EndAt => StartAt.AddMinutes(Module.DurationInMinutes);
 
     public Guid ExaminationId { get; set; }
     public Examination Examination { get; set; } = null!;

@@ -15,6 +15,10 @@ public class Module
 
     public string Name { get; set; } = null!;
 
+    public int Credits { get; set; }
+
+    public int DurationInMinutes { get; set; }
+
     public Guid FacultyId { get; set; }
     public Faculty Faculty { get; set; } = null!;
 

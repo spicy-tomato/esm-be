@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230221160506_Initial")]
+    [Migration("20230222082842_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,12 +238,6 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("Credits")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DurationInMinutes")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
 
@@ -369,12 +363,18 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<int>("Credits")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("DepartmentId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("DisplayId")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("DurationInMinutes")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("FacultyId")
                         .HasColumnType("char(36)");
@@ -495,14 +495,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "02b0114e-edde-4290-945c-901f73980868",
+                            ConcurrencyStamp = "41ece0ae-8a1b-4370-9fc6-bd9dda9917af",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAlnws26JLqfgIi2HZiYRrUxip7rtgQUZa+cpEfyhuDmEhRRETLfqnR7AKw8BaeIqA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEK+meN9ouQUykwVMkcik5lNXAYp2N4oFkv8wU1uUEnve9OF6hHf+1UfH11HtKPoiMQ==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
