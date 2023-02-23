@@ -1,7 +1,9 @@
+using System.Net;
 using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
+using ESM.Common.Core;
 using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
@@ -58,7 +60,7 @@ public class DepartmentController : BaseController
     }
 
     /// <summary>
-    /// Add new department
+    /// Create department
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -66,18 +68,7 @@ public class DepartmentController : BaseController
     [HttpPost]
     public Result<DepartmentSummary?> Create(CreateDepartmentRequest request)
     {
-        new CreateDepartmentRequestValidator().ValidateAndThrow(request);
-        var department = Mapper.Map<Department>(request);
-
-        var existedDepartment = _departmentRepository.FindOne(f =>
-            f.Name == department.Name ||
-            (f.DisplayId != null && f.DisplayId == department.DisplayId)
-        );
-        if (existedDepartment != null)
-        {
-            var conflictProperty = existedDepartment.Name == department.Name ? "name" : "id";
-            throw new ConflictException($"This department {conflictProperty} has been taken");
-        }
+        var department = ValidateAndMap<CreateDepartmentRequest, CreateDepartmentRequestValidator>(request);
 
         _departmentRepository.Create(department);
         var response = Mapper.ProjectTo<DepartmentSummary>(_context.Departments)
@@ -127,6 +118,75 @@ public class DepartmentController : BaseController
         await _context.SaveChangesAsync();
 
         return Result<bool>.Get(true);
+    }
+
+
+    /// <summary>
+    /// Update department
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="departmentId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    [HttpPut("{departmentId}")]
+    public async Task<Result<DepartmentSummary?>> Update([FromBody] UpdateDepartmentRequest request,
+        string departmentId)
+    {
+        const string notFoundMessage = "Department ID does not exist!";
+
+        if (!Guid.TryParse(departmentId, out var guid))
+            throw new NotFoundException(notFoundMessage);
+        var department = ValidateAndMap<UpdateDepartmentRequest, UpdateDepartmentRequestValidator>(request, guid);
+
+        _departmentRepository.Update(department);
+
+        var success = await _context.SaveChangesAsync() > 0;
+        if (!success)
+            throw new NotFoundException(notFoundMessage);
+
+        var response = Mapper.ProjectTo<DepartmentSummary>(_context.Departments)
+           .FirstOrDefault(f => f.Id == department.Id);
+        return Result<DepartmentSummary?>.Get(response);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Validate and map model
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="departmentId"></param>
+    /// <typeparam name="D"></typeparam>
+    /// <typeparam name="V"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="HttpException"></exception>
+    private Department ValidateAndMap<D, V>(D request, Guid? departmentId = null) where V : AbstractValidator<D>, new()
+    {
+        new V().ValidateAndThrow(request);
+        var department = Mapper.Map<Department>(request,
+            opts => opts.AfterMap((_, des) =>
+            {
+                if (departmentId != null)
+                    des.Id = departmentId.Value;
+            }));
+
+        var existedDepartment = _departmentRepository.FindOne(d =>
+            (departmentId == null || d.Id != departmentId) &&
+            (d.Name == department.Name ||
+             (d.DisplayId != null && d.DisplayId == department.DisplayId))
+        );
+        if (existedDepartment == null)
+            return department;
+
+        var errorList = new List<Error>();
+        if (existedDepartment.DisplayId == department.DisplayId)
+            errorList.Add(new Error("displayId", "Mã bộ môn"));
+        if (existedDepartment.Name == department.Name)
+            errorList.Add(new Error("name", "Tên bộ môn"));
+
+        throw new HttpException(HttpStatusCode.Conflict, errorList);
     }
 
     #endregion

@@ -57,7 +57,7 @@ public class FacultyController : BaseController
     [HttpPost]
     public Result<FacultySummary?> Create(CreateFacultyRequest request)
     {
-        var faculty = Validate<CreateFacultyRequest, CreateFacultyRequestValidator>(request);
+        var faculty = ValidateAndMap<CreateFacultyRequest, CreateFacultyRequestValidator>(request);
 
         _facultyRepository.Create(faculty);
         var response = Mapper.ProjectTo<FacultySummary>(_context.Faculties)
@@ -74,15 +74,17 @@ public class FacultyController : BaseController
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     [HttpPut("{facultyId}")]
-    public Result<FacultySummary?> Create([FromBody] UpdateFacultyRequest request, string facultyId)
+    public Result<FacultySummary?> Update([FromBody] UpdateFacultyRequest request, string facultyId)
     {
         const string notFoundMessage = "Faculty ID does not exist!";
 
         if (!Guid.TryParse(facultyId, out var guid))
             throw new NotFoundException(notFoundMessage);
-        var faculty = Validate<UpdateFacultyRequest, UpdateFacultyRequestValidator>(request, guid);
+        var faculty = ValidateAndMap<UpdateFacultyRequest, UpdateFacultyRequestValidator>(request, guid);
 
-        var success = _facultyRepository.Update(faculty);
+        _facultyRepository.Update(faculty);
+
+        var success = _context.SaveChanges() > 0;
         if (!success)
             throw new NotFoundException(notFoundMessage);
 
@@ -103,9 +105,7 @@ public class FacultyController : BaseController
     {
         new CreateModuleRequestValidator().ValidateAndThrow(request);
         if (!Guid.TryParse(facultyId, out var guid))
-        {
             throw new NotFoundException("Faculty id does not exist!");
-        }
 
         var module = Mapper.Map<Module>(request,
             opt => opt.AfterMap((_, des) =>
@@ -137,11 +137,11 @@ public class FacultyController : BaseController
     /// </summary>
     /// <param name="request"></param>
     /// <param name="facultyId"></param>
-    /// <typeparam name="R"></typeparam>
-    /// <typeparam name="V"></typeparam>
+    /// <typeparam name="R">Request</typeparam>
+    /// <typeparam name="V">Request's validation</typeparam>
     /// <returns></returns>
     /// <exception cref="ConflictException"></exception>
-    private Faculty Validate<R, V>(R request, Guid? facultyId = null) where V : AbstractValidator<R>, new()
+    private Faculty ValidateAndMap<R, V>(R request, Guid? facultyId = null) where V : AbstractValidator<R>, new()
     {
         new V().ValidateAndThrow(request);
         var faculty = Mapper.Map<Faculty>(request,
@@ -152,8 +152,9 @@ public class FacultyController : BaseController
             }));
 
         var existedFaculty = _facultyRepository.FindOne(f =>
-            f.Name == faculty.Name ||
-            (f.DisplayId != null && f.DisplayId == faculty.DisplayId)
+            (facultyId == null || f.Id != facultyId) &&
+            (f.Name == faculty.Name ||
+             (f.DisplayId != null && f.DisplayId == faculty.DisplayId))
         );
         if (existedFaculty == null)
             return faculty;

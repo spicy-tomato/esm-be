@@ -54,11 +54,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public Task CreateRangeAsync(IEnumerable<T> entities) => Context.Set<T>().AddRangeAsync(entities);
 
-    public bool Update(T entity)
-    {
-        Context.Set<T>().Update(entity);
-        return Context.SaveChanges() > 0;
-    }
+    public void Update(T entity) => Context.Set<T>().Update(entity);
 
     public void Delete(T entity) => Context.Set<T>().Remove(entity);
 

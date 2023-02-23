@@ -31,6 +31,7 @@ public class ModelMapping : Profile
         #region Department
 
         CreateMap<CreateDepartmentRequest, Department>();
+        CreateMap<UpdateDepartmentRequest, Department>();
         CreateMap<Department, DepartmentSummary>();
         CreateMap<Department, DepartmentSimple>();
 
