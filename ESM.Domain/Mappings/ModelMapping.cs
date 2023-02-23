@@ -22,6 +22,7 @@ public class ModelMapping : Profile
         #region Faculty
 
         CreateMap<CreateFacultyRequest, Faculty>();
+        CreateMap<UpdateFacultyRequest, Faculty>();
         CreateMap<Faculty, FacultySummary>();
         CreateMap<Faculty, FacultyWithDepartments>();
 

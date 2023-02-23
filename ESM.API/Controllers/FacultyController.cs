@@ -1,6 +1,8 @@
+using System.Net;
 using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
+using ESM.Common.Core;
 using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
@@ -48,30 +50,44 @@ public class FacultyController : BaseController
     #region Public Methods
 
     /// <summary>
-    /// Add new faculty
+    /// Create faculty
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
     public Result<FacultySummary?> Create(CreateFacultyRequest request)
     {
-        new CreateFacultyRequestValidator().ValidateAndThrow(request);
-        var faculty = Mapper.Map<Faculty>(request);
-
-        var existedFaculty = _facultyRepository.FindOne(f =>
-            f.Name == faculty.Name ||
-            (f.DisplayId != null && f.DisplayId == faculty.DisplayId)
-        );
-        if (existedFaculty != null)
-        {
-            var conflictProperty = existedFaculty.Name == faculty.Name ? "name" : "id";
-            throw new ConflictException($"This faculty {conflictProperty} has been taken");
-        }
+        var faculty = Validate<CreateFacultyRequest, CreateFacultyRequestValidator>(request);
 
         _facultyRepository.Create(faculty);
-        var response = Mapper.ProjectTo<FacultySummary>(_context.Faculties, null)
+        var response = Mapper.ProjectTo<FacultySummary>(_context.Faculties)
            .FirstOrDefault(f => f.Id == faculty.Id);
 
+        return Result<FacultySummary?>.Get(response);
+    }
+
+    /// <summary>
+    /// Update faculty
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="facultyId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    [HttpPut("{facultyId}")]
+    public Result<FacultySummary?> Create([FromBody] UpdateFacultyRequest request, string facultyId)
+    {
+        const string notFoundMessage = "Faculty ID does not exist!";
+
+        if (!Guid.TryParse(facultyId, out var guid))
+            throw new NotFoundException(notFoundMessage);
+        var faculty = Validate<UpdateFacultyRequest, UpdateFacultyRequestValidator>(request, guid);
+
+        var success = _facultyRepository.Update(faculty);
+        if (!success)
+            throw new NotFoundException(notFoundMessage);
+
+        var response = Mapper.ProjectTo<FacultySummary>(_context.Faculties)
+           .FirstOrDefault(f => f.Id == faculty.Id);
         return Result<FacultySummary?>.Get(response);
     }
 
@@ -106,10 +122,49 @@ public class FacultyController : BaseController
         }
 
         _moduleRepository.Create(module);
-        var response = Mapper.ProjectTo<ModuleSimple>(_context.Modules, null)
+        var response = Mapper.ProjectTo<ModuleSimple>(_context.Modules)
            .FirstOrDefault(f => f.Id == module.Id);
 
         return Result<ModuleSimple?>.Get(response);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Validate and map model
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="facultyId"></param>
+    /// <typeparam name="R"></typeparam>
+    /// <typeparam name="V"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="ConflictException"></exception>
+    private Faculty Validate<R, V>(R request, Guid? facultyId = null) where V : AbstractValidator<R>, new()
+    {
+        new V().ValidateAndThrow(request);
+        var faculty = Mapper.Map<Faculty>(request,
+            opts => opts.AfterMap((_, des) =>
+            {
+                if (facultyId != null)
+                    des.Id = facultyId.Value;
+            }));
+
+        var existedFaculty = _facultyRepository.FindOne(f =>
+            f.Name == faculty.Name ||
+            (f.DisplayId != null && f.DisplayId == faculty.DisplayId)
+        );
+        if (existedFaculty == null)
+            return faculty;
+
+        var errorList = new List<Error>();
+        if (existedFaculty.DisplayId == faculty.DisplayId)
+            errorList.Add(new Error("displayId", "Mã khoa"));
+        if (existedFaculty.Name == faculty.Name)
+            errorList.Add(new Error("name", "Tên khoa"));
+
+        throw new HttpException(HttpStatusCode.Conflict, errorList);
     }
 
     #endregion

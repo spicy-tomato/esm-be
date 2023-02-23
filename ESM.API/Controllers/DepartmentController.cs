@@ -80,7 +80,7 @@ public class DepartmentController : BaseController
         }
 
         _departmentRepository.Create(department);
-        var response = Mapper.ProjectTo<DepartmentSummary>(_context.Departments, null)
+        var response = Mapper.ProjectTo<DepartmentSummary>(_context.Departments)
            .FirstOrDefault(d => d.Id == department.Id);
 
         return Result<DepartmentSummary?>.Get(response);

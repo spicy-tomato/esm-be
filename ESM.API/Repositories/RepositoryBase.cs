@@ -38,7 +38,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
         return result;
     }
-    
+
     public ValueTask<EntityEntry<T>> CreateAsync(T entity, bool saveChanges = true)
     {
         var result = Context.Set<T>().AddAsync(entity);
@@ -51,10 +51,14 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     }
 
     public void CreateRange(IEnumerable<T> entities) => Context.Set<T>().AddRange(entities);
-    
+
     public Task CreateRangeAsync(IEnumerable<T> entities) => Context.Set<T>().AddRangeAsync(entities);
 
-    public void Update(T entity) => Context.Set<T>().Update(entity);
+    public bool Update(T entity)
+    {
+        Context.Set<T>().Update(entity);
+        return Context.SaveChanges() > 0;
+    }
 
     public void Delete(T entity) => Context.Set<T>().Remove(entity);
 
