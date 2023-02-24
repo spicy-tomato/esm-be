@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Interface;
@@ -25,4 +26,7 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
                .Where(u => u.Id == id)
         ).FirstOrDefault();
     }
+
+    public new IEnumerable<UserSimple> Find(Expression<Func<User, bool>> expression) =>
+        Mapper.ProjectTo<UserSimple>(Context.Users.Include(u => u.Invigilator).Where(expression));
 }

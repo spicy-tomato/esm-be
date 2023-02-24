@@ -2,6 +2,7 @@
 using ESM.Data.Dtos.Department;
 using ESM.Data.Dtos.Examination;
 using ESM.Data.Dtos.Faculty;
+using ESM.Data.Dtos.Invigilator;
 using ESM.Data.Dtos.Module;
 using ESM.Data.Dtos.Room;
 using ESM.Data.Dtos.User;
@@ -71,8 +72,8 @@ public class ModelMapping : Profile
         
         #region Invigilator
 
-        // CreateMap<CreateUserRequest, Invigilator>();
-        // CreateMap<Invigilator, InvigilatorSimple>();
+        CreateMap<CreateUserRequest, Invigilator>();
+        CreateMap<Invigilator, InvigilatorSimple>();
 
         #endregion
     }
