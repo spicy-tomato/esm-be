@@ -9,8 +9,7 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
 {
     public CreateUserRequestValidator()
     {
-        RuleFor(x => x.UserName).NotEmpty().Must(u => !u.Contains('@'));
-        RuleFor(x => x.Password).NotEmpty();
+        RuleFor(x => x.Email).NotEmpty().Must(u => u.Contains('@'));
         RuleFor(x => x.FullName).NotEmpty();
     }
 }

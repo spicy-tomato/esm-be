@@ -16,17 +16,13 @@ public class User : IdentityUser<Guid>
 
     public ICollection<IdentityRole<Guid>> Roles { get; set; } = new List<IdentityRole<Guid>>();
 
+    public ICollection<Examination> Examinations { get; set; } = new List<Examination>();
+
+    public ICollection<InvigilatorShift> CreatorInvigilatorShift { get; set; } = new List<InvigilatorShift>();
+
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
 
-    public ICollection<Examination> Examinations { get; set; } = new List<Examination>();
-
-    public ICollection<InvigilatorExaminationModule> ExaminationModules { get; set; } =
-        new List<InvigilatorExaminationModule>();
-
-    [InverseProperty("Invigilator")]
-    public ICollection<InvigilatorShift> InvigilatorShift { get; set; } = new List<InvigilatorShift>();
-
-    [InverseProperty("CreatedBy")]
-    public ICollection<InvigilatorShift> CreatorInvigilatorShift { get; set; } = new List<InvigilatorShift>();
+    public Guid? InvigilatorId { get; set; }
+    public Invigilator? Invigilator { get; set; }
 }

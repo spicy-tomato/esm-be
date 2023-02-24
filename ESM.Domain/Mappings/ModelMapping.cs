@@ -60,8 +60,19 @@ public class ModelMapping : Profile
         
         #region User
 
-        CreateMap<CreateUserRequest, User>();
+        CreateMap<CreateUserRequest, User>().AfterMap((src, des) =>
+        {
+            des.UserName = src.Email;
+        });
         CreateMap<User, UserSummary>();
+        CreateMap<User, UserSimple>();
+
+        #endregion
+        
+        #region Invigilator
+
+        // CreateMap<CreateUserRequest, Invigilator>();
+        // CreateMap<Invigilator, InvigilatorSimple>();
 
         #endregion
     }

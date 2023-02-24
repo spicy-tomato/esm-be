@@ -10,9 +10,9 @@ public class InvigilatorShift
     public int Id { get; set; }
 
     public int OrderIndex { get; set; }
-    
+
     public int Paid { get; set; }
-    
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
@@ -21,13 +21,9 @@ public class InvigilatorShift
     public int ExaminationShiftId { get; set; }
     public ExaminationShift ExaminationShift { get; set; } = null!;
 
-    [InverseProperty("Invigilator")]
     public Guid InvigilatorId { get; set; }
+    public Invigilator Invigilator { get; set; } = null!;
 
-    public User Invigilator { get; set; } = null!;
-
-    [InverseProperty("CreatedBy")]
     public Guid CreatedById { get; set; }
-
     public User CreatedBy { get; set; } = null!;
 }

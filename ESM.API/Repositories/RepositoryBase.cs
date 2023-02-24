@@ -23,6 +23,9 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public T? FindOne(Expression<Func<T, bool>> expression) => Context.Set<T>().Where(expression).FirstOrDefault();
 
+    public Task<T?> FindOneAsync(Expression<Func<T, bool>> expression) =>
+        Context.Set<T>().Where(expression).FirstOrDefaultAsync();
+
     public IEnumerable<T> Find(Expression<Func<T, bool>> expression) => Context.Set<T>().Where(expression);
 
     public Task<List<T>> FindAsync(Expression<Func<T, bool>> expression) =>

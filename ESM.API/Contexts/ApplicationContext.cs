@@ -16,6 +16,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<ExaminationData> ExaminationData { get; set; } = null!;
     public DbSet<Examination> Examinations { get; set; } = null!;
     public DbSet<Faculty> Faculties { get; set; } = null!;
+    public DbSet<Invigilator> Invigilators { get; set; } = null!;
     public DbSet<Module> Modules { get; set; } = null!;
     public DbSet<IdentityRole<Guid>> Roles { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
@@ -30,7 +31,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         //Seeding the User to AspNetUsers table
         builder.Entity<User>().HasData(
             new User

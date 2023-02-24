@@ -49,6 +49,20 @@ namespace ESM.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Invigilator",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    DisplayId = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Invigilator", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
@@ -96,6 +110,7 @@ namespace ESM.API.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     DepartmentId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    InvigilatorId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
@@ -126,6 +141,11 @@ namespace ESM.API.Migrations
                         name: "FK_AspNetUsers_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Invigilator_InvigilatorId",
+                        column: x => x.InvigilatorId,
+                        principalTable: "Invigilator",
                         principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -417,15 +437,15 @@ namespace ESM.API.Migrations
                 {
                     table.PrimaryKey("PK_InvigilatorExaminationModule", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_InvigilatorExaminationModule_AspNetUsers_InvigilatorId",
-                        column: x => x.InvigilatorId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_InvigilatorExaminationModule_Examinations_ExaminationId",
                         column: x => x.ExaminationId,
                         principalTable: "Examinations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_InvigilatorExaminationModule_Invigilator_InvigilatorId",
+                        column: x => x.InvigilatorId,
+                        principalTable: "Invigilator",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -490,15 +510,15 @@ namespace ESM.API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InvigilatorShift_AspNetUsers_InvigilatorId",
-                        column: x => x.InvigilatorId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_InvigilatorShift_ExaminationShift_ExaminationShiftId",
                         column: x => x.ExaminationShiftId,
                         principalTable: "ExaminationShift",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_InvigilatorShift_Invigilator_InvigilatorId",
+                        column: x => x.InvigilatorId,
+                        principalTable: "Invigilator",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -506,8 +526,8 @@ namespace ESM.API.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "41ece0ae-8a1b-4370-9fc6-bd9dda9917af", null, null, false, "Admin", false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEK+meN9ouQUykwVMkcik5lNXAYp2N4oFkv8wU1uUEnve9OF6hHf+1UfH11HtKPoiMQ==", null, false, null, false, "admin" });
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "InvigilatorId", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "639d4316-2a22-41d4-ac28-1ccd652d94dd", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEAvJn/wAL443ZPSWVUt6a5XiItmAtre03Ul8Wz0pasB4DDrF1ysfgpBu0TNOZTXUQg==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -528,6 +548,12 @@ namespace ESM.API.Migrations
                 name: "IX_AspNetUsers_DepartmentId",
                 table: "AspNetUsers",
                 column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_InvigilatorId",
+                table: "AspNetUsers",
+                column: "InvigilatorId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -685,6 +711,9 @@ namespace ESM.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Departments");
+
+            migrationBuilder.DropTable(
+                name: "Invigilator");
 
             migrationBuilder.DropTable(
                 name: "Faculties");

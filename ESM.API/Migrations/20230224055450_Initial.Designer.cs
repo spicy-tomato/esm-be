@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230224055450_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,7 +296,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Invigilators");
+                    b.ToTable("Invigilator");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorExaminationModule", b =>
@@ -313,14 +315,11 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("InvigilatorId")
+                    b.Property<Guid>("InvigilatorId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("TemporaryInvigilatorName")
-                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -516,14 +515,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4261896a-5d86-4695-a220-018ba97cabc1",
+                            ConcurrencyStamp = "639d4316-2a22-41d4-ac28-1ccd652d94dd",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGRSVgNPGUdaezxBmX13ZOHBGib9v5z1TAHQprG8cmEaC9yxjDdIezBEu33mk0i+Dw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAvJn/wAL443ZPSWVUt6a5XiItmAtre03Ul8Wz0pasB4DDrF1ysfgpBu0TNOZTXUQg==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -727,7 +726,9 @@ namespace ESM.API.Migrations
 
                     b.HasOne("ESM.Data.Models.Invigilator", "Invigilator")
                         .WithMany("ExaminationModules")
-                        .HasForeignKey("InvigilatorId");
+                        .HasForeignKey("InvigilatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ESM.Data.Models.Module", "Module")
                         .WithMany("InvigilatorsOfExamination")
