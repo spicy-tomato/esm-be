@@ -44,6 +44,18 @@ public class UserController : BaseController
 
     #region Public Methods
 
+    [HttpGet]
+    [Authorize]
+    public Result<IEnumerable<UserSummary>> GetAll()
+    {
+        var isInvigilator = Request.Query["isInvigilator"].ToString() == "true";
+        var result = isInvigilator
+            ? _userRepository.Find(u => u.Department != null && u.Department.Faculty != null)
+            : _userRepository.GetAll();
+
+        return Result<IEnumerable<UserSummary>>.Get(result);
+    }
+
     // [HttpPost]
     // public async Task<Result<UserSummary?>> SignUp(CreateUserRequest request)
     // {

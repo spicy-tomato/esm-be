@@ -16,6 +16,9 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
 
     #endregion
 
+    public new IEnumerable<UserSummary> GetAll() =>
+        Mapper.ProjectTo<UserSummary>(Context.Users.Include(u => u.Invigilator));
+
     public new UserSummary? GetById(Guid id)
     {
         return Mapper.ProjectTo<UserSummary>(
@@ -27,6 +30,6 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
         ).FirstOrDefault();
     }
 
-    public new IEnumerable<UserSimple> Find(Expression<Func<User, bool>> expression) =>
-        Mapper.ProjectTo<UserSimple>(Context.Users.Include(u => u.Invigilator).Where(expression));
+    public new IEnumerable<UserSummary> Find(Expression<Func<User, bool>> expression) =>
+        Mapper.ProjectTo<UserSummary>(Context.Users.Include(u => u.Invigilator).Where(expression));
 }

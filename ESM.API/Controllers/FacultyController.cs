@@ -101,14 +101,14 @@ public class FacultyController : BaseController
     /// <param name="facultyId"></param>
     /// <returns></returns>
     [HttpGet("{facultyId}/user")]
-    public Result<IEnumerable<UserSimple>> GetUser(string facultyId)
+    public Result<IEnumerable<UserSummary>> GetUser(string facultyId)
     {
         var guid = ParseGuid(facultyId);
         var response = _userRepository.Find(u =>
             u.Department != null &&
             u.Department.FacultyId == guid
         );
-        return Result<IEnumerable<UserSimple>>.Get(response);
+        return Result<IEnumerable<UserSummary>>.Get(response);
     }
 
     /// <summary>

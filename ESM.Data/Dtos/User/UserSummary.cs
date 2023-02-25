@@ -1,4 +1,5 @@
 using ESM.Data.Dtos.Department;
+using ESM.Data.Dtos.Invigilator;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,6 +13,7 @@ public class UserSummary
     public string Email { get; set; } = null!;
     public bool IsMale { get; set; }
     public DateTime CreatedAt { get; set; }
+    public InvigilatorSimple? Invigilator { get; set; }
     public DepartmentSummary? Department { get; set; }
     public ICollection<IdentityRole<Guid>>? Roles { get; set; } = new List<IdentityRole<Guid>>();
 }

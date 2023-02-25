@@ -16,7 +16,7 @@ public class Department
     public string Name { get; set; } = null!;
 
     public Guid? FacultyId { get; set; }
-    public Faculty Faculty { get; set; } = null!;
+    public Faculty? Faculty { get; set; }
 
     public ICollection<User> Users { get; set; } = new List<User>();
 }
