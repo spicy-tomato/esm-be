@@ -11,6 +11,7 @@ public class InvigilatorExaminationModule
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    public string? InvigilatorId { get; set; }
     public string? TemporaryInvigilatorName { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,9 +21,6 @@ public class InvigilatorExaminationModule
 
     public Guid ExaminationId { get; set; }
     public Examination Examination { get; set; } = null!;
-
-    public Guid? InvigilatorId { get; set; }
-    public Invigilator? Invigilator { get; set; }
 
     public Guid ModuleId { get; set; }
     public Module Module { get; set; } = null!;

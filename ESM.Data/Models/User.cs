@@ -23,6 +23,5 @@ public class User : IdentityUser<Guid>
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
 
-    public Guid? InvigilatorId { get; set; }
-    public Invigilator? Invigilator { get; set; }
+    public string? InvigilatorId { get; set; }
 }

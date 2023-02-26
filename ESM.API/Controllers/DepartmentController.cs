@@ -9,7 +9,7 @@ using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Department;
 using ESM.Data.Dtos.Faculty;
-using ESM.Data.Dtos.Invigilator;
+using ESM.Data.Dtos.User;
 using ESM.Data.Models;
 using ESM.Data.Request.Department;
 using ESM.Data.Request.User;
@@ -34,7 +34,6 @@ public class DepartmentController : BaseController
     private readonly DepartmentRepository _departmentRepository;
     private readonly FacultyRepository _facultyRepository;
     private readonly UserRepository _userRepository;
-    private readonly InvigilatorRepository _invigilatorRepository;
     private const string NOT_FOUND_MESSAGE = "Department ID does not exist!";
 
     #endregion
@@ -46,8 +45,7 @@ public class DepartmentController : BaseController
         ApplicationContext context,
         FacultyRepository facultyRepository,
         UserRepository userRepository,
-        UserManager<User> userManager,
-        InvigilatorRepository invigilatorRepository) :
+        UserManager<User> userManager) :
         base(mapper)
     {
         _departmentRepository = departmentRepository;
@@ -55,7 +53,6 @@ public class DepartmentController : BaseController
         _facultyRepository = facultyRepository;
         _userRepository = userRepository;
         _userManager = userManager;
-        _invigilatorRepository = invigilatorRepository;
     }
 
     #endregion
@@ -169,7 +166,7 @@ public class DepartmentController : BaseController
     /// <exception cref="ConflictException"></exception>
     /// <exception cref="InternalServerErrorException"></exception>
     [HttpPost("{departmentId}/user")]
-    public async Task<Result<InvigilatorSimple?>> CreateUser([FromBody] CreateUserRequest request, string departmentId)
+    public async Task<Result<UserSummary?>> CreateUser([FromBody] CreateUserRequest request, string departmentId)
     {
         var guid = ParseGuid(departmentId);
         await new CreateUserRequestValidator().ValidateAndThrowAsync(request);
@@ -178,29 +175,19 @@ public class DepartmentController : BaseController
             {
                 des.DepartmentId = guid;
             }));
-        var invigilator = Mapper.Map<Invigilator>(request);
 
-        var existedUser = await _userRepository.FindOneAsync(u => u.Email == user.Email);
-        if (existedUser != null)
-            throw new ConflictException("This email has been taken");
-
-        var existedInvigilator = await _invigilatorRepository.FindOneAsync(i =>
-            invigilator.DisplayId != null && i.DisplayId == invigilator.DisplayId);
-        if (existedInvigilator != null)
-            throw new ConflictException("This teacher ID has been taken");
+        var errorList = _userRepository.GetDuplicatedDataErrors(guid, request.Email, request.InvigilatorId);
+        if (errorList.Count > 0)
+            throw new HttpException(HttpStatusCode.Conflict, errorList);
 
         var createUserResult = await _userManager.CreateAsync(user);
         if (!createUserResult.Succeeded)
             throw new InternalServerErrorException("Cannot create account");
 
-        var createdUser = await _userManager.FindByEmailAsync(user.Email);
-        invigilator.User = createdUser;
-        var createdInvigilator = await _invigilatorRepository.CreateAsync(invigilator);
+        await _context.SaveChangesAsync();
 
-        var response = Mapper.ProjectTo<InvigilatorSimple>(_context.Invigilators)
-           .FirstOrDefault(d => d.Id == createdInvigilator.Entity.Id);
-
-        return Result<InvigilatorSimple?>.Get(response);
+        var response =  _userRepository.GetById(guid);
+        return Result<UserSummary?>.Get(response);
     }
 
     #endregion

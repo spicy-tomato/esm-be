@@ -13,6 +13,8 @@ public class InvigilatorShift
 
     public int Paid { get; set; }
 
+    public string InvigilatorId { get; set; } = null!;
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
@@ -21,8 +23,6 @@ public class InvigilatorShift
     public int ExaminationShiftId { get; set; }
     public ExaminationShift ExaminationShift { get; set; } = null!;
 
-    public Guid InvigilatorId { get; set; }
-    public Invigilator Invigilator { get; set; } = null!;
 
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;

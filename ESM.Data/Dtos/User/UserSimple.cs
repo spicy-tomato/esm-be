@@ -1,4 +1,3 @@
-using ESM.Data.Dtos.Invigilator;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Dtos.User;
@@ -11,5 +10,5 @@ public class UserSimple
     public string Email { get; set; } = null!;
     public bool IsMale { get; set; }
     public DateTime CreatedAt { get; set; }
-    public InvigilatorSimple? Invigilator { get; set; }
+    public string? InvigilatorId { get; set; }
 }

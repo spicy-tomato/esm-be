@@ -1,4 +1,6 @@
+using System.Net;
 using AutoMapper;
+using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
@@ -22,9 +24,11 @@ public class UserController : BaseController
 {
     #region Properties
 
+    private readonly ApplicationContext _context;
     private readonly UserManager<User> _userManager;
     private readonly UserRepository _userRepository;
     private readonly JwtService _jwtService;
+    private const string NOT_FOUND_MESSAGE = "User ID does not exist!";
 
     #endregion
 
@@ -33,11 +37,13 @@ public class UserController : BaseController
     public UserController(IMapper mapper,
         UserRepository userRepository,
         UserManager<User> userManager,
-        JwtService jwtService) : base(mapper)
+        JwtService jwtService,
+        ApplicationContext context) : base(mapper)
     {
         _userRepository = userRepository;
         _userManager = userManager;
         _jwtService = jwtService;
+        _context = context;
     }
 
     #endregion
@@ -50,7 +56,7 @@ public class UserController : BaseController
     {
         var isInvigilator = Request.Query["isInvigilator"].ToString() == "true";
         var result = isInvigilator
-            ? _userRepository.Find(u => u.Department != null && u.Department.Faculty != null)
+            ? _userRepository.Find(u => u.InvigilatorId != null)
             : _userRepository.GetAll();
 
         return Result<IEnumerable<UserSummary>>.Get(result);
@@ -120,7 +126,19 @@ public class UserController : BaseController
         var result = _userRepository.GetById(userId);
 
         if (result == null)
-            throw new UnauthorizedException("User does not exist!");
+            throw new UnauthorizedException(NOT_FOUND_MESSAGE);
+
+        return Result<UserSummary>.Get(result);
+    }
+
+    [HttpGet("{userId}")]
+    [Authorize]
+    public Result<UserSummary> GetUserById(string userId)
+    {
+        var guid = ParseGuid(userId);
+        var result = _userRepository.GetById(guid);
+        if (result == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
 
         return Result<UserSummary>.Get(result);
     }

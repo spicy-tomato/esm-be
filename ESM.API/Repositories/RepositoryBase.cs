@@ -35,9 +35,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         var result = Context.Set<T>().Add(entity).Entity;
         if (saveChanges)
-        {
             Context.SaveChanges();
-        }
 
         return result;
     }
@@ -46,9 +44,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         var result = Context.Set<T>().AddAsync(entity);
         if (saveChanges)
-        {
             Context.SaveChangesAsync();
-        }
 
         return result;
     }

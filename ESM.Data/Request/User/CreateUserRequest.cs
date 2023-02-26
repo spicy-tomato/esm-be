@@ -6,7 +6,7 @@ namespace ESM.Data.Request.User;
 public class CreateUserRequest
 {
     public string Email { get; set; } = null!;
-    public string? DisplayId { get; set; }
+    public string? InvigilatorId { get; set; }
     public string FullName { get; set; } = null!;
     public bool IsMale { get; set; }
 }

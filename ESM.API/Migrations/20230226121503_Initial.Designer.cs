@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230224071607_Update2")]
-    partial class Update2
+    [Migration("20230226121503_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -285,20 +285,6 @@ namespace ESM.API.Migrations
                     b.ToTable("Faculties");
                 });
 
-            modelBuilder.Entity("ESM.Data.Models.Invigilator", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("DisplayId")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Invigilators");
-                });
-
             modelBuilder.Entity("ESM.Data.Models.InvigilatorExaminationModule", b =>
                 {
                     b.Property<int>("Id")
@@ -315,8 +301,8 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("InvigilatorId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("InvigilatorId")
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("char(36)");
@@ -327,8 +313,6 @@ namespace ESM.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExaminationId");
-
-                    b.HasIndex("InvigilatorId");
 
                     b.HasIndex("ModuleId");
 
@@ -354,8 +338,9 @@ namespace ESM.API.Migrations
                     b.Property<int>("ExaminationShiftId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("InvigilatorId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("InvigilatorId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");
@@ -368,8 +353,6 @@ namespace ESM.API.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("ExaminationShiftId");
-
-                    b.HasIndex("InvigilatorId");
 
                     b.ToTable("InvigilatorShift");
                 });
@@ -458,8 +441,8 @@ namespace ESM.API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("InvigilatorId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("InvigilatorId")
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsMale")
                         .HasColumnType("tinyint(1)");
@@ -501,9 +484,6 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("InvigilatorId")
-                        .IsUnique();
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -518,14 +498,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4261896a-5d86-4695-a220-018ba97cabc1",
+                            ConcurrencyStamp = "d9283a51-6c43-44ff-b302-541573dc3056",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGRSVgNPGUdaezxBmX13ZOHBGib9v5z1TAHQprG8cmEaC9yxjDdIezBEu33mk0i+Dw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGQv0Xhz4H5mQntrjFsS4zNdcJRLW1gU5RpwXxi8eWdxwPRWqTDKTj1zMJj4hk80zA==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -727,10 +707,6 @@ namespace ESM.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ESM.Data.Models.Invigilator", "Invigilator")
-                        .WithMany("ExaminationModules")
-                        .HasForeignKey("InvigilatorId");
-
                     b.HasOne("ESM.Data.Models.Module", "Module")
                         .WithMany("InvigilatorsOfExamination")
                         .HasForeignKey("ModuleId")
@@ -738,8 +714,6 @@ namespace ESM.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Examination");
-
-                    b.Navigation("Invigilator");
 
                     b.Navigation("Module");
                 });
@@ -758,17 +732,9 @@ namespace ESM.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ESM.Data.Models.Invigilator", "Invigilator")
-                        .WithMany("InvigilatorShift")
-                        .HasForeignKey("InvigilatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("ExaminationShift");
-
-                    b.Navigation("Invigilator");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
@@ -794,13 +760,7 @@ namespace ESM.API.Migrations
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
 
-                    b.HasOne("ESM.Data.Models.Invigilator", "Invigilator")
-                        .WithOne("User")
-                        .HasForeignKey("ESM.Data.Models.User", "InvigilatorId");
-
                     b.Navigation("Department");
-
-                    b.Navigation("Invigilator");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -868,16 +828,6 @@ namespace ESM.API.Migrations
             modelBuilder.Entity("ESM.Data.Models.Faculty", b =>
                 {
                     b.Navigation("Departments");
-                });
-
-            modelBuilder.Entity("ESM.Data.Models.Invigilator", b =>
-                {
-                    b.Navigation("ExaminationModules");
-
-                    b.Navigation("InvigilatorShift");
-
-                    b.Navigation("User")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
