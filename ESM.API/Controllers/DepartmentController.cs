@@ -166,7 +166,7 @@ public class DepartmentController : BaseController
     /// <exception cref="ConflictException"></exception>
     /// <exception cref="InternalServerErrorException"></exception>
     [HttpPost("{departmentId}/user")]
-    public async Task<Result<UserSummary?>> CreateUser([FromBody] CreateUserRequest request, string departmentId)
+    public async Task<Result<UserSummary>> CreateUser([FromBody] CreateUserRequest request, string departmentId)
     {
         var guid = ParseGuid(departmentId);
         await new CreateUserRequestValidator().ValidateAndThrowAsync(request);
@@ -186,8 +186,10 @@ public class DepartmentController : BaseController
 
         await _context.SaveChangesAsync();
 
-        var response =  _userRepository.GetById(guid);
-        return Result<UserSummary?>.Get(response);
+        var createdUser = await _userManager.FindByEmailAsync(request.Email);
+        var response = Mapper.Map<UserSummary>(createdUser);
+
+        return Result<UserSummary>.Get(response);
     }
 
     #endregion

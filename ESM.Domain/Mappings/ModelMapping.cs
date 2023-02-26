@@ -64,6 +64,7 @@ public class ModelMapping : Profile
         {
             des.UserName = src.Email;
         });
+        CreateMap<UpdateUserRequest, User>();
         CreateMap<User, UserSummary>();
         CreateMap<User, UserSimple>();
 

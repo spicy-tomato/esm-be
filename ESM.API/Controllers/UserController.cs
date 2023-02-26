@@ -143,5 +143,52 @@ public class UserController : BaseController
         return Result<UserSummary>.Get(result);
     }
 
+
+    [HttpPut("{userId}")]
+    [Authorize]
+    public async Task<Result<UserSummary>> UpdateInfo([FromBody] UpdateUserRequest request, string userId)
+    {
+        var guid = ParseGuid(userId);
+        var departmentGuid = Guid.Empty;
+        if (request.DepartmentId != null && !Guid.TryParse(request.DepartmentId, out departmentGuid))
+            throw new NotFoundException("Faculty ID does not exist!");
+
+        await new UpdateUserRequestValidator().ValidateAndThrowAsync(request);
+
+        var userWithIdFromRequest = _context.Users.FirstOrDefault(u => u.Id == guid);
+        if (userWithIdFromRequest == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+
+        var errorList = _userRepository.GetDuplicatedDataErrors(guid, request.Email, request.InvigilatorId);
+        if (errorList.Count > 0)
+            throw new HttpException(HttpStatusCode.Conflict, errorList);
+
+        userWithIdFromRequest.InvigilatorId = request.InvigilatorId;
+        userWithIdFromRequest.FullName = request.FullName;
+        userWithIdFromRequest.IsMale = request.IsMale;
+        if (departmentGuid != Guid.Empty)
+            userWithIdFromRequest.DepartmentId = departmentGuid;
+
+        await _userManager.SetEmailAsync(userWithIdFromRequest, request.Email);
+        await _context.SaveChangesAsync();
+
+        var result = _userRepository.GetById(guid);
+        if (result == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+
+        return Result<UserSummary>.Get(result);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private static Guid ParseGuid(string departmentId)
+    {
+        if (!Guid.TryParse(departmentId, out var guid))
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        return guid;
+    }
+
     #endregion
 }
