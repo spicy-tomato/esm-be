@@ -41,7 +41,10 @@ public class ModelMapping : Profile
 
         CreateMap<CreateExaminationRequest, Examination>();
         CreateMap<Examination, ExaminationSummary>();
+
         CreateMap<ExaminationData, ExaminationShift>();
+
+        CreateMap<ExaminationShift, ExaminationShiftSimple>();
 
         #endregion
 
@@ -58,7 +61,7 @@ public class ModelMapping : Profile
         CreateMap<Room, RoomSummary>();
 
         #endregion
-        
+
         #region User
 
         CreateMap<CreateUserRequest, User>().AfterMap((src, des) =>

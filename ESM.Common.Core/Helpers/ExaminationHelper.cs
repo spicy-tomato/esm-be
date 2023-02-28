@@ -10,10 +10,10 @@ public static class ExaminationHelper
     {
         if (examination.Method != ExamMethod.Write)
             return 0;
-        if (examination.CandidateCount == null)
+        if (examination.CandidatesCount == null)
             throw new NoNullAllowedException();
         
-        var shouldRoundUp = examination.CandidateCount.Value % 5 != 0;
-        return (examination.CandidateCount.Value / 5 + (shouldRoundUp ? 1 : 0)) * 5;
+        var shouldRoundUp = examination.CandidatesCount.Value % 5 != 0;
+        return (examination.CandidatesCount.Value / 5 + (shouldRoundUp ? 1 : 0)) * 5;
     }
 }

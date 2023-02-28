@@ -30,7 +30,7 @@ public class ExaminationData
 
     public int? Shift { get; set; }
 
-    public int? CandidateCount { get; set; }
+    public int? CandidatesCount { get; set; }
 
     public int? RoomsCount { get; set; }
 

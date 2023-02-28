@@ -118,7 +118,7 @@ public class FacultyController : BaseController
     /// <param name="facultyId"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPost("{facultyId}/modules")]
+    [HttpPost("{facultyId}/module")]
     public Result<ModuleSimple?> CreateModule([FromBody] CreateModuleRequest request, string facultyId)
     {
         new CreateModuleRequestValidator().ValidateAndThrow(request);

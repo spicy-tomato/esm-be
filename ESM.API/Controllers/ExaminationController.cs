@@ -102,11 +102,11 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
+    public Result<IEnumerable<ExaminationShiftSimple>> GetData(string examinationId)
     {
         var guid = ParseGuid(examinationId);
-        var data = await GetTemporaryData(guid);
-        return Result<List<ExaminationData>>.Get(data);
+        var data = _examinationShiftRepository.Find(e => e.ExaminationId == guid);
+        return Result<IEnumerable<ExaminationShiftSimple>>.Get(data);
     }
 
     /// <summary>
@@ -168,11 +168,11 @@ public class ExaminationController : BaseController
 
         var rooms = _roomRepository.GetAll();
         var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
-        
+
         var examinationShifts = new List<ExaminationShift>();
 
         var data = await GetTemporaryData(guid, true);
-        
+
         foreach (var shift in data)
         {
             var roomsInShift = RoomHelper.GetRoomsFromString(shift.Rooms);
@@ -182,14 +182,16 @@ public class ExaminationController : BaseController
                 {
                     Method = shift.Method!.Value,
                     ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
+                    CandidatesCount = shift.CandidatesCount!.Value,
                     StartAt = shift.StartAt!.Value,
+                    Shift = shift.Shift,
                     ExaminationId = guid,
                     ModuleId = modulesDictionary[shift.ModuleId!],
-                    RoomId = roomsDictionary[room],
+                    RoomId = roomsDictionary[room]
                 });
             }
         }
-        
+
         await _examinationShiftRepository.CreateRangeAsync(examinationShifts);
 
         entity.Status = ExaminationStatus.Active;
@@ -212,6 +214,19 @@ public class ExaminationController : BaseController
             throw new NotFoundException(NOT_FOUND_MESSAGE);
 
         return Result<ExaminationSummary>.Get(createdExamination);
+    }
+
+    /// <summary>
+    /// Get temporary data
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpGet("{examinationId}/temporary")]
+    public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
+    {
+        var guid = ParseGuid(examinationId);
+        var data = await GetTemporaryData(guid);
+        return Result<List<ExaminationData>>.Get(data);
     }
 
     #endregion

@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230228054519_ExaminationShift_AddTable")]
+    partial class ExaminationShift_AddTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,7 +177,7 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("CandidatesCount")
+                    b.Property<int?>("CandidateCount")
                         .HasColumnType("int");
 
                     b.Property<int?>("Credit")
@@ -236,9 +238,6 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CandidatesCount")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
 
@@ -253,9 +252,6 @@ namespace ESM.API.Migrations
 
                     b.Property<Guid?>("RoomId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int?>("Shift")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartAt")
                         .HasColumnType("datetime(6)");
@@ -502,14 +498,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "037d8e81-f4e3-4aa7-8274-b367618500f9",
+                            ConcurrencyStamp = "74f3f91a-1aae-4bff-8b69-c0f7e27ac54c",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEK2Hobei1j2f5ugXSggXuUcPZWL/kuPvToFpbIekwZ+TMLQviRpYrtrRRpVlVCZpgw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFJtuyHa3rB4gXItRkc4H4QKgIzTodmwlnKVFmvP8tV/fi2uoEU2O5ubPCRe1tYNAg==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
