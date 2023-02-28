@@ -3,6 +3,7 @@ using ESM.Common.Core.Exceptions;
 using ESM.Data.Models;
 using System.Text.RegularExpressions;
 using ESM.API.Repositories.Implementations;
+using ESM.Common.Core.Helpers;
 using ESM.Data.Enums;
 
 namespace ESM.API.Services;
@@ -50,15 +51,15 @@ public class ExaminationService
 
     #endregion
 
+    #region Public methods
+
     /// <summary>
-    /// Import examination temporary data
+    /// Import data
     /// </summary>
     /// <param name="file"></param>
     /// <param name="examinationId"></param>
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
-    #region Public methods
-
     public static List<ExaminationData> Import(IFormFile file, string examinationId)
     {
         using var wb = new XLWorkbook(file.OpenReadStream());
@@ -182,11 +183,9 @@ public class ExaminationService
 
                 var fieldValue = typeof(ExaminationData).GetProperty(field)?.GetValue(row);
                 var normalizeField = string.Concat(field[..1].ToLower(), field[1..]);
-                
+
                 if (fieldValue is null or "")
-                {
                     row.Errors.Add(normalizeField, new ExaminationDataError("Trường này chưa có giá trị"));
-                }
             }
 
             ValidateModuleId(row, existedModules);
@@ -218,8 +217,8 @@ public class ExaminationService
     /// <param name="existedRooms"></param>
     private static void ValidateRoom(ExaminationData row, IReadOnlyDictionary<string, bool> existedRooms)
     {
-        var rooms = row.Rooms?.Split(",");
-        if (rooms == null || rooms.Length == 0)
+        var rooms = RoomHelper.GetRoomsFromString(row.Rooms);
+        if (rooms.Length == 0)
         {
             row.Errors.Add("rooms", new ExaminationDataError("Chưa có phòng thi"));
             return;
@@ -232,15 +231,10 @@ public class ExaminationService
                 continue;
 
             notExistedRooms.Add(room);
-            // E.g: P102 -> 102
-            var shortenName = room[1..];
 
-            if (room[0] != 'P' || !existedRooms.ContainsKey(shortenName))
-                continue;
-
-            if (!row.Suggestions.ContainsKey("rooms"))
-                row.Suggestions.Add("rooms", new List<KeyValuePair<string, string>>());
-            row.Suggestions["rooms"].Add(new KeyValuePair<string, string>(room, shortenName));
+            // if (!row.Suggestions.ContainsKey("rooms"))
+            //     row.Suggestions.Add("rooms", new List<KeyValuePair<string, string>>());
+            // row.Suggestions["rooms"].Add(new KeyValuePair<string, string>(room, shortenName));
         }
 
         if (notExistedRooms.Count > 0)

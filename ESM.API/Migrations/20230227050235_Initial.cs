@@ -248,7 +248,7 @@ namespace ESM.API.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ExpectStartAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ExpectEndAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -501,7 +501,7 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "InvigilatorId", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "d9283a51-6c43-44ff-b302-541573dc3056", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEGQv0Xhz4H5mQntrjFsS4zNdcJRLW1gU5RpwXxi8eWdxwPRWqTDKTj1zMJj4hk80zA==", null, false, null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "9d6c4a6c-4594-4682-a097-0a943ad1429d", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEL5jEq6Ya0aSvFSIswTdpgVQaJ9UIRU3UIfydi/orP1ive1mf+Mu+IpZQsXnffsE9g==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",

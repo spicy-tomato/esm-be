@@ -1,4 +1,5 @@
 using ESM.Data.Dtos.User;
+using ESM.Data.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Dtos.Examination;
@@ -12,7 +13,7 @@ public class ExaminationSummary
     public string? Description { get; set; }
     public DateTime? ExpectStartAt { get; set; }
     public DateTime? ExpectEndAt { get; set; }
-    public bool IsActive { get; set; }
+    public ExaminationStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public UserSummary CreatedBy { get; set; } = null!;

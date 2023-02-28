@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230226121503_Initial")]
+    [Migration("20230227050235_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -153,12 +153,12 @@ namespace ESM.API.Migrations
                     b.Property<DateTime?>("ExpectStartAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -498,14 +498,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9283a51-6c43-44ff-b302-541573dc3056",
+                            ConcurrencyStamp = "9d6c4a6c-4594-4682-a097-0a943ad1429d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGQv0Xhz4H5mQntrjFsS4zNdcJRLW1gU5RpwXxi8eWdxwPRWqTDKTj1zMJj4hk80zA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEL5jEq6Ya0aSvFSIswTdpgVQaJ9UIRU3UIfydi/orP1ive1mf+Mu+IpZQsXnffsE9g==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"

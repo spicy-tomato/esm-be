@@ -1,11 +1,14 @@
 using AutoMapper;
 using DocumentFormat.OpenXml.Packaging;
+using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
+using ESM.Common.Core.Helpers;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Examination;
+using ESM.Data.Enums;
 using ESM.Data.Models;
 using ESM.Data.Request.Examination;
 using ESM.Data.Validations.Examination;
@@ -22,9 +25,15 @@ public class ExaminationController : BaseController
 {
     #region Properties
 
-    private readonly ExaminationRepository _examinationRepository;
+    private readonly ApplicationContext _context;
     private readonly ExaminationDataRepository _examinationDataRepository;
+    private readonly ExaminationRepository _examinationRepository;
+    private readonly ExaminationShiftRepository _examinationShiftRepository;
+    private readonly ModuleRepository _moduleRepository;
+    private readonly RoomRepository _roomRepository;
+
     private readonly ExaminationService _examinationService;
+    private const string NOT_FOUND_MESSAGE = "Examination ID does not exist!";
 
     #endregion
 
@@ -33,11 +42,19 @@ public class ExaminationController : BaseController
     public ExaminationController(IMapper mapper,
         ExaminationRepository examinationRepository,
         ExaminationDataRepository examinationDataRepository,
-        ExaminationService examinationService) : base(mapper)
+        ExaminationService examinationService,
+        ApplicationContext context,
+        ExaminationShiftRepository examinationShiftRepository,
+        ModuleRepository moduleRepository,
+        RoomRepository roomRepository) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
         _examinationService = examinationService;
+        _context = context;
+        _examinationShiftRepository = examinationShiftRepository;
+        _moduleRepository = moduleRepository;
+        _roomRepository = roomRepository;
     }
 
     #endregion
@@ -54,7 +71,7 @@ public class ExaminationController : BaseController
     {
         new CreateExaminationRequestValidator().ValidateAndThrow(request);
         var examination = Mapper.Map<Examination>(request);
-        examination.IsActive = true;
+        examination.Status = ExaminationStatus.Idle;
         examination.CreatedById = GetUserId();
 
         var createdExamination = _examinationRepository.Create(examination);
@@ -74,7 +91,7 @@ public class ExaminationController : BaseController
         var userId = GetUserId();
 
         var createdExamination =
-            _examinationRepository.Find(e => e.CreatedBy.Id == userId && (!filterActive || e.IsActive));
+            _examinationRepository.Find(e => e.CreatedBy.Id == userId && (!filterActive || e.Status > 0));
 
         return Result<IEnumerable<ExaminationSummary>>.Get(createdExamination);
     }
@@ -84,17 +101,11 @@ public class ExaminationController : BaseController
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    /// <exception cref="NotFoundException"></exception>
     [HttpGet("{examinationId}")]
     public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
     {
-        if (!Guid.TryParse(examinationId, out var guid))
-            throw new NotFoundException("Examination does not exist!");
-
-        var data = await _examinationDataRepository.FindAsync(e => e.ExaminationId == guid);
-        if (data.Count > 0)
-            data = await _examinationService.ValidateData(data);
-
+        var guid = ParseGuid(examinationId);
+        var data = await GetTemporaryData(guid);
         return Result<List<ExaminationData>>.Get(data);
     }
 
@@ -107,6 +118,11 @@ public class ExaminationController : BaseController
     [HttpPost("{examinationId}")]
     public Result<bool> Import(string examinationId)
     {
+        var guid = ParseGuid(examinationId);
+        var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
+        if (entity == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+
         IFormFile file;
         try
         {
@@ -128,6 +144,56 @@ public class ExaminationController : BaseController
         }
 
         _examinationDataRepository.CreateRange(readDataResult);
+        entity.Status = ExaminationStatus.Setup;
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Activate examination
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpPatch("{examinationId}/activate")]
+    public async Task<Result<bool>> Activate(string examinationId)
+    {
+        var guid = ParseGuid(examinationId);
+        var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
+        if (entity == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+
+        var modules = _moduleRepository.GetAll();
+        var modulesDictionary = modules.ToDictionary(m => m.DisplayId, m => m.Id);
+
+        var rooms = _roomRepository.GetAll();
+        var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
+        
+        var examinationShifts = new List<ExaminationShift>();
+
+        var data = await GetTemporaryData(guid, true);
+        
+        foreach (var shift in data)
+        {
+            var roomsInShift = RoomHelper.GetRoomsFromString(shift.Rooms);
+            foreach (var room in roomsInShift)
+            {
+                examinationShifts.Add(new ExaminationShift
+                {
+                    Method = shift.Method!.Value,
+                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
+                    StartAt = shift.StartAt!.Value,
+                    ExaminationId = guid,
+                    ModuleId = modulesDictionary[shift.ModuleId!],
+                    RoomId = roomsDictionary[room],
+                });
+            }
+        }
+        
+        await _examinationShiftRepository.CreateRangeAsync(examinationShifts);
+
+        entity.Status = ExaminationStatus.Active;
+        await _context.SaveChangesAsync();
 
         return Result<bool>.Get(true);
     }
@@ -135,20 +201,49 @@ public class ExaminationController : BaseController
     /// <summary>
     /// Get summary
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="examinationId"></param>
     /// <returns></returns> 
-    [HttpGet("{id}/summary")]
-    public Result<ExaminationSummary> GetSummary(string id)
+    [HttpGet("{examinationId}/summary")]
+    public Result<ExaminationSummary> GetSummary(string examinationId)
     {
-        const string notFoundMessage = "Examination does not exist!";
-        if (!Guid.TryParse(id, out var guid))
-            throw new NotFoundException(notFoundMessage);
-
+        var guid = ParseGuid(examinationId);
         var createdExamination = _examinationRepository.GetById(guid);
         if (createdExamination == null)
-            throw new NotFoundException(notFoundMessage);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
 
         return Result<ExaminationSummary>.Get(createdExamination);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Get temporary data
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="skipValidate"></param>
+    /// <returns></returns>
+    private async Task<List<ExaminationData>> GetTemporaryData(Guid examinationId, bool skipValidate = false)
+    {
+        var data = await _examinationDataRepository.FindAsync(e => e.ExaminationId == examinationId);
+        if (!skipValidate && data.Count > 0)
+            data = await _examinationService.ValidateData(data);
+
+        return data;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="facultyId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    private static Guid ParseGuid(string facultyId)
+    {
+        if (!Guid.TryParse(facultyId, out var guid))
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        return guid;
     }
 
     #endregion

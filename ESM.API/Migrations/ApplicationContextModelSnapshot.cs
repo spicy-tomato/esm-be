@@ -42,7 +42,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Candidates");
+                    b.ToTable("Candidates", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.CandidateExaminationModule", b =>
@@ -75,7 +75,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("CandidateExaminationModule");
+                    b.ToTable("CandidateExaminationModule", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.CandidateShift", b =>
@@ -99,7 +99,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ExaminationShiftId");
 
-                    b.ToTable("CandidateShift");
+                    b.ToTable("CandidateShift", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Department", b =>
@@ -122,7 +122,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Examination", b =>
@@ -151,12 +151,12 @@ namespace ESM.API.Migrations
                     b.Property<DateTime?>("ExpectStartAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -166,7 +166,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.ToTable("Examinations");
+                    b.ToTable("Examinations", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.ExaminationData", b =>
@@ -227,7 +227,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ExaminationId");
 
-                    b.ToTable("ExaminationData");
+                    b.ToTable("ExaminationData", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.ExaminationShift", b =>
@@ -262,7 +262,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ExaminationShift");
+                    b.ToTable("ExaminationShift", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Faculty", b =>
@@ -280,7 +280,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Faculties");
+                    b.ToTable("Faculties", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorExaminationModule", b =>
@@ -314,7 +314,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("InvigilatorExaminationModule");
+                    b.ToTable("InvigilatorExaminationModule", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorShift", b =>
@@ -352,7 +352,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ExaminationShiftId");
 
-                    b.ToTable("InvigilatorShift");
+                    b.ToTable("InvigilatorShift", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
@@ -387,7 +387,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Modules");
+                    b.ToTable("Modules", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Room", b =>
@@ -405,7 +405,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("ESM.Data.Models.User", b =>
@@ -496,14 +496,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9283a51-6c43-44ff-b302-541573dc3056",
+                            ConcurrencyStamp = "9d6c4a6c-4594-4682-a097-0a943ad1429d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGQv0Xhz4H5mQntrjFsS4zNdcJRLW1gU5RpwXxi8eWdxwPRWqTDKTj1zMJj4hk80zA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEL5jEq6Ya0aSvFSIswTdpgVQaJ9UIRU3UIfydi/orP1ive1mf+Mu+IpZQsXnffsE9g==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -532,7 +532,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ESM.Data.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Models;
@@ -21,7 +22,7 @@ public class Examination
 
     public DateTime? ExpectEndAt { get; set; }
 
-    public bool IsActive { get; set; }
+    public ExaminationStatus Status { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }

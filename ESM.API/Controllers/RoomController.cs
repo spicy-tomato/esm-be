@@ -51,7 +51,11 @@ public class RoomController : BaseController
     public Result<RoomSummary?> Create(CreateRoomRequest request)
     {
         new CreateRoomRequestValidator().ValidateAndThrow(request);
-        var room = Mapper.Map<Room>(request);
+        var room = Mapper.Map<Room>(request,
+            opts => opts.AfterMap((_, des) =>
+            {
+                des.DisplayId = des.DisplayId.Trim();
+            }));
 
         var existedRoom = _roomRepository.FindOne(r => r.DisplayId == room.DisplayId);
         if (existedRoom != null)

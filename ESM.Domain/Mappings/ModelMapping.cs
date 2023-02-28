@@ -41,6 +41,7 @@ public class ModelMapping : Profile
 
         CreateMap<CreateExaminationRequest, Examination>();
         CreateMap<Examination, ExaminationSummary>();
+        CreateMap<ExaminationData, ExaminationShift>();
 
         #endregion
 
