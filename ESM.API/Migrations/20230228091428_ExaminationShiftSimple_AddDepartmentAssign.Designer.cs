@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230228091428_ExaminationShiftSimple_AddDepartmentAssign")]
+    partial class ExaminationShiftSimple_AddDepartmentAssign
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,9 +248,6 @@ namespace ESM.API.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<int>("ExamsCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InvigilatorsCount")
                         .HasColumnType("int");
 
                     b.Property<int>("Method")
@@ -508,14 +507,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "81ec7d6c-12a9-4657-89cb-ef3c0b560797",
+                            ConcurrencyStamp = "34791bb8-fbf5-4383-a656-3c1cc407d93b",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEK1nOvybm5H6vr2bQD9ska5mqxGnOQkc8LEZka5uMSZ70xSLNsabioS8DZcgm2yhgg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGbvhy8DGkA5qv7w1djNEwbgPVvDiPjkVfFkpS67/avX1XhXwZ9slfyo40cF5hTqgA==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"

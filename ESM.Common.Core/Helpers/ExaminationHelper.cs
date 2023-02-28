@@ -16,4 +16,9 @@ public static class ExaminationHelper
         var shouldRoundUp = examination.CandidatesCount.Value % 5 != 0;
         return (examination.CandidatesCount.Value / 5 + (shouldRoundUp ? 1 : 0)) * 5;
     }
+    
+    public static int CalculateInvigilatorNumber(ExaminationData examination)
+    {
+        return examination.CandidatesCount < 80 ? 2 : 3;
+    }
 }

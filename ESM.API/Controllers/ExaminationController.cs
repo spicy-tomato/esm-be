@@ -104,8 +104,20 @@ public class ExaminationController : BaseController
     [HttpGet("{examinationId}")]
     public Result<IEnumerable<ExaminationShiftSimple>> GetData(string examinationId)
     {
+        var departmentAssignQuery = Request.Query["departmentAssign"].ToString();
+        bool? departmentAssign =
+            departmentAssignQuery switch
+            {
+                "true" => true,
+                "false" => false,
+                _ => null
+            };
+
         var guid = ParseGuid(examinationId);
-        var data = _examinationShiftRepository.Find(e => e.ExaminationId == guid);
+        var data = _examinationShiftRepository.Find(
+            e => e.ExaminationId == guid &&
+                 (departmentAssign == null || e.DepartmentAssign == departmentAssign)
+        );
         return Result<IEnumerable<ExaminationShiftSimple>>.Get(data);
     }
 
@@ -170,7 +182,6 @@ public class ExaminationController : BaseController
         var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
 
         var examinationShifts = new List<ExaminationShift>();
-
         var data = await GetTemporaryData(guid, true);
 
         foreach (var shift in data)
@@ -183,11 +194,13 @@ public class ExaminationController : BaseController
                     Method = shift.Method!.Value,
                     ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
                     CandidatesCount = shift.CandidatesCount!.Value,
+                    InvigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(shift),
                     StartAt = shift.StartAt!.Value,
                     Shift = shift.Shift,
                     ExaminationId = guid,
                     ModuleId = modulesDictionary[shift.ModuleId!],
-                    RoomId = roomsDictionary[room]
+                    RoomId = roomsDictionary[room],
+                    DepartmentAssign = shift.DepartmentAssign ?? false
                 });
             }
         }

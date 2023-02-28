@@ -18,9 +18,13 @@ public class ExaminationShift
 
     public int CandidatesCount { get; set; }
 
+    public int InvigilatorsCount { get; set; }
+
     public DateTime StartAt { get; set; }
 
     public int? Shift { get; set; }
+
+    public bool DepartmentAssign { get; set; }
 
     public Guid ExaminationId { get; set; }
     public Examination Examination { get; set; } = null!;
