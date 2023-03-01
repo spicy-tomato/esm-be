@@ -8,7 +8,7 @@ namespace ESM.Data.Dtos.Examination;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class ExaminationShiftSimple
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public ExamMethod Method { get; set; }
     public int ExamsCount { get; set; }
     public int CandidatesCount { get; set; }

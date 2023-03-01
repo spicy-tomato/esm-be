@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230228143614_ExaminationShiftSimple_AddInvigilatorsCount")]
-    partial class ExaminationShiftSimple_AddInvigilatorsCount
+    [Migration("20230228154304_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -49,9 +49,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.CandidateExaminationModule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid>("CandidateId")
                         .HasColumnType("char(36)");
@@ -82,15 +82,15 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.CandidateShift", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid>("CandidateId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("ExaminationShiftId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ExaminationShiftId")
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");
@@ -234,9 +234,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.ExaminationShift", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("CandidatesCount")
                         .HasColumnType("int");
@@ -299,9 +299,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorExaminationModule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreateAt")
                         .ValueGeneratedOnAdd()
@@ -333,9 +333,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorShift", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -347,8 +347,8 @@ namespace ESM.API.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("ExaminationShiftId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ExaminationShiftId")
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("InvigilatorId")
                         .IsRequired()
@@ -510,14 +510,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "81ec7d6c-12a9-4657-89cb-ef3c0b560797",
+                            ConcurrencyStamp = "c899e9c3-d9d6-498d-90bd-6fa716827f66",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEK1nOvybm5H6vr2bQD9ska5mqxGnOQkc8LEZka5uMSZ70xSLNsabioS8DZcgm2yhgg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEC01azDoZJZprwUSGCEZlltngp20VaU7WK+JO5i7AUpSy6LbzCfxb1xcV6QAz3kx0w==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"

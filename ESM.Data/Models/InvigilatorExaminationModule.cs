@@ -9,7 +9,7 @@ public class InvigilatorExaminationModule
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string? InvigilatorId { get; set; }
     public string? TemporaryInvigilatorName { get; set; }

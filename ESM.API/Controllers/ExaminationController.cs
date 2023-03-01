@@ -15,6 +15,7 @@ using ESM.Data.Validations.Examination;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Controllers;
 
@@ -134,6 +135,8 @@ public class ExaminationController : BaseController
         var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
+        if (entity.Status != ExaminationStatus.Idle)
+            throw new BadRequestException("Examination status should be ExaminationStatus.Idle");
 
         IFormFile file;
         try
@@ -174,6 +177,8 @@ public class ExaminationController : BaseController
         var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
+        if (entity.Status != ExaminationStatus.Setup)
+            throw new BadRequestException("Examination status should be ExaminationStatus.Setup");
 
         var modules = _moduleRepository.GetAll();
         var modulesDictionary = modules.ToDictionary(m => m.DisplayId, m => m.Id);
@@ -211,6 +216,51 @@ public class ExaminationController : BaseController
         await _context.SaveChangesAsync();
 
         return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Update exams number
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpPatch("{examinationId}/exams-number")]
+    public Task<Result<bool>> UpdateExamsCount([FromBody] Dictionary<string, int> request, string examinationId)
+    {
+        var guid = ParseGuid(examinationId);
+        var entity = _context.Examinations
+           .Include(e => e.ExaminationsShift)
+           .FirstOrDefault(e => e.Id == guid);
+        if (entity == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        if (entity.Status != ExaminationStatus.Active)
+            throw new BadRequestException("Examination status should be ExaminationStatus.Active");
+
+        const string notFoundMessage = "Shift ID does not exists: ";
+
+        foreach (var row in request)
+        {
+            if (!Guid.TryParse(row.Key, out var shiftGuid))
+                throw new NotFoundException(notFoundMessage + row.Key);
+
+            var found = false;
+            foreach (var examinationShift in entity.ExaminationsShift)
+            {
+                if (examinationShift.Id != shiftGuid) 
+                    continue;
+
+                examinationShift.ExamsCount = row.Value;
+                found = true;
+                break;
+            }
+            
+            if (!found)
+                throw new NotFoundException(notFoundMessage + row.Key);
+        }
+
+        _context.SaveChanges();
+
+        return Task.FromResult(Result<bool>.Get(true));
     }
 
     /// <summary>
