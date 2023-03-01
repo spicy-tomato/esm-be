@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230228154304_Initial")]
+    [Migration("20230301051309_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,11 +244,43 @@ namespace ESM.API.Migrations
                     b.Property<bool>("DepartmentAssign")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid>("ExaminationId")
+                    b.Property<Guid?>("ExaminationId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ExaminationShiftGroupId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("ExamsCount")
                         .HasColumnType("int");
+
+                    b.Property<int>("InvigilatorsCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("StartAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId");
+
+                    b.HasIndex("ExaminationShiftGroupId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("ExaminationShifts");
+                });
+
+            modelBuilder.Entity("ESM.Data.Models.ExaminationShiftGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ExaminationId")
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("InvigilatorsCount")
                         .HasColumnType("int");
@@ -259,8 +291,8 @@ namespace ESM.API.Migrations
                     b.Property<Guid?>("ModuleId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("RoomId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("RoomsCount")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Shift")
                         .HasColumnType("int");
@@ -274,9 +306,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("ExaminationShifts");
+                    b.ToTable("ExaminationShiftGroup");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Faculty", b =>
@@ -510,14 +540,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c899e9c3-d9d6-498d-90bd-6fa716827f66",
+                            ConcurrencyStamp = "42cebf77-26e5-4a78-ab1e-e19208893f0c",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEC01azDoZJZprwUSGCEZlltngp20VaU7WK+JO5i7AUpSy6LbzCfxb1xcV6QAz3kx0w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAJLCrcivLmERDkLp1bXgeB77iI+9vqcokheK0BOHrpfvBcMhV8xsyv4fmGsShnsTg==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -690,8 +720,29 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.ExaminationShift", b =>
                 {
-                    b.HasOne("ESM.Data.Models.Examination", "Examination")
+                    b.HasOne("ESM.Data.Models.Examination", null)
                         .WithMany("ExaminationsShift")
+                        .HasForeignKey("ExaminationId");
+
+                    b.HasOne("ESM.Data.Models.ExaminationShiftGroup", "ExaminationShiftGroup")
+                        .WithMany("ExaminationShifts")
+                        .HasForeignKey("ExaminationShiftGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ESM.Data.Models.Room", "Room")
+                        .WithMany("ExaminationShift")
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("ExaminationShiftGroup");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("ESM.Data.Models.ExaminationShiftGroup", b =>
+                {
+                    b.HasOne("ESM.Data.Models.Examination", "Examination")
+                        .WithMany()
                         .HasForeignKey("ExaminationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -700,15 +751,9 @@ namespace ESM.API.Migrations
                         .WithMany()
                         .HasForeignKey("ModuleId");
 
-                    b.HasOne("ESM.Data.Models.Room", "Room")
-                        .WithMany("ExaminationShift")
-                        .HasForeignKey("RoomId");
-
                     b.Navigation("Examination");
 
                     b.Navigation("Module");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorExaminationModule", b =>
@@ -835,6 +880,11 @@ namespace ESM.API.Migrations
                     b.Navigation("CandidateShift");
 
                     b.Navigation("InvigilatorShift");
+                });
+
+            modelBuilder.Entity("ESM.Data.Models.ExaminationShiftGroup", b =>
+                {
+                    b.Navigation("ExaminationShifts");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Faculty", b =>

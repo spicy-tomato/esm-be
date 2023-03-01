@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ESM.Data.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Models;
@@ -12,8 +11,6 @@ public class ExaminationShift
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
-    public ExamMethod Method { get; set; }
-
     public int ExamsCount { get; set; }
 
     public int CandidatesCount { get; set; }
@@ -22,15 +19,9 @@ public class ExaminationShift
 
     public DateTime StartAt { get; set; }
 
-    public int? Shift { get; set; }
 
-    public bool DepartmentAssign { get; set; }
-
-    public Guid ExaminationId { get; set; }
-    public Examination Examination { get; set; } = null!;
-
-    public Guid? ModuleId { get; set; }
-    public Module Module { get; set; } = null!;
+    public Guid ExaminationShiftGroupId { get; set; }
+    public ExaminationShiftGroup ExaminationShiftGroup { get; set; } = null!;
 
     public Guid? RoomId { get; set; }
     public Room Room { get; set; } = null!;

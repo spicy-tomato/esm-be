@@ -20,7 +20,8 @@ public class ExaminationShiftRepository : RepositoryBase<ExaminationShift>, IExa
     {
         return Mapper.ProjectTo<ExaminationShiftSimple>(Context.ExaminationShifts
            .Include(s => s.Room)
-           .Include(s=> s.Module)
+           .Include(s => s.ExaminationShiftGroup)
+           .ThenInclude(g => g.Module)
            .Where(expression)
         );
     }

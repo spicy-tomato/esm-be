@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230301060058_ExaminationShiftGroup_AddDbSet")]
+    partial class ExaminationShiftGroup_AddDbSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,6 +241,9 @@ namespace ESM.API.Migrations
                     b.Property<int>("CandidatesCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("DepartmentAssign")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<Guid?>("ExaminationId")
                         .HasColumnType("char(36)");
 
@@ -273,9 +278,6 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<bool>("DepartmentAssign")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
@@ -538,14 +540,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8a8e787b-5839-4be4-8c76-ac66a999f8c5",
+                            ConcurrencyStamp = "754176be-b464-4eff-a507-3f39dbdce688",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAENiSzlfQ1xZOeTIDMVKM61PecrJf81pen9VcL4X5Y0Z7Sdex4Tw6il0dAunEzFOvtA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEATyxwvRpENZNz+UjaecE+k8VxvpkqPtBrFCMz9VNcfE1YjHigPRg91sGKY39hCP/A==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"

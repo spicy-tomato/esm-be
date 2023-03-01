@@ -30,6 +30,7 @@ public class ExaminationController : BaseController
     private readonly ExaminationDataRepository _examinationDataRepository;
     private readonly ExaminationRepository _examinationRepository;
     private readonly ExaminationShiftRepository _examinationShiftRepository;
+    private readonly ExaminationShiftGroupRepository _examinationShiftGroupRepository;
     private readonly ModuleRepository _moduleRepository;
     private readonly RoomRepository _roomRepository;
 
@@ -47,7 +48,8 @@ public class ExaminationController : BaseController
         ApplicationContext context,
         ExaminationShiftRepository examinationShiftRepository,
         ModuleRepository moduleRepository,
-        RoomRepository roomRepository) : base(mapper)
+        RoomRepository roomRepository,
+        ExaminationShiftGroupRepository examinationShiftGroupRepository) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
@@ -56,6 +58,7 @@ public class ExaminationController : BaseController
         _examinationShiftRepository = examinationShiftRepository;
         _moduleRepository = moduleRepository;
         _roomRepository = roomRepository;
+        _examinationShiftGroupRepository = examinationShiftGroupRepository;
     }
 
     #endregion
@@ -116,8 +119,8 @@ public class ExaminationController : BaseController
 
         var guid = ParseGuid(examinationId);
         var data = _examinationShiftRepository.Find(
-            e => e.ExaminationId == guid &&
-                 (departmentAssign == null || e.DepartmentAssign == departmentAssign)
+            e => e.ExaminationShiftGroup.ExaminationId == guid &&
+                 (departmentAssign == null || e.ExaminationShiftGroup.DepartmentAssign == departmentAssign)
         );
         return Result<IEnumerable<ExaminationShiftSimple>>.Get(data);
     }
@@ -186,32 +189,44 @@ public class ExaminationController : BaseController
         var rooms = _roomRepository.GetAll();
         var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
 
+        var examinationShiftGroups = new List<ExaminationShiftGroup>();
         var examinationShifts = new List<ExaminationShift>();
         var data = await GetTemporaryData(guid, true);
 
         foreach (var shift in data)
         {
             var roomsInShift = RoomHelper.GetRoomsFromString(shift.Rooms);
+            var shiftGroup = new ExaminationShiftGroup
+            {
+                Id = Guid.NewGuid(),
+                Method = shift.Method!.Value,
+                InvigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(shift),
+                RoomsCount = roomsInShift.Length,
+                StartAt = shift.StartAt!.Value,
+                Shift = shift.Shift,
+                DepartmentAssign = shift.DepartmentAssign ?? false,
+                ExaminationId = guid,
+                ModuleId = modulesDictionary[shift.ModuleId!],
+            };
+
+            examinationShiftGroups.Add(shiftGroup);
+
             foreach (var room in roomsInShift)
             {
                 examinationShifts.Add(new ExaminationShift
                 {
-                    Method = shift.Method!.Value,
                     ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
                     CandidatesCount = shift.CandidatesCount!.Value,
                     InvigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(shift),
                     StartAt = shift.StartAt!.Value,
-                    Shift = shift.Shift,
-                    ExaminationId = guid,
-                    ModuleId = modulesDictionary[shift.ModuleId!],
                     RoomId = roomsDictionary[room],
-                    DepartmentAssign = shift.DepartmentAssign ?? false
+                    ExaminationShiftGroup = shiftGroup
                 });
             }
         }
 
+        await _examinationShiftGroupRepository.CreateRangeAsync(examinationShiftGroups);
         await _examinationShiftRepository.CreateRangeAsync(examinationShifts);
-
         entity.Status = ExaminationStatus.Active;
         await _context.SaveChangesAsync();
 
@@ -246,14 +261,14 @@ public class ExaminationController : BaseController
             var found = false;
             foreach (var examinationShift in entity.ExaminationsShift)
             {
-                if (examinationShift.Id != shiftGuid) 
+                if (examinationShift.Id != shiftGuid)
                     continue;
 
                 examinationShift.ExamsCount = row.Value;
                 found = true;
                 break;
             }
-            
+
             if (!found)
                 throw new NotFoundException(notFoundMessage + row.Key);
         }

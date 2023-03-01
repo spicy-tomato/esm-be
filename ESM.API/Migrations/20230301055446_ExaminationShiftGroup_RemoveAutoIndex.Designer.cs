@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230301055446_ExaminationShiftGroup_RemoveAutoIndex")]
+    partial class ExaminationShiftGroup_RemoveAutoIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,6 +241,9 @@ namespace ESM.API.Migrations
                     b.Property<int>("CandidatesCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("DepartmentAssign")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<Guid?>("ExaminationId")
                         .HasColumnType("char(36)");
 
@@ -274,9 +279,6 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<bool>("DepartmentAssign")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
 
@@ -304,7 +306,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("ExaminationShiftGroups");
+                    b.ToTable("ExaminationShiftGroup");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Faculty", b =>
@@ -538,14 +540,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8a8e787b-5839-4be4-8c76-ac66a999f8c5",
+                            ConcurrencyStamp = "3d2dc4ec-e733-4992-8a06-089edd20b556",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAENiSzlfQ1xZOeTIDMVKM61PecrJf81pen9VcL4X5Y0Z7Sdex4Tw6il0dAunEzFOvtA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELT3rFeQGlxhqSEHLcvzc1N/uxQQcSj2TqouT5lfCXTolWKjt/0tCCA0Wt0JMQ57ZQ==",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "admin"
