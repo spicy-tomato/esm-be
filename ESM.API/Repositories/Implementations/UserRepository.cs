@@ -52,4 +52,16 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
 
         return errorList;
     }
+
+    public Dictionary<Guid, int> CountByFaculties()
+    {
+        var teachersInFaculty = Context.Users
+           .Include(u => u.Department)
+           .ThenInclude(d => d!.Faculty)
+           .Where(u => u.Department != null && u.Department.Faculty != null)
+           .GroupBy(u => u.Department!.Faculty!.Id)
+           .Select(g => new { id = g.Key, count = g.Count() })
+           .ToDictionary(g => g.id, g => g.count);
+        return teachersInFaculty;
+    }
 }

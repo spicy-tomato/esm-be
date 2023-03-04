@@ -4,6 +4,7 @@ using ESM.API.Contexts;
 using ESM.API.Repositories.Interface;
 using ESM.Data.Dtos.Examination;
 using ESM.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Repositories.Implementations;
 
@@ -17,6 +18,20 @@ public class ExaminationShiftGroupRepository : RepositoryBase<ExaminationShiftGr
 
     public new IEnumerable<ExaminationShiftGroupSimple> Find(Expression<Func<ExaminationShiftGroup, bool>> expression)
     {
-        return Mapper.ProjectTo<ExaminationShiftGroupSimple>(Context.ExaminationShiftGroups.Where(expression));
+        return Mapper.ProjectTo<ExaminationShiftGroupSimple>(
+            Context.ExaminationShiftGroups
+               .Include(eg => eg.FacultyExaminationShiftGroups)
+               .Where(expression)
+               .OrderBy(eg => eg.StartAt)
+        );
+    }
+
+    public new ExaminationShiftGroupSimple? FindOne(Expression<Func<ExaminationShiftGroup, bool>> expression)
+    {
+        return Mapper.ProjectTo<ExaminationShiftGroupSimple>(
+            Context.ExaminationShiftGroups
+               .Include(eg => eg.FacultyExaminationShiftGroups)
+               .Where(expression)
+        ).FirstOrDefault();
     }
 }

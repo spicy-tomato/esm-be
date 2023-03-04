@@ -1,3 +1,4 @@
+using ESM.Data.Dtos.Faculty;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Dtos.Module;
@@ -9,4 +10,5 @@ public class ModuleSimple
     public string DisplayId { get; set; } = null!;
     public string Name { get; set; } = null!;
     public int Credits { get; set; }
+    public FacultySummary Faculty { get; set; } = null!;
 }

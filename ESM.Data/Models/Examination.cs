@@ -30,7 +30,7 @@ public class Examination
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<ExaminationShift> ExaminationsShift { get; set; } = new List<ExaminationShift>();
+    public ICollection<ExaminationShiftGroup> ExaminationsShiftGroups { get; set; } = new List<ExaminationShiftGroup>();
 
     public ICollection<CandidateExaminationModule> CandidatesOfModule { get; set; } =
         new List<CandidateExaminationModule>();

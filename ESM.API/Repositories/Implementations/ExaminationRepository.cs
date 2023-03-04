@@ -3,6 +3,7 @@ using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Interface;
 using ESM.Data.Dtos.Examination;
+using ESM.Data.Enums;
 using ESM.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,18 +19,23 @@ public class ExaminationRepository : RepositoryBase<Examination>, IExaminationRe
 
     public new ExaminationSummary? GetById(Guid id)
     {
-        return Mapper.ProjectTo<ExaminationSummary>(Context.Examinations
-           .Include(e => e.CreatedBy)
-           .AsSplitQuery()
-        ).FirstOrDefault(e => e.Id == id);
+        return Mapper.ProjectTo<ExaminationSummary>(Context.Examinations.Include(e => e.CreatedBy))
+           .FirstOrDefault(e => e.Id == id);
     }
 
     public new IEnumerable<ExaminationSummary> Find(Expression<Func<Examination, bool>> expression)
     {
         return Mapper.ProjectTo<ExaminationSummary>(Context.Examinations
            .Include(e => e.CreatedBy)
-           .AsSplitQuery()
            .Where(expression)
         );
+    }
+
+    public ExaminationStatus? GetStatus(Guid id)
+    {
+        var examination = Context.Examinations
+           .Select(e => new { e.Id, e.Status })
+           .FirstOrDefault(u => u.Id == id);
+        return examination?.Status;
     }
 }

@@ -16,4 +16,7 @@ public class Faculty
     public string Name { get; set; } = null!;
 
     public ICollection<Department> Departments { get; set; } = new List<Department>();
+
+    public ICollection<FacultyExaminationShiftGroup> FacultyExaminationShiftGroups { get; set; } =
+        new List<FacultyExaminationShiftGroup>();
 }

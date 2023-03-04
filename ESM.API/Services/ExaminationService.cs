@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ClosedXML.Excel;
 using ESM.Common.Core.Exceptions;
 using ESM.Data.Models;
@@ -66,7 +67,6 @@ public class ExaminationService
         var examinationsList = new List<ExaminationData>();
 
         var ws = wb.Worksheets.FirstOrDefault();
-
         if (ws == null)
             throw new BadRequestException("Worksheet is empty!");
 
@@ -193,6 +193,85 @@ public class ExaminationService
         }
 
         return examinationData;
+    }
+
+    public IEnumerable<ExaminationShift> RetrieveExaminationShiftsFromTemporaryData(Guid examinationGuid,
+        List<ExaminationData> data)
+    {
+        var modules = _moduleRepository.GetAll();
+        var modulesDictionary = modules.ToDictionary(m => m.DisplayId, m => m.Id);
+
+        var rooms = _roomRepository.GetAll();
+        var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
+
+        var examinationShiftGroupsDictionary = new Dictionary<string, ExaminationShiftGroup>();
+        var examinationShifts = new List<ExaminationShift>();
+
+        foreach (var shift in data)
+        {
+            Debug.Assert(shift.StartAt != null, "shift.StartAt != null");
+            Debug.Assert(shift.Method != null, "shift.Method != null");
+            Debug.Assert(shift.ModuleId != null, "shift.ModuleId != null");
+            Debug.Assert(shift.CandidatesCount != null, "shift.CandidatesCount != null");
+
+            var roomsInShift = RoomHelper.GetRoomsFromString(shift.Rooms);
+            var examinationShiftGroupKey = string.Join('_',
+                shift.ModuleId,
+                shift.Method.ToString(),
+                shift.StartAt.Value.ToShortDateString(),
+                shift.Shift.ToString() ?? "null"
+            );
+
+            if (!examinationShiftGroupsDictionary.TryGetValue(examinationShiftGroupKey, out var shiftGroup))
+            {
+                shiftGroup = new ExaminationShiftGroup
+                {
+                    Id = Guid.NewGuid(),
+                    Method = shift.Method.Value,
+                    InvigilatorsCount = 0,
+                    RoomsCount = 0,
+                    StartAt = shift.StartAt.Value,
+                    Shift = shift.Shift,
+                    DepartmentAssign = shift.DepartmentAssign ?? false,
+                    ExaminationId = examinationGuid,
+                    ModuleId = modulesDictionary[shift.ModuleId],
+                };
+                examinationShiftGroupsDictionary.Add(examinationShiftGroupKey, shiftGroup);
+            }
+
+            var minCandidatesNumberInShift = shift.CandidatesCount.Value / roomsInShift.Length;
+            var remainder = shift.CandidatesCount.Value % roomsInShift.Length;
+
+            for (var i = 0; i < roomsInShift.Length; i++)
+            {
+                var room = roomsInShift[i];
+                var candidatesNumberInShift = minCandidatesNumberInShift;
+                if (0 < remainder && remainder <= i + 1)
+                    candidatesNumberInShift++;
+
+                var invigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(candidatesNumberInShift);
+
+                examinationShifts.Add(new ExaminationShift
+                {
+                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
+                    CandidatesCount = candidatesNumberInShift,
+                    InvigilatorsCount = invigilatorsCount,
+                    StartAt = shift.StartAt.Value,
+                    RoomId = roomsDictionary[room],
+                    ExaminationShiftGroup = shiftGroup
+                });
+
+                shiftGroup.InvigilatorsCount += invigilatorsCount;
+            }
+
+            shiftGroup.RoomsCount += roomsInShift.Length;
+        }
+
+        // +1 invigilator for each shift
+        foreach (var examinationShift in examinationShiftGroupsDictionary)
+            examinationShift.Value.InvigilatorsCount++;
+
+        return examinationShifts;
     }
 
     #endregion

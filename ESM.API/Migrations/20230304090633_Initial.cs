@@ -367,7 +367,7 @@ namespace ESM.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ExaminationShiftGroup",
+                name: "ExaminationShiftGroups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
@@ -376,20 +376,21 @@ namespace ESM.API.Migrations
                     RoomsCount = table.Column<int>(type: "int", nullable: false),
                     StartAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Shift = table.Column<int>(type: "int", nullable: true),
+                    DepartmentAssign = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     ExaminationId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ModuleId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ExaminationShiftGroup", x => x.Id);
+                    table.PrimaryKey("PK_ExaminationShiftGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExaminationShiftGroup_Examinations_ExaminationId",
+                        name: "FK_ExaminationShiftGroups_Examinations_ExaminationId",
                         column: x => x.ExaminationId,
                         principalTable: "Examinations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ExaminationShiftGroup_Modules_ModuleId",
+                        name: "FK_ExaminationShiftGroups_Modules_ModuleId",
                         column: x => x.ModuleId,
                         principalTable: "Modules",
                         principalColumn: "Id");
@@ -438,23 +439,16 @@ namespace ESM.API.Migrations
                     CandidatesCount = table.Column<int>(type: "int", nullable: false),
                     InvigilatorsCount = table.Column<int>(type: "int", nullable: false),
                     StartAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    DepartmentAssign = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     ExaminationShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    RoomId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    ExaminationId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
+                    RoomId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ExaminationShifts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExaminationShifts_Examinations_ExaminationId",
-                        column: x => x.ExaminationId,
-                        principalTable: "Examinations",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ExaminationShifts_ExaminationShiftGroup_ExaminationShiftGrou~",
+                        name: "FK_ExaminationShifts_ExaminationShiftGroups_ExaminationShiftGro~",
                         column: x => x.ExaminationShiftGroupId,
-                        principalTable: "ExaminationShiftGroup",
+                        principalTable: "ExaminationShiftGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -462,6 +456,33 @@ namespace ESM.API.Migrations
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "FacultyExaminationShiftGroup",
+                columns: table => new
+                {
+                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ExaminationShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    InvigilatorsCount = table.Column<int>(type: "int", nullable: false),
+                    CalculatedInvigilatorsCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacultyExaminationShiftGroup", x => new { x.FacultyId, x.ExaminationShiftGroupId });
+                    table.ForeignKey(
+                        name: "FK_FacultyExaminationShiftGroup_ExaminationShiftGroups_Examinat~",
+                        column: x => x.ExaminationShiftGroupId,
+                        principalTable: "ExaminationShiftGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FacultyExaminationShiftGroup_Faculties_FacultyId",
+                        column: x => x.FacultyId,
+                        principalTable: "Faculties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -528,7 +549,7 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "InvigilatorId", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "42cebf77-26e5-4a78-ab1e-e19208893f0c", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEAJLCrcivLmERDkLp1bXgeB77iI+9vqcokheK0BOHrpfvBcMhV8xsyv4fmGsShnsTg==", null, false, null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "ff7fa8ef-cdcc-43d1-a077-57d9197de0b1", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEIoPdWbLi6lKz4VuPGgObxFOMuafdEWgDorb+gJ0Gdwakb7cajtWrcQqilQ0kvo77A==", null, false, null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -597,19 +618,14 @@ namespace ESM.API.Migrations
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExaminationShiftGroup_ExaminationId",
-                table: "ExaminationShiftGroup",
+                name: "IX_ExaminationShiftGroups_ExaminationId",
+                table: "ExaminationShiftGroups",
                 column: "ExaminationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExaminationShiftGroup_ModuleId",
-                table: "ExaminationShiftGroup",
+                name: "IX_ExaminationShiftGroups_ModuleId",
+                table: "ExaminationShiftGroups",
                 column: "ModuleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ExaminationShifts_ExaminationId",
-                table: "ExaminationShifts",
-                column: "ExaminationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExaminationShifts_ExaminationShiftGroupId",
@@ -620,6 +636,11 @@ namespace ESM.API.Migrations
                 name: "IX_ExaminationShifts_RoomId",
                 table: "ExaminationShifts",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacultyExaminationShiftGroup_ExaminationShiftGroupId",
+                table: "FacultyExaminationShiftGroup",
+                column: "ExaminationShiftGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvigilatorExaminationModule_ExaminationId",
@@ -678,6 +699,9 @@ namespace ESM.API.Migrations
                 name: "ExaminationData");
 
             migrationBuilder.DropTable(
+                name: "FacultyExaminationShiftGroup");
+
+            migrationBuilder.DropTable(
                 name: "InvigilatorExaminationModule");
 
             migrationBuilder.DropTable(
@@ -693,7 +717,7 @@ namespace ESM.API.Migrations
                 name: "ExaminationShifts");
 
             migrationBuilder.DropTable(
-                name: "ExaminationShiftGroup");
+                name: "ExaminationShiftGroups");
 
             migrationBuilder.DropTable(
                 name: "Rooms");

@@ -107,25 +107,42 @@ public class DepartmentController : BaseController
         }
 
         var importResult = DepartmentService.Import(file);
-        var tasks = importResult.Select(async pair =>
-        {
-            var facultyName = pair.Key;
-            var departmentNames = pair.Value;
+        var random = new Random();
 
+        foreach (var (facultyName, departments) in importResult)
+        {
             var faculty = await _facultyRepository.CreateAsync(new Faculty
                 {
                     Name = facultyName
                 },
                 false);
 
-            await _departmentRepository.CreateRangeAsync(departmentNames.Select(name => new Department
+            foreach (var (departmentName, teachersName) in departments)
             {
-                Name = name,
-                FacultyId = faculty.Entity.Id
-            }));
-        });
+                var department = await _departmentRepository.CreateAsync(new Department
+                    {
+                        Name = departmentName,
+                        FacultyId = faculty.Entity.Id
+                    },
+                    false);
 
-        await Task.WhenAll(tasks);
+                foreach (var teacherName in teachersName)
+                {
+                    await _userManager.CreateAsync(new User
+                    {
+                        Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
+                           .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
+                        UserName = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
+                           .Select(s => s[random.Next(s.Length)]).ToArray()),
+                        FullName = teacherName,
+                        Department = department.Entity,
+                        InvigilatorId = "GV" + new string(Enumerable.Repeat("0123456789", 10)
+                           .Select(s => s[random.Next(s.Length)]).ToArray())
+                    });
+                }
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         return Result<bool>.Get(true);

@@ -33,6 +33,9 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<FacultyExaminationShiftGroup>()
+           .HasKey(de => new { de.FacultyId, de.ExaminationShiftGroupId });
+
         //Seeding the User to AspNetUsers table
         builder.Entity<User>().HasData(
             new User

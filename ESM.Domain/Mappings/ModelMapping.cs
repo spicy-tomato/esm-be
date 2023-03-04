@@ -47,6 +47,8 @@ public class ModelMapping : Profile
 
         CreateMap<ExaminationShift, ExaminationShiftSimple>();
 
+        CreateMap<ExaminationShiftGroup, ExaminationShiftGroupSimple>();
+
         #endregion
 
         #region Module
