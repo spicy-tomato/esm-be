@@ -234,7 +234,7 @@ public class ExaminationService
                     Shift = shift.Shift,
                     DepartmentAssign = shift.DepartmentAssign ?? false,
                     ExaminationId = examinationGuid,
-                    ModuleId = modulesDictionary[shift.ModuleId],
+                    ModuleId = modulesDictionary[shift.ModuleId]
                 };
                 examinationShiftGroupsDictionary.Add(examinationShiftGroupKey, shiftGroup);
             }

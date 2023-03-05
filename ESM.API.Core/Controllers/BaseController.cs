@@ -16,26 +16,17 @@ public class BaseController : ControllerBase
 
     protected Guid GetUserId()
     {
-        try
-        {
-            var valueFromClaims = User.Claims.First(i => i.Type == ClaimTypes.NameIdentifier).Value;
-            return Guid.Parse(valueFromClaims);
-        }
-        catch
-        {
+        var valueFromClaims = User.Claims.FirstOrDefault(i => i.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (valueFromClaims == null)
             throw new UnauthorizedException();
-        }
+        return Guid.Parse(valueFromClaims);
     }
 
     protected string GetUserName()
     {
-        try
-        {
-            return User.Claims.First(i => i.Type == ClaimTypes.Name).Value;
-        }
-        catch
-        {
+        var userName = User.Claims.FirstOrDefault(i => i.Type == ClaimTypes.Name)?.Value;
+        if (userName == null)
             throw new UnauthorizedException();
-        }
+        return userName;
     }
 }

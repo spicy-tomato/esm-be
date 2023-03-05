@@ -87,7 +87,7 @@ public class ModuleController : BaseController
                 Name = row.moduleName,
                 Credits = row.credits,
                 FacultyId = facultyId,
-                DepartmentId = department?.Id,
+                DepartmentId = department?.Id
             });
         }
 

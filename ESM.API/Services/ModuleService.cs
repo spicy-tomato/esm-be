@@ -25,15 +25,9 @@ public static class ModuleService
             var moduleName = ws.Row(currRow).Cell(2).GetText();
             var credits = (int)ws.Row(currRow).Cell(3).GetDouble();
             var facultyName = ws.Row(currRow).Cell(4).GetText();
-            string departmentName;
-            try
-            {
-                departmentName = ws.Row(currRow).Cell(5).Value.GetText();
-            }
-            catch
-            {
+
+            if (!ws.Row(currRow).Cell(5).Value.TryGetText(out var departmentName))
                 departmentName = "";
-            }
 
             dynamic row = new ExpandoObject();
             row.moduleId = moduleId;

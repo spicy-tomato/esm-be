@@ -2,4 +2,5 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;
   &lt;Assembly Path="/home/annguyen/.nuget/packages/microsoft.entityframeworkcore/7.0.0/lib/net6.0/Microsoft.EntityFrameworkCore.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsBuildSolutionLoadingTargets/@EntryValue">/home/annguyen/.nuget/packages/microsoft.entityframeworkcore.analyzers/7.0.2/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Tr_01B0_1EDDng/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

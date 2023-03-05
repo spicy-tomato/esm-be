@@ -83,6 +83,6 @@ public class JwtService
     };
 
     private SigningCredentials CreateSigningCredentials() => new(
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty)),
         SecurityAlgorithms.HmacSha256);
 }
