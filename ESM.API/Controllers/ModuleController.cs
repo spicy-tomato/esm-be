@@ -46,10 +46,11 @@ public class ModuleController : BaseController
     #region Public Methods
 
     /// <summary>
-    /// Create a new room
+    /// Import modules
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="ConflictException"></exception>
+    /// <exception cref="UnsupportedMediaTypeException"></exception>
+    /// <exception cref="NotFoundException"></exception>
     [HttpPost("import")]
     public Result<bool> Import()
     {

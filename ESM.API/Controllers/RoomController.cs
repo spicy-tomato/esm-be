@@ -1,6 +1,7 @@
 using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
+using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
@@ -66,6 +67,39 @@ public class RoomController : BaseController
            .FirstOrDefault(f => f.Id == room.Id);
 
         return Result<RoomSummary?>.Get(response);
+    }
+
+    /// <summary>
+    /// Import rooms
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="UnsupportedMediaTypeException"></exception>
+    /// <exception cref="NotFoundException"></exception>
+    [HttpPost("import")]
+    public Result<bool> Import()
+    {
+        IFormFile file;
+        try
+        {
+            file = Request.Form.Files[0];
+        }
+        catch (Exception)
+        {
+            throw new UnsupportedMediaTypeException();
+        }
+
+        var rooms = RoomService.Import(file);
+
+        _roomRepository.CreateRange(
+            rooms.Select(r => new Room
+                {
+                    DisplayId = r
+                }
+            ));
+
+        _context.SaveChanges();
+
+        return Result<RoomSummary?>.Get(true);
     }
 
     #endregion
