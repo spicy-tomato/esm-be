@@ -156,15 +156,14 @@ public class DepartmentController : BaseController
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     [HttpPut("{departmentId}")]
-    public async Task<Result<DepartmentSummary?>> Update([FromBody] UpdateDepartmentRequest request,
-        string departmentId)
+    public Result<DepartmentSummary?> Update([FromBody] UpdateDepartmentRequest request, string departmentId)
     {
         var guid = ParseGuid(departmentId);
         var department = ValidateAndMap<UpdateDepartmentRequest, UpdateDepartmentRequestValidator>(request, guid);
 
         _departmentRepository.Update(department);
 
-        var success = await _context.SaveChangesAsync() > 0;
+        var success = _context.SaveChanges() > 0;
         if (!success)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
 

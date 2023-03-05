@@ -2,7 +2,6 @@ using AutoMapper;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Interface;
 using ESM.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Repositories.Implementations;
 
@@ -14,5 +13,5 @@ public class RoomRepository : RepositoryBase<Room>, IRoomRepository
 
     #endregion
 
-    public Task<List<string>> GetIdsAsync() => Context.Rooms.Select(r => r.DisplayId).ToListAsync();
+    public IEnumerable<string> GetIds() => Context.Rooms.Select(r => r.DisplayId);
 }

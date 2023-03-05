@@ -107,7 +107,7 @@ public class ExaminationController : BaseController
     [HttpGet("{examinationId}")]
     public Result<IEnumerable<ExaminationShiftSimple>> GetData(string examinationId)
     {
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Active);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignFaculty);
 
         var departmentAssignQuery = Request.Query["departmentAssign"].ToString();
         bool? departmentAssign =
@@ -164,22 +164,34 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
-    /// Activate examination
+    /// Change examination status
     /// </summary>
+    /// <param name="newStatus"></param>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpPatch("{examinationId}/activate")]
-    public async Task<Result<bool>> Activate(string examinationId)
+    [HttpPatch("{examinationId}/status")]
+    public Result<bool> ChangeStatus([FromBody] ExaminationStatus newStatus, string examinationId)
     {
-        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.Setup);
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
 
-        var temporaryData = await GetTemporaryData(entity.Id, true);
-        var examinationShifts =
-            _examinationService.RetrieveExaminationShiftsFromTemporaryData(entity.Id, temporaryData);
+        switch (entity.Status, newStatus)
+        {
+            case (ExaminationStatus.Setup, ExaminationStatus.AssignFaculty):
+                FinishSetup(entity);
+                break;
+            case (ExaminationStatus.AssignFaculty, ExaminationStatus.AssignInvigilator):
+                FinishAssignFaculty(entity);
+                break;
+            // case (ExaminationStatus.AssignInvigilator):
+            //     break;
+            default:
+                var expectedOldStatus = (ExaminationStatus)((int)newStatus - 1);
+                if (Enum.IsDefined(typeof(ExaminationStatus), expectedOldStatus))
+                    throw new BadRequestException($"Examination status should be {expectedOldStatus}");
+                throw new BadRequestException("New status is invalid");
+        }
 
-        await _examinationShiftRepository.CreateRangeAsync(examinationShifts);
-        entity.Status = ExaminationStatus.Active;
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
 
         return Result<bool>.Get(true);
     }
@@ -200,8 +212,8 @@ public class ExaminationController : BaseController
            .FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.Active)
-            throw new BadRequestException("Examination status should be ExaminationStatus.Active");
+        if (entity.Status != ExaminationStatus.AssignFaculty)
+            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
 
         const string notFoundMessage = "Shift ID does not exists: ";
 
@@ -241,7 +253,7 @@ public class ExaminationController : BaseController
     [HttpGet("{examinationId}/group")]
     public Result<List<ExaminationShiftGroupSimple>> GetAllGroups(string examinationId)
     {
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Active);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignFaculty);
         var data = _examinationShiftGroupRepository.Find(e => e.ExaminationId == guid && !e.DepartmentAssign).ToList();
         var invigilatorsNumberInFaculties = _userRepository.CountByFaculties();
 
@@ -272,8 +284,8 @@ public class ExaminationController : BaseController
            .FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.Active)
-            throw new BadRequestException("Examination status should be ExaminationStatus.Active");
+        if (entity.Status != ExaminationStatus.AssignFaculty)
+            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
 
         var faculties = _facultyRepository.GetAll().ToList();
         var facultiesPercent = CalculatePercent();
@@ -320,7 +332,7 @@ public class ExaminationController : BaseController
     {
         if (!Guid.TryParse(groupId, out var groupGuid))
             throw new NotFoundException("Group ID does not exist!");
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Active);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignFaculty);
 
         var data = _examinationShiftGroupRepository.FindOne(e =>
             e.ExaminationId == guid && !e.DepartmentAssign && e.Id == groupGuid
@@ -358,8 +370,8 @@ public class ExaminationController : BaseController
            .FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.Active)
-            throw new BadRequestException("Examination status should be ExaminationStatus.Active");
+        if (entity.Status != ExaminationStatus.AssignFaculty)
+            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
 
         const string notFoundGroupMessage = "Group ID does not exist!";
         const string notFoundFacultyMessage = "Faculty ID does not exist!";
@@ -413,11 +425,11 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/temporary")]
-    public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
+    public Result<List<ExaminationData>> GetTemporaryData(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Setup);
 
-        var data = await GetTemporaryData(guid);
+        var data = GetTemporaryData(guid);
         return Result<List<ExaminationData>>.Get(data);
     }
 
@@ -431,11 +443,11 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <param name="skipValidate"></param>
     /// <returns></returns>
-    private async Task<List<ExaminationData>> GetTemporaryData(Guid examinationId, bool skipValidate = false)
+    private List<ExaminationData> GetTemporaryData(Guid examinationId, bool skipValidate = false)
     {
-        var data = await _examinationDataRepository.FindAsync(e => e.ExaminationId == examinationId);
+        var data = _examinationDataRepository.Find(e => e.ExaminationId == examinationId).ToList();
         if (!skipValidate && data.Count > 0)
-            data = await _examinationService.ValidateData(data);
+            data = _examinationService.ValidateData(data);
 
         return data;
     }
@@ -525,6 +537,21 @@ public class ExaminationController : BaseController
                 Actual = total,
                 Calculated = total - group.InvigilatorsCount
             });
+    }
+
+    private void FinishSetup(Examination entity)
+    {
+        var temporaryData = GetTemporaryData(entity.Id, true);
+        var examinationShifts =
+            _examinationService.RetrieveExaminationShiftsFromTemporaryData(entity.Id, temporaryData);
+
+        _examinationShiftRepository.CreateRangeAsync(examinationShifts);
+        entity.Status = ExaminationStatus.AssignFaculty;
+    }
+
+    private static void FinishAssignFaculty(Examination entity)
+    {
+        entity.Status = ExaminationStatus.AssignInvigilator;
     }
 
     #endregion

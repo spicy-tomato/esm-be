@@ -160,12 +160,12 @@ public class ExaminationService
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public async Task<List<ExaminationData>> ValidateData(IEnumerable<ExaminationData> data)
+    public List<ExaminationData> ValidateData(IEnumerable<ExaminationData> data)
     {
         var examinationData = data.ToList();
 
-        var existedModules = (await _moduleRepository.GetIdsAsync()).ToDictionary(m => m, _ => true);
-        var existedRooms = (await _roomRepository.GetIdsAsync()).ToDictionary(m => m, _ => true);
+        var existedModules = _moduleRepository.GetIds().ToDictionary(m => m, _ => true);
+        var existedRooms = _roomRepository.GetIds().ToDictionary(m => m, _ => true);
 
         foreach (var row in examinationData)
         {
