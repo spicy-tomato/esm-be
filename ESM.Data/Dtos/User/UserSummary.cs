@@ -14,5 +14,5 @@ public class UserSummary
     public DateTime CreatedAt { get; set; }
     public string? InvigilatorId { get; set; }
     public DepartmentSummary? Department { get; set; }
-    public Role Role { get; set; } = null!;
+    public string Role { get; set; } = null!;
 }

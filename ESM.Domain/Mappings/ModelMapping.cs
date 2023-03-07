@@ -67,12 +67,16 @@ public class ModelMapping : Profile
 
         #region User
 
-        CreateMap<CreateUserRequest, User>().AfterMap((src, des) =>
-        {
-            des.UserName = src.Email;
-        });
+        CreateMap<CreateUserRequest, User>()
+           .ForMember(des => des.UserName,
+                opt => opt.MapFrom(src => src.Email)
+            );
+
         CreateMap<UpdateUserRequest, User>();
-        CreateMap<User, UserSummary>();
+        CreateMap<User, UserSummary>()
+           .ForMember(des => des.Role,
+                opt => opt.MapFrom(src => src.Role.Name)
+            );
         CreateMap<User, UserSimple>();
 
         #endregion
