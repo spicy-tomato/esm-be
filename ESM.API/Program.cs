@@ -7,7 +7,6 @@ using ESM.Data.Models;
 using ESM.Domain.Mappings;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -32,7 +31,7 @@ builder.Services.AddIdentityCore<User>(options =>
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
     })
-   .AddRoles<IdentityRole<Guid>>()
+   .AddRoles<Role>()
    .AddEntityFrameworkStores<ApplicationContext>();
 
 builder.Services.AddScoped<JwtService>();

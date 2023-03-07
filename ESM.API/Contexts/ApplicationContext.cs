@@ -19,7 +19,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<ExaminationShiftGroup> ExaminationShiftGroups { get; set; } = null!;
     public DbSet<Faculty> Faculties { get; set; } = null!;
     public DbSet<Module> Modules { get; set; } = null!;
-    public DbSet<IdentityRole<Guid>> Roles { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
 
     public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
@@ -36,7 +36,22 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
         builder.Entity<FacultyExaminationShiftGroup>()
            .HasKey(de => new { de.FacultyId, de.ExaminationShiftGroupId });
 
-        //Seeding the User to AspNetUsers table
+        // Seeding the User to Roles table
+        builder.Entity<Role>().HasData(
+            new Role
+            {
+                Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
+                Name = "ExaminationDepartmentHead",
+                NormalizedName = "ExaminationDepartmentHead".ToUpper()
+            },
+            new Role
+            {
+                Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
+                Name = "Teacher",
+                NormalizedName = "Teacher".ToUpper()
+            });
+
+        // Seeding the User to AspNetUsers table
         builder.Entity<User>().HasData(
             new User
             {
@@ -44,7 +59,8 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
                 UserName = "admin",
                 FullName = "Admin",
                 NormalizedUserName = "ADMIN",
-                PasswordHash = new PasswordHasher<User>().HashPassword(null!, "e10adc3949ba59abbe56e057f20f883e")
+                PasswordHash = new PasswordHasher<User>().HashPassword(null!, "e10adc3949ba59abbe56e057f20f883e"),
+                RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796")
             }
         );
     }

@@ -14,11 +14,12 @@ public class User : IdentityUser<Guid>
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
 
-    public ICollection<IdentityRole<Guid>> Roles { get; set; } = new List<IdentityRole<Guid>>();
-
     public ICollection<Examination> Examinations { get; set; } = new List<Examination>();
 
     public ICollection<InvigilatorShift> CreatorInvigilatorShift { get; set; } = new List<InvigilatorShift>();
+
+    public Role Role { get; set; } = null!;
+    public Guid RoleId { get; set; }
 
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }

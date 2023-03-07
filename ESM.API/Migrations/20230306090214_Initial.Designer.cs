@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230304090633_Initial")]
+    [Migration("20230306090214_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("ESM.Data.Models.Candidate", b =>
@@ -450,6 +450,42 @@ namespace ESM.API.Migrations
                     b.ToTable("Modules");
                 });
 
+            modelBuilder.Entity("ESM.Data.Models.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
+                            ConcurrencyStamp = "6bd513ce-46cd-488f-897e-ef0c305384c7",
+                            Name = "ExaminationDepartmentHead",
+                            NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
+                        },
+                        new
+                        {
+                            Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
+                            ConcurrencyStamp = "3ad1a3d7-0347-42a7-a0fc-25e266b72957",
+                            Name = "Teacher",
+                            NormalizedName = "TEACHER"
+                        });
+                });
+
             modelBuilder.Entity("ESM.Data.Models.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -528,6 +564,9 @@ namespace ESM.API.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
@@ -549,6 +588,8 @@ namespace ESM.API.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("AspNetUsers", (string)null);
 
                     b.HasData(
@@ -556,43 +597,19 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ff7fa8ef-cdcc-43d1-a077-57d9197de0b1",
+                            ConcurrencyStamp = "8fc47080-85b0-43b6-9084-a98bc56cc926",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEIoPdWbLi6lKz4VuPGgObxFOMuafdEWgDorb+gJ0Gdwakb7cajtWrcQqilQ0kvo77A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKtjVpYxRWdKBU6nNy2uJTdj0SxbvLxRrFA0tyMZw7ynev4ZJc61g9WWKPxIY6DktQ==",
                             PhoneNumberConfirmed = false,
+                            RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -848,14 +865,15 @@ namespace ESM.API.Migrations
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
 
-                    b.Navigation("Department");
-                });
+                    b.HasOne("ESM.Data.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
-                {
-                    b.HasOne("ESM.Data.Models.User", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("UserId");
+                    b.Navigation("Department");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -944,8 +962,6 @@ namespace ESM.API.Migrations
                     b.Navigation("CreatorInvigilatorShift");
 
                     b.Navigation("Examinations");
-
-                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

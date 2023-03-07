@@ -137,7 +137,8 @@ public class DepartmentController : BaseController
                         FullName = teacherName,
                         Department = department.Entity,
                         InvigilatorId = "GV" + new string(Enumerable.Repeat("0123456789", 10)
-                           .Select(s => s[random.Next(s.Length)]).ToArray())
+                           .Select(s => s[random.Next(s.Length)]).ToArray()),
+                        RoleId = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18")
                     });
                 }
             }

@@ -73,7 +73,7 @@ public class ModuleController : BaseController
         {
             var faculty = faculties.FirstOrDefault(f => f.Name == row.facultyName);
             if (faculty == null)
-                throw new NotFoundException($"Faculty name does not exists: ${row.facultyName}");
+                throw new NotFoundException($"Faculty name does not exists: {row.facultyName}");
 
             Department? department = null;
             if (!string.IsNullOrEmpty(row.departmentName))

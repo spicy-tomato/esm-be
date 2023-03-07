@@ -107,7 +107,8 @@ public class ExaminationController : BaseController
     [HttpGet("{examinationId}")]
     public Result<IEnumerable<ExaminationShiftSimple>> GetData(string examinationId)
     {
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignFaculty);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
+            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
 
         var departmentAssignQuery = Request.Query["departmentAssign"].ToString();
         bool? departmentAssign =
@@ -135,6 +136,7 @@ public class ExaminationController : BaseController
     public Result<bool> Import(string examinationId)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.Idle);
+
         IFormFile file;
 
         try
@@ -253,7 +255,8 @@ public class ExaminationController : BaseController
     [HttpGet("{examinationId}/group")]
     public Result<List<ExaminationShiftGroupSimple>> GetAllGroups(string examinationId)
     {
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignFaculty);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
+            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
         var data = _examinationShiftGroupRepository.Find(e => e.ExaminationId == guid && !e.DepartmentAssign).ToList();
         var invigilatorsNumberInFaculties = _userRepository.CountByFaculties();
 
@@ -293,7 +296,6 @@ public class ExaminationController : BaseController
         foreach (var group in entity.ExaminationsShiftGroups)
         {
             var mainFacultyId = group.Module.FacultyId;
-
             foreach (var faculty in faculties)
             {
                 var calculatedInvigilatorsCount = faculty.Id == mainFacultyId
@@ -362,38 +364,46 @@ public class ExaminationController : BaseController
         string groupId,
         string facultyId)
     {
-        var guid = ParseGuid(examinationId);
-        var entity = _context.Examinations
-           .Include(e => e.ExaminationsShiftGroups)
-           .ThenInclude(eg => eg.FacultyExaminationShiftGroups)
-           .Select(e => new { e.Id, e.Status, e.ExaminationsShiftGroups })
-           .FirstOrDefault(e => e.Id == guid);
-        if (entity == null)
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.AssignFaculty)
-            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
+        if (numberOfInvigilator < 0)
+            throw new BadRequestException("Number cannot be negative!");
 
         const string notFoundGroupMessage = "Group ID does not exist!";
         const string notFoundFacultyMessage = "Faculty ID does not exist!";
 
         if (!Guid.TryParse(groupId, out var groupGuid))
             throw new NotFoundException(notFoundGroupMessage);
+        if (!Guid.TryParse(facultyId, out var facultyGuid))
+            throw new NotFoundException(notFoundFacultyMessage);
+
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
+
+        _context.Entry(entity)
+           .Collection(e => e.ExaminationsShiftGroups)
+           .Query()
+           .Include(eg => eg.FacultyExaminationShiftGroups)
+           .Load();
+
         var group = entity.ExaminationsShiftGroups.FirstOrDefault(eg => eg.Id == groupGuid);
         if (group == null)
             throw new NotFoundException(notFoundGroupMessage);
 
-        if (!Guid.TryParse(facultyId, out var facultyGuid))
-            throw new NotFoundException(notFoundFacultyMessage);
         var facultyGroup = group.FacultyExaminationShiftGroups.FirstOrDefault(eg => eg.FacultyId == facultyGuid);
         if (facultyGroup == null)
-            throw new NotFoundException(notFoundFacultyMessage);
+        {
+            facultyGroup = new FacultyExaminationShiftGroup
+            {
+                FacultyId = facultyGuid,
+                ExaminationShiftGroup = group
+            };
+            group.FacultyExaminationShiftGroups.Add(facultyGroup);
+        }
 
         facultyGroup.InvigilatorsCount = numberOfInvigilator;
 
         _context.SaveChanges();
 
         var result = _examinationShiftGroupRepository.FindOne(e =>
-            e.ExaminationId == guid && !e.DepartmentAssign && e.Id == groupGuid
+            e.ExaminationId == entity.Id && !e.DepartmentAssign && e.Id == groupGuid
         );
         var invigilatorsNumberInFaculties = _userRepository.CountByFaculties();
 
@@ -472,8 +482,8 @@ public class ExaminationController : BaseController
 
         if (status == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (acceptStatus != null && status != acceptStatus)
-            throw new BadRequestException($"Examination status should be ExaminationStatus.{acceptStatus.ToString()}");
+        if (acceptStatus != null && (acceptStatus.Value & status) == 0)
+            throw new BadRequestException($"Examination status should be {acceptStatus.ToString()}");
         return guid;
     }
 
@@ -484,8 +494,8 @@ public class ExaminationController : BaseController
         var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
         if (entity == null)
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (acceptStatus != null && entity.Status != acceptStatus)
-            throw new BadRequestException($"Examination status should be ExaminationStatus.{acceptStatus.ToString()}");
+        if (acceptStatus != null && (acceptStatus.Value & entity.Status) == 0)
+            throw new BadRequestException($"Examination status should be {acceptStatus.ToString()}");
         return entity;
     }
 
@@ -534,7 +544,9 @@ public class ExaminationController : BaseController
         group.AssignNumerate.Add("total",
             new ExaminationGroupDataCell
             {
+                // Actual calculation result
                 Actual = total,
+                // Difference
                 Calculated = total - group.InvigilatorsCount
             });
     }
@@ -549,8 +561,25 @@ public class ExaminationController : BaseController
         entity.Status = ExaminationStatus.AssignFaculty;
     }
 
-    private static void FinishAssignFaculty(Examination entity)
+    private void FinishAssignFaculty(Examination entity)
     {
+        _context.Entry(entity)
+           .Collection(e => e.ExaminationsShiftGroups)
+           .Query()
+           .Include(eg => eg.FacultyExaminationShiftGroups)
+           .Include(eg => eg.Module)
+           .Where(eg => !eg.DepartmentAssign)
+           .Load();
+
+        foreach (var group in entity.ExaminationsShiftGroups)
+        {
+            var expected = group.InvigilatorsCount;
+            var actual = group.FacultyExaminationShiftGroups.Sum(feg => feg.InvigilatorsCount);
+            if (actual != expected)
+                throw new BadRequestException(
+                    $"Actual assigned invigilators number is not match (met {actual}, need {expected}) in group {group.Id} ({group.Module.Name})");
+        }
+
         entity.Status = ExaminationStatus.AssignInvigilator;
     }
 

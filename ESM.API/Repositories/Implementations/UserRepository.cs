@@ -24,7 +24,7 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
         return Mapper.ProjectTo<UserSummary>(
             Context.Users
                .Include(u => u.Department)
-               .Include(u => u.Roles)
+               .Include(u => u.Role)
                .AsSplitQuery()
                .Where(u => u.Id == id)
         ).FirstOrDefault();
