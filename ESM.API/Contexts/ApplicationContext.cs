@@ -33,8 +33,6 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<FacultyShiftGroup>().HasKey(de => new { de.FacultyId, de.ShiftGroupId });
-
         // Seeding the User to Roles table
         builder.Entity<Role>().HasData(
             new Role

@@ -402,15 +402,15 @@ namespace ESM.API.Migrations
                 name: "FacultyShiftGroup",
                 columns: table => new
                 {
-                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     InvigilatorsCount = table.Column<int>(type: "int", nullable: false),
-                    CalculatedInvigilatorsCount = table.Column<int>(type: "int", nullable: false)
+                    CalculatedInvigilatorsCount = table.Column<int>(type: "int", nullable: false),
+                    FacultyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FacultyShiftGroup", x => new { x.FacultyId, x.ShiftGroupId });
+                    table.PrimaryKey("PK_FacultyShiftGroup", x => x.Id);
                     table.ForeignKey(
                         name: "FK_FacultyShiftGroup_Faculties_FacultyId",
                         column: x => x.FacultyId,
@@ -462,9 +462,7 @@ namespace ESM.API.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     InvigilatorsCount = table.Column<int>(type: "int", nullable: false),
                     DepartmentId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FacultyShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FacultyShiftGroupFacultyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FacultyShiftGroupShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                    FacultyShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -476,10 +474,10 @@ namespace ESM.API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DepartmentShiftGroup_FacultyShiftGroup_FacultyShiftGroupFacu~",
-                        columns: x => new { x.FacultyShiftGroupFacultyId, x.FacultyShiftGroupShiftGroupId },
+                        name: "FK_DepartmentShiftGroup_FacultyShiftGroup_FacultyShiftGroupId",
+                        column: x => x.FacultyShiftGroupId,
                         principalTable: "FacultyShiftGroup",
-                        principalColumns: new[] { "FacultyId", "ShiftGroupId" },
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -549,7 +547,6 @@ namespace ESM.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    InvigilatorsCount = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     DepartmentShiftGroupId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
@@ -573,17 +570,17 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), "2a6b3cab-989e-4cad-8a76-859606670cc3", "ExaminationDepartmentHead", "EXAMINATIONDEPARTMENTHEAD" });
+                values: new object[] { new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), "7e8f03f8-8b30-4afc-bf8a-6abc8f464225", "ExaminationDepartmentHead", "EXAMINATIONDEPARTMENTHEAD" });
 
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"), "f5c7b190-0ec0-479f-8dc2-a1e831fc29bf", "Teacher", "TEACHER" });
+                values: new object[] { new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"), "c18b68d4-37f6-4f1b-b74c-fea043f43157", "Teacher", "TEACHER" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "InvigilatorId", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RoleId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "12708a13-f23a-41fe-888f-554fde1bd32d", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEKtoOjp9+7uINT0/u5GRQxYQboPY25UY//jp+RA5M3njPbjR7z10x2K0VUf0pBSFSA==", null, false, new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "033b2266-67a5-4a95-ae7b-e4308cbe9089", null, null, false, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEDlSB7u1c5JS9TDjJgTjJq2fjGdPEg4a+5/jNWiEv1VZb/ri2cFqpHmixWw38MNU/g==", null, false, new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -652,9 +649,9 @@ namespace ESM.API.Migrations
                 column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DepartmentShiftGroup_FacultyShiftGroupFacultyId_FacultyShift~",
+                name: "IX_DepartmentShiftGroup_FacultyShiftGroupId",
                 table: "DepartmentShiftGroup",
-                columns: new[] { "FacultyShiftGroupFacultyId", "FacultyShiftGroupShiftGroupId" });
+                column: "FacultyShiftGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExaminationData_ExaminationId",
@@ -665,6 +662,11 @@ namespace ESM.API.Migrations
                 name: "IX_Examinations_CreatedById",
                 table: "Examinations",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacultyShiftGroup_FacultyId",
+                table: "FacultyShiftGroup",
+                column: "FacultyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FacultyShiftGroup_ShiftGroupId",

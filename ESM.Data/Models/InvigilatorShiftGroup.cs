@@ -10,8 +10,6 @@ public class InvigilatorShiftGroup
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
-    
-    public int InvigilatorsCount { get; set; }
 
     public Guid? UserId { get; set; }
     public User? User { get; set; }

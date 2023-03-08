@@ -134,13 +134,7 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("FacultyShiftGroupFacultyId")
-                        .HasColumnType("char(36)");
-
                     b.Property<Guid>("FacultyShiftGroupId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("FacultyShiftGroupShiftGroupId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("InvigilatorsCount")
@@ -150,7 +144,7 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("FacultyShiftGroupFacultyId", "FacultyShiftGroupShiftGroupId");
+                    b.HasIndex("FacultyShiftGroupId");
 
                     b.ToTable("DepartmentShiftGroup");
                 });
@@ -280,23 +274,25 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.FacultyShiftGroup", b =>
                 {
-                    b.Property<Guid>("FacultyId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ShiftGroupId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<int>("CalculatedInvigilatorsCount")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("FacultyId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("InvigilatorsCount")
                         .HasColumnType("int");
 
-                    b.HasKey("FacultyId", "ShiftGroupId");
+                    b.Property<Guid>("ShiftGroupId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacultyId");
 
                     b.HasIndex("ShiftGroupId");
 
@@ -349,9 +345,6 @@ namespace ESM.API.Migrations
 
                     b.Property<Guid>("DepartmentShiftGroupId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("InvigilatorsCount")
-                        .HasColumnType("int");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
@@ -423,14 +416,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "2a6b3cab-989e-4cad-8a76-859606670cc3",
+                            ConcurrencyStamp = "7e8f03f8-8b30-4afc-bf8a-6abc8f464225",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "f5c7b190-0ec0-479f-8dc2-a1e831fc29bf",
+                            ConcurrencyStamp = "c18b68d4-37f6-4f1b-b74c-fea043f43157",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -619,14 +612,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "12708a13-f23a-41fe-888f-554fde1bd32d",
+                            ConcurrencyStamp = "033b2266-67a5-4a95-ae7b-e4308cbe9089",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEKtoOjp9+7uINT0/u5GRQxYQboPY25UY//jp+RA5M3njPbjR7z10x2K0VUf0pBSFSA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDlSB7u1c5JS9TDjJgTjJq2fjGdPEg4a+5/jNWiEv1VZb/ri2cFqpHmixWw38MNU/g==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -761,7 +754,7 @@ namespace ESM.API.Migrations
 
                     b.HasOne("ESM.Data.Models.FacultyShiftGroup", "FacultyShiftGroup")
                         .WithMany("DepartmentShiftGroups")
-                        .HasForeignKey("FacultyShiftGroupFacultyId", "FacultyShiftGroupShiftGroupId")
+                        .HasForeignKey("FacultyShiftGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
