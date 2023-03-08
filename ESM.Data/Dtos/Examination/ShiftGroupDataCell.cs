@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 namespace ESM.Data.Dtos.Examination;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ExaminationGroupDataCell
+public class ShiftGroupDataCell
 {
     public int Actual { get; set; }
     public int Calculated { get; set; }

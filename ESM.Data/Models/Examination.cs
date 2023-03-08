@@ -30,13 +30,10 @@ public class Examination
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<ExaminationShiftGroup> ExaminationsShiftGroups { get; set; } = new List<ExaminationShiftGroup>();
+    public ICollection<ShiftGroup> ExaminationsShiftGroups { get; set; } = new List<ShiftGroup>();
 
     public ICollection<CandidateExaminationModule> CandidatesOfModule { get; set; } =
         new List<CandidateExaminationModule>();
-
-    public ICollection<InvigilatorExaminationModule> InvigilatorsOfModule { get; set; } =
-        new List<InvigilatorExaminationModule>();
 
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;

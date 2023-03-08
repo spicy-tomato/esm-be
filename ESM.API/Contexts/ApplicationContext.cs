@@ -15,8 +15,8 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<Department> Departments { get; set; } = null!;
     public DbSet<ExaminationData> ExaminationData { get; set; } = null!;
     public DbSet<Examination> Examinations { get; set; } = null!;
-    public DbSet<ExaminationShift> ExaminationShifts { get; set; } = null!;
-    public DbSet<ExaminationShiftGroup> ExaminationShiftGroups { get; set; } = null!;
+    public DbSet<Shift> Shifts { get; set; } = null!;
+    public DbSet<ShiftGroup> ShiftGroups { get; set; } = null!;
     public DbSet<Faculty> Faculties { get; set; } = null!;
     public DbSet<Module> Modules { get; set; } = null!;
     public DbSet<Role> Roles { get; set; } = null!;
@@ -33,8 +33,7 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<FacultyExaminationShiftGroup>()
-           .HasKey(de => new { de.FacultyId, de.ExaminationShiftGroupId });
+        builder.Entity<FacultyShiftGroup>().HasKey(de => new { de.FacultyId, de.ShiftGroupId });
 
         // Seeding the User to Roles table
         builder.Entity<Role>().HasData(

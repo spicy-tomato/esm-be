@@ -20,8 +20,8 @@ public class InvigilatorShift
 
     public DateTime? DeletedAt { get; set; }
 
-    public Guid ExaminationShiftId { get; set; }
-    public ExaminationShift ExaminationShift { get; set; } = null!;
+    public Guid ShiftId { get; set; }
+    public Shift Shift { get; set; } = null!;
 
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;

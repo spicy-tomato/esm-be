@@ -27,7 +27,4 @@ public class Module
 
     public ICollection<CandidateExaminationModule> CandidatesOfExamination { get; set; } =
         new List<CandidateExaminationModule>();
-
-    public ICollection<InvigilatorExaminationModule> InvigilatorsOfExamination { get; set; } =
-        new List<InvigilatorExaminationModule>();
 }

@@ -5,17 +5,17 @@ using JetBrains.Annotations;
 namespace ESM.Data.Models;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class Faculty
+public class InvigilatorShiftGroup
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
+    
+    public int InvigilatorsCount { get; set; }
 
-    public string? DisplayId { get; set; }
+    public Guid? UserId { get; set; }
+    public User? User { get; set; }
 
-    public string Name { get; set; } = null!;
-
-    public ICollection<Department> Departments { get; set; } = new List<Department>();
-
-    public ICollection<FacultyShiftGroup> FacultyShiftGroups { get; set; } = new List<FacultyShiftGroup>();
+    public Guid DepartmentShiftGroupId { get; set; }
+    public DepartmentShiftGroup DepartmentShiftGroup { get; set; } = null!;
 }

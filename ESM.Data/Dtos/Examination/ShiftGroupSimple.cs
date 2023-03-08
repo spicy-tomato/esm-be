@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace ESM.Data.Dtos.Examination;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ExaminationShiftGroupSimple
+public class ShiftGroupSimple
 {
     public Guid Id { get; set; }
     public ExamMethod Method { get; set; }
@@ -16,9 +16,8 @@ public class ExaminationShiftGroupSimple
     public int? Shift { get; set; }
     public bool DepartmentAssign { get; set; }
     public ModuleSimple Module { get; set; } = null!;
-    public ICollection<FacultyExaminationShiftGroup> FacultyExaminationShiftGroups { get; set; } =
-        new List<FacultyExaminationShiftGroup>();
+    public ICollection<FacultyShiftGroup> FacultyShiftGroups { get; set; } = new List<FacultyShiftGroup>();
 
     // Additional properties
-    public Dictionary<string, ExaminationGroupDataCell> AssignNumerate = new();
+    public Dictionary<string, ShiftGroupDataCell> AssignNumerate = new();
 }

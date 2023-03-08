@@ -43,11 +43,11 @@ public class ModelMapping : Profile
         CreateMap<Examination, ExaminationSummary>();
         CreateMap<Examination, ExaminationSimple>();
 
-        CreateMap<ExaminationData, ExaminationShift>();
+        CreateMap<ExaminationData, Shift>();
 
-        CreateMap<ExaminationShift, ExaminationShiftSimple>();
+        CreateMap<Shift, ShiftSimple>();
 
-        CreateMap<ExaminationShiftGroup, ExaminationShiftGroupSimple>();
+        CreateMap<ShiftGroup, ShiftGroupSimple>();
 
         #endregion
 

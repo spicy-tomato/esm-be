@@ -15,5 +15,5 @@ public class Room
 
     public int? Capacity { get; set; }
 
-    public ICollection<ExaminationShift> ExaminationShift { get; set; } = new List<ExaminationShift>();
+    public ICollection<Shift> Shift { get; set; } = new List<Shift>();
 }

@@ -195,7 +195,7 @@ public class ExaminationService
         return examinationData;
     }
 
-    public IEnumerable<ExaminationShift> RetrieveExaminationShiftsFromTemporaryData(Guid examinationGuid,
+    public IEnumerable<Shift> RetrieveShiftsFromTemporaryData(Guid examinationGuid,
         List<ExaminationData> data)
     {
         var modules = _moduleRepository.GetAll();
@@ -204,8 +204,8 @@ public class ExaminationService
         var rooms = _roomRepository.GetAll();
         var roomsDictionary = rooms.ToDictionary(m => m.DisplayId, m => m.Id);
 
-        var examinationShiftGroupsDictionary = new Dictionary<string, ExaminationShiftGroup>();
-        var examinationShifts = new List<ExaminationShift>();
+        var shiftGroupsDictionary = new Dictionary<string, ShiftGroup>();
+        var shifts = new List<Shift>();
 
         foreach (var shift in data)
         {
@@ -215,16 +215,16 @@ public class ExaminationService
             Debug.Assert(shift.CandidatesCount != null, "shift.CandidatesCount != null");
 
             var roomsInShift = RoomHelper.GetRoomsFromString(shift.Rooms);
-            var examinationShiftGroupKey = string.Join('_',
+            var shiftGroupKey = string.Join('_',
                 shift.ModuleId,
                 shift.Method.ToString(),
                 shift.StartAt.Value.ToShortDateString(),
                 shift.Shift.ToString() ?? "null"
             );
 
-            if (!examinationShiftGroupsDictionary.TryGetValue(examinationShiftGroupKey, out var shiftGroup))
+            if (!shiftGroupsDictionary.TryGetValue(shiftGroupKey, out var shiftGroup))
             {
-                shiftGroup = new ExaminationShiftGroup
+                shiftGroup = new ShiftGroup
                 {
                     Id = Guid.NewGuid(),
                     Method = shift.Method.Value,
@@ -236,7 +236,7 @@ public class ExaminationService
                     ExaminationId = examinationGuid,
                     ModuleId = modulesDictionary[shift.ModuleId]
                 };
-                examinationShiftGroupsDictionary.Add(examinationShiftGroupKey, shiftGroup);
+                shiftGroupsDictionary.Add(shiftGroupKey, shiftGroup);
             }
 
             var minCandidatesNumberInShift = shift.CandidatesCount.Value / roomsInShift.Length;
@@ -251,14 +251,14 @@ public class ExaminationService
 
                 var invigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(candidatesNumberInShift);
 
-                examinationShifts.Add(new ExaminationShift
+                shifts.Add(new Shift
                 {
                     ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
                     CandidatesCount = candidatesNumberInShift,
                     InvigilatorsCount = invigilatorsCount,
                     StartAt = shift.StartAt.Value,
                     RoomId = roomsDictionary[room],
-                    ExaminationShiftGroup = shiftGroup
+                    ShiftGroup = shiftGroup
                 });
 
                 shiftGroup.InvigilatorsCount += invigilatorsCount;
@@ -268,10 +268,10 @@ public class ExaminationService
         }
 
         // +1 invigilator for each shift
-        foreach (var examinationShift in examinationShiftGroupsDictionary)
-            examinationShift.Value.InvigilatorsCount++;
+        foreach (var shiftGroup in shiftGroupsDictionary)
+            shiftGroup.Value.InvigilatorsCount++;
 
-        return examinationShifts;
+        return shifts;
     }
 
     #endregion

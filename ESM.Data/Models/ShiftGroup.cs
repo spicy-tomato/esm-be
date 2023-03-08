@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace ESM.Data.Models;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ExaminationShiftGroup
+public class ShiftGroup
 {
     [Key]
     public Guid Id { get; set; }
@@ -28,8 +28,7 @@ public class ExaminationShiftGroup
     public Guid? ModuleId { get; set; }
     public Module Module { get; set; } = null!;
 
-    public ICollection<ExaminationShift> ExaminationShifts { get; set; } = new List<ExaminationShift>();
+    public ICollection<Shift> Shifts { get; set; } = new List<Shift>();
 
-    public ICollection<FacultyExaminationShiftGroup> FacultyExaminationShiftGroups { get; set; } =
-        new List<FacultyExaminationShiftGroup>();
+    public ICollection<FacultyShiftGroup> FacultyShiftGroups { get; set; } = new List<FacultyShiftGroup>();
 }

@@ -5,20 +5,20 @@ using JetBrains.Annotations;
 namespace ESM.Data.Models;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class Department
+public class FacultyShiftGroup
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
-    public string? DisplayId { get; set; }
+    public int InvigilatorsCount { get; set; }
+    public int CalculatedInvigilatorsCount { get; set; }
 
-    public string Name { get; set; } = null!;
+    public Guid FacultyId { get; set; }
+    public Faculty Faculty { get; set; } = null!;
 
-    public Guid? FacultyId { get; set; }
-    public Faculty? Faculty { get; set; }
-
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public Guid ShiftGroupId { get; set; }
+    public ShiftGroup ShiftGroup { get; set; } = null!;
 
     public ICollection<DepartmentShiftGroup> DepartmentShiftGroups { get; set; } = new List<DepartmentShiftGroup>();
 }

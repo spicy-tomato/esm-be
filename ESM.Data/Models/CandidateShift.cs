@@ -16,6 +16,6 @@ public class CandidateShift
     public Guid CandidateId { get; set; }
     public Candidate Candidate { get; set; } = null!;
 
-    public Guid ExaminationShiftId { get; set; }
-    public ExaminationShift ExaminationShift { get; set; } = null!;
+    public Guid ShiftId { get; set; }
+    public Shift Shift { get; set; } = null!;
 }
