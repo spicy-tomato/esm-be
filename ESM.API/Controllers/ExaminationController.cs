@@ -171,7 +171,7 @@ public class ExaminationController : BaseController
     /// <param name="newStatus"></param>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpPatch("{examinationId}/status")]
+    [HttpPost("{examinationId}/status")]
     public Result<bool> ChangeStatus([FromBody] ExaminationStatus newStatus, string examinationId)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
@@ -207,17 +207,15 @@ public class ExaminationController : BaseController
     [HttpPatch("{examinationId}/exams-number")]
     public Task<Result<bool>> UpdateExamsCount([FromBody] Dictionary<string, int> request, string examinationId)
     {
-        var guid = ParseGuid(examinationId);
-        var entity = _context.Examinations
-           .Include(e => e.ExaminationsShiftGroups)
-           .ThenInclude(eg => eg.Shifts)
-           .FirstOrDefault(e => e.Id == guid);
-        if (entity == null)
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.AssignFaculty)
-            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
 
         const string notFoundMessage = "Shift ID does not exists: ";
+
+        _context.Entry(entity)
+           .Collection(e => e.ExaminationsShiftGroups)
+           .Query()
+           .Include(eg => eg.Shifts)
+           .Load();
 
         foreach (var (shiftGroupId, examsCount) in request)
         {
@@ -278,30 +276,32 @@ public class ExaminationController : BaseController
     [HttpPost("{examinationId}/group")]
     public Result<bool> CalculateInvigilatorNumerateOfShiftForEachFaculty(string examinationId)
     {
-        var guid = ParseGuid(examinationId);
-        var entity = _context.Examinations
-           .Include(e => e.ExaminationsShiftGroups)
-           .ThenInclude(eg => eg.Module)
-           .Include(e => e.ExaminationsShiftGroups)
-           .ThenInclude(eg => eg.FacultyShiftGroups)
-           .FirstOrDefault(e => e.Id == guid);
-        if (entity == null)
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
-        if (entity.Status != ExaminationStatus.AssignFaculty)
-            throw new BadRequestException("Examination status should be ExaminationStatus.AssignFaculty");
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
+
+        _context.Entry(entity)
+           .Collection(e => e.ExaminationsShiftGroups)
+           .Query()
+           .Include(eg => eg.Module)
+           .Include(eg => eg.FacultyShiftGroups)
+           .Load();
 
         var faculties = _facultyRepository.GetAll().ToList();
-        var facultiesPercent = CalculatePercent();
+        var teachersNumberInFaculties = GetTeachersNumberInFaculties();
+        var teachersTotal = teachersNumberInFaculties.Sum(t => t.Value);
 
         foreach (var group in entity.ExaminationsShiftGroups)
         {
             var mainFacultyId = group.Module.FacultyId;
+            var teachersNumberInRestFaculties =
+                teachersTotal - teachersNumberInFaculties.GetValueOrDefault(mainFacultyId, 0);
+
             foreach (var faculty in faculties)
             {
                 var calculatedInvigilatorsCount = faculty.Id == mainFacultyId
                     ? group.RoomsCount
                     : Convert.ToInt32((group.InvigilatorsCount - group.RoomsCount) *
-                                      facultiesPercent.GetValueOrDefault(faculty.Id, 0));
+                                      (teachersNumberInFaculties.GetValueOrDefault(faculty.Id, 0) /
+                                       teachersNumberInRestFaculties));
                 var savedRecord = group.FacultyShiftGroups
                    .FirstOrDefault(feg => feg.FacultyId == faculty.Id);
                 if (savedRecord == null)
@@ -498,10 +498,10 @@ public class ExaminationController : BaseController
         return entity;
     }
 
-    private Dictionary<Guid, double> CalculatePercent()
+    private Dictionary<Guid, int> GetTeachersNumberInFaculties()
     {
         var teachers = _userRepository.Find(u => u.DepartmentId != null).ToList();
-        var facultyTeachersCount = new Dictionary<Guid, double>();
+        var facultyTeachersCount = new Dictionary<Guid, int>();
 
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var teacher in teachers)
@@ -515,11 +515,6 @@ public class ExaminationController : BaseController
                 facultyTeachersCount[facultyId]++;
             else
                 facultyTeachersCount.Add(facultyId, 1);
-        }
-
-        foreach (var (facultyId, teachersCount) in facultyTeachersCount)
-        {
-            facultyTeachersCount[facultyId] = teachersCount / teachers.Count;
         }
 
         return facultyTeachersCount;
