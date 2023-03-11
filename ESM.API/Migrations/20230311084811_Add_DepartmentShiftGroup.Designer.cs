@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230311084811_Add_DepartmentShiftGroup")]
+    partial class Add_DepartmentShiftGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,11 +133,14 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("DepartmentId")
+                    b.Property<Guid>("DepartmentId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("FacultyShiftGroupId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("InvigilatorsCount")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
@@ -397,14 +402,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "def3c198-02c6-4eb7-80db-0070e85fda6c",
+                            ConcurrencyStamp = "ee8ffb9c-d7ca-40bf-b16d-e0e1a2b1e277",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "19bebb2f-26d9-4841-a391-f5d304ebef6c",
+                            ConcurrencyStamp = "fb54aab8-5c05-4e87-a09d-55f2b6b53944",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -593,14 +598,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8e561f4f-5d33-4fbb-9fd1-838646ff61e6",
+                            ConcurrencyStamp = "ff4ef234-a958-4052-be40-335ba1f75e95",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJB64JV9rkRsMrR+BVLq8GX1bydA6+4DkyhU335E7oK2TQ+tF5NuXjDqJX4ijYfS+A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEEdXz9qh162sjDREMKF2KtY52PSc01Jfxczia/04PlKjWGTDyeRfwht1Z49AKVns6w==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -729,7 +734,9 @@ namespace ESM.API.Migrations
                 {
                     b.HasOne("ESM.Data.Models.Department", "Department")
                         .WithMany("DepartmentShiftGroups")
-                        .HasForeignKey("DepartmentId");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ESM.Data.Models.FacultyShiftGroup", "FacultyShiftGroup")
                         .WithMany("DepartmentShiftGroups")

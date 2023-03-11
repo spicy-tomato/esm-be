@@ -17,6 +17,8 @@ public class ApplicationContext : IdentityUserContext<User, Guid>
     public DbSet<Examination> Examinations { get; set; } = null!;
     public DbSet<Shift> Shifts { get; set; } = null!;
     public DbSet<ShiftGroup> ShiftGroups { get; set; } = null!;
+    public DbSet<DepartmentShiftGroup> DepartmentShiftGroups { get; set; } = null!;
+    public DbSet<FacultyShiftGroup> FacultyShiftGroups { get; set; } = null!;
     public DbSet<Faculty> Faculties { get; set; } = null!;
     public DbSet<Module> Modules { get; set; } = null!;
     public DbSet<Role> Roles { get; set; } = null!;

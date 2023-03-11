@@ -30,6 +30,7 @@ public class ExaminationController : BaseController
     private readonly ExaminationRepository _examinationRepository;
     private readonly ShiftRepository _shiftRepository;
     private readonly ShiftGroupRepository _shiftGroupRepository;
+    private readonly DepartmentShiftGroupRepository _departmentShiftGroupRepository;
     private readonly FacultyRepository _facultyRepository;
     private readonly UserRepository _userRepository;
 
@@ -48,7 +49,8 @@ public class ExaminationController : BaseController
         ShiftRepository shiftRepository,
         ShiftGroupRepository shiftGroupRepository,
         FacultyRepository facultyRepository,
-        UserRepository userRepository) : base(mapper)
+        UserRepository userRepository,
+        DepartmentShiftGroupRepository departmentShiftGroupRepository) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
@@ -58,6 +60,7 @@ public class ExaminationController : BaseController
         _shiftGroupRepository = shiftGroupRepository;
         _facultyRepository = facultyRepository;
         _userRepository = userRepository;
+        _departmentShiftGroupRepository = departmentShiftGroupRepository;
     }
 
     #endregion
@@ -91,10 +94,9 @@ public class ExaminationController : BaseController
     public Result<IEnumerable<ExaminationSummary>> GetRelated()
     {
         var filterActive = Request.Query["isActive"].ToString() == "true";
-        var userId = GetUserId();
+        // var userId = GetUserId();
 
-        var createdExamination =
-            _examinationRepository.Find(e => e.CreatedBy.Id == userId && (!filterActive || e.Status > 0));
+        var createdExamination = _examinationRepository.Find(e => (!filterActive || e.Status > 0));
 
         return Result<IEnumerable<ExaminationSummary>>.Get(createdExamination);
     }
@@ -212,7 +214,7 @@ public class ExaminationController : BaseController
         const string notFoundMessage = "Shift ID does not exists: ";
 
         _context.Entry(entity)
-           .Collection(e => e.ExaminationsShiftGroups)
+           .Collection(e => e.ShiftGroups)
            .Query()
            .Include(eg => eg.Shifts)
            .Load();
@@ -223,7 +225,7 @@ public class ExaminationController : BaseController
                 throw new NotFoundException(notFoundMessage + shiftGroupId);
 
             var found = false;
-            foreach (var shiftGroup in entity.ExaminationsShiftGroups)
+            foreach (var shiftGroup in entity.ShiftGroups)
             {
                 foreach (var shift in shiftGroup.Shifts)
                 {
@@ -243,6 +245,24 @@ public class ExaminationController : BaseController
         _context.SaveChanges();
 
         return Task.FromResult(Result<bool>.Get(true));
+    }
+
+    /// <summary>
+    /// Get shift by faculty ID
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="facultyId"></param>
+    /// <returns></returns>
+    [HttpGet("{examinationId}/faculty/{facultyId}/group")]
+    public Result<List<DepartmentShiftGroupSimple>> GetGroupsByFacultyId(string examinationId, string facultyId)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+        var facultyGuid = ParseGuid(facultyId);
+        var data = _departmentShiftGroupRepository.Find(fg =>
+            fg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid &&
+            fg.FacultyShiftGroup.FacultyId == facultyGuid);
+
+        return Result<List<DepartmentShiftGroupSimple>>.Get(data);
     }
 
     /// <summary>
@@ -279,7 +299,7 @@ public class ExaminationController : BaseController
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
 
         _context.Entry(entity)
-           .Collection(e => e.ExaminationsShiftGroups)
+           .Collection(e => e.ShiftGroups)
            .Query()
            .Include(eg => eg.Module)
            .Include(eg => eg.FacultyShiftGroups)
@@ -289,7 +309,7 @@ public class ExaminationController : BaseController
         var teachersNumberInFaculties = GetTeachersNumberInFaculties();
         var teachersTotal = teachersNumberInFaculties.Sum(t => t.Value);
 
-        foreach (var group in entity.ExaminationsShiftGroups)
+        foreach (var group in entity.ShiftGroups)
         {
             var mainFacultyId = group.Module.FacultyId;
             var teachersNumberInRestFaculties =
@@ -300,7 +320,7 @@ public class ExaminationController : BaseController
                 var calculatedInvigilatorsCount = faculty.Id == mainFacultyId
                     ? group.RoomsCount
                     : Convert.ToInt32((group.InvigilatorsCount - group.RoomsCount) *
-                                      (teachersNumberInFaculties.GetValueOrDefault(faculty.Id, 0) /
+                                      (teachersNumberInFaculties.GetValueOrDefault(faculty.Id, 0) * 1.0 /
                                        teachersNumberInRestFaculties));
                 var savedRecord = group.FacultyShiftGroups
                    .FirstOrDefault(feg => feg.FacultyId == faculty.Id);
@@ -313,7 +333,10 @@ public class ExaminationController : BaseController
                         CalculatedInvigilatorsCount = calculatedInvigilatorsCount
                     });
                 else
+                {
                     savedRecord.InvigilatorsCount = calculatedInvigilatorsCount;
+                    savedRecord.CalculatedInvigilatorsCount = calculatedInvigilatorsCount;
+                }
             }
         }
 
@@ -377,12 +400,12 @@ public class ExaminationController : BaseController
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
 
         _context.Entry(entity)
-           .Collection(e => e.ExaminationsShiftGroups)
+           .Collection(e => e.ShiftGroups)
            .Query()
            .Include(eg => eg.FacultyShiftGroups)
            .Load();
 
-        var group = entity.ExaminationsShiftGroups.FirstOrDefault(eg => eg.Id == groupGuid);
+        var group = entity.ShiftGroups.FirstOrDefault(eg => eg.Id == groupGuid);
         if (group == null)
             throw new NotFoundException(notFoundGroupMessage);
 
@@ -557,20 +580,35 @@ public class ExaminationController : BaseController
     private void FinishAssignFaculty(Examination entity)
     {
         _context.Entry(entity)
-           .Collection(e => e.ExaminationsShiftGroups)
+           .Collection(e => e.ShiftGroups)
            .Query()
            .Include(eg => eg.FacultyShiftGroups)
            .Include(eg => eg.Module)
            .Where(eg => !eg.DepartmentAssign)
            .Load();
 
-        foreach (var group in entity.ExaminationsShiftGroups)
+        foreach (var group in entity.ShiftGroups)
         {
             var expected = group.InvigilatorsCount;
             var actual = group.FacultyShiftGroups.Sum(feg => feg.InvigilatorsCount);
             if (actual != expected)
                 throw new BadRequestException(
                     $"Actual assigned invigilators number is not match (met {actual}, need {expected}) in group {group.Id} ({group.Module.Name})");
+        }
+
+        var oldDepartmentShiftGroups =
+            _context.DepartmentShiftGroups.Where(dg => dg.FacultyShiftGroup.ShiftGroup.ExaminationId == entity.Id);
+        _context.DepartmentShiftGroups.RemoveRange(oldDepartmentShiftGroups);
+
+        foreach (var group in entity.ShiftGroups)
+        {
+            foreach (var facultyGroup in group.FacultyShiftGroups)
+            {
+                facultyGroup.DepartmentShiftGroups =
+                    new List<DepartmentShiftGroup>(new DepartmentShiftGroup[facultyGroup.InvigilatorsCount])
+                       .Select(_ => new DepartmentShiftGroup { FacultyShiftGroup = facultyGroup })
+                       .ToList();
+            }
         }
 
         entity.Status = ExaminationStatus.AssignInvigilator;

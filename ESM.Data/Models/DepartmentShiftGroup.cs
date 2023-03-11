@@ -11,13 +11,12 @@ public class DepartmentShiftGroup
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
-    public int InvigilatorsCount { get; set; }
+    public Guid? DepartmentId { get; set; }
+    public Department? Department { get; set; }
 
-    public Guid DepartmentId { get; set; }
-    public Department Department { get; set; } = null!;
+    public Guid? UserId { get; set; }
+    public User? User { get; set; }
 
     public Guid FacultyShiftGroupId { get; set; }
     public FacultyShiftGroup FacultyShiftGroup { get; set; } = null!;
-
-    public ICollection<InvigilatorShiftGroup> InvigilatorShiftGroups { get; set; } = new List<InvigilatorShiftGroup>();
 }

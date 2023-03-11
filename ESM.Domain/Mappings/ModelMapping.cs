@@ -48,6 +48,12 @@ public class ModelMapping : Profile
         CreateMap<Shift, ShiftSimple>();
 
         CreateMap<ShiftGroup, ShiftGroupSimple>();
+        CreateMap<ShiftGroup, ShiftGroupInDepartmentShiftGroupSimple>();
+        
+        // CreateMap<FacultyShiftGroup, FacultyShiftGroupSimple>();
+        CreateMap<FacultyShiftGroup, FacultyShiftGroupInDepartmentShiftGroupSimple>();
+
+        CreateMap<DepartmentShiftGroup, DepartmentShiftGroupSimple>();
 
         #endregion
 

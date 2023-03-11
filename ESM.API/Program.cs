@@ -42,6 +42,8 @@ builder.Services.AddScoped<ExaminationDataRepository>();
 builder.Services.AddScoped<ExaminationRepository>();
 builder.Services.AddScoped<ShiftRepository>();
 builder.Services.AddScoped<ShiftGroupRepository>();
+builder.Services.AddScoped<DepartmentShiftGroupRepository>();
+builder.Services.AddScoped<FacultyShiftGroupRepository>();
 builder.Services.AddScoped<FacultyRepository>();
 builder.Services.AddScoped<ModuleRepository>();
 builder.Services.AddScoped<RoomRepository>();
