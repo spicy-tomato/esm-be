@@ -266,6 +266,46 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
+    /// Update teacher assignment
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="facultyId"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    [HttpPost("{examinationId}/faculty/{facultyId}/group")]
+    public Result<bool> UpdateTeacherAssignment(string examinationId,
+        string facultyId,
+        [FromBody] Dictionary<string, UpdateTeacherAssignmentRequestElement> data)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+        var facultyGuid = ParseGuid(facultyId);
+        var facultyShiftGroups = _context.DepartmentShiftGroups
+            // .Include(fg => fg.DepartmentShiftGroups)
+           .Where(fg =>
+                fg.FacultyShiftGroup.FacultyId == facultyGuid &&
+                fg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid)
+           .ToDictionary(fg => fg.Id.ToString(), fg => fg);
+
+        foreach (var (departmentShiftGroupId, rowData) in data)
+        {
+            if (!facultyShiftGroups.TryGetValue(departmentShiftGroupId, out var departmentShiftGroup))
+                throw new BadRequestException(
+                    $"Department group ID {departmentShiftGroupId} is not exist in faculty group ID {facultyId}");
+
+            if (rowData.DepartmentId != null)
+                departmentShiftGroup.DepartmentId = new Guid(rowData.DepartmentId);
+            if (rowData.UserId != null)
+                departmentShiftGroup.UserId = new Guid(rowData.UserId);
+            if (rowData.TemporaryInvigilatorName != null)
+                departmentShiftGroup.TemporaryInvigilatorName = rowData.TemporaryInvigilatorName;
+        }
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
     /// Get all shift groups in examination
     /// </summary>
     /// <param name="examinationId"></param>
