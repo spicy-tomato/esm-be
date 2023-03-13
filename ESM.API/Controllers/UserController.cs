@@ -52,12 +52,11 @@ public class UserController : BaseController
 
     [HttpGet]
     [Authorize]
-    public Result<IEnumerable<UserSummary>> GetAll()
+    public Result<IEnumerable<UserSummary>> GetUsers([FromQuery] bool? isInvigilator)
     {
-        var isInvigilator = Request.Query["isInvigilator"].ToString() == "true";
-        var result = isInvigilator
-            ? _userRepository.Find(u => u.InvigilatorId != null)
-            : _userRepository.GetAll();
+        var result = _userRepository.Find(u =>
+            isInvigilator == null || isInvigilator == false || u.InvigilatorId != null
+        );
 
         return Result<IEnumerable<UserSummary>>.Get(result);
     }
@@ -183,9 +182,9 @@ public class UserController : BaseController
 
     #region Private methods
 
-    private static Guid ParseGuid(string departmentId)
+    private static Guid ParseGuid(string id)
     {
-        if (!Guid.TryParse(departmentId, out var guid))
+        if (!Guid.TryParse(id, out var guid))
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         return guid;
     }

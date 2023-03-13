@@ -137,6 +137,9 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("FacultyShiftGroupId")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("TemporaryInvigilatorName")
+                        .HasColumnType("longtext");
+
                     b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
 
@@ -397,14 +400,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "def3c198-02c6-4eb7-80db-0070e85fda6c",
+                            ConcurrencyStamp = "d01d1356-8ef7-43eb-a3ca-15e03853a8af",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "19bebb2f-26d9-4841-a391-f5d304ebef6c",
+                            ConcurrencyStamp = "689e0905-f6b2-45a1-b34b-b4397d663095",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -593,14 +596,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8e561f4f-5d33-4fbb-9fd1-838646ff61e6",
+                            ConcurrencyStamp = "3182f890-ebfa-47ec-9085-bd054d045641",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJB64JV9rkRsMrR+BVLq8GX1bydA6+4DkyhU335E7oK2TQ+tF5NuXjDqJX4ijYfS+A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ4KKJmacMsaKfxsbTi2kjkpr1yhGgwjpKvMYZX4sU2KmLkzhMv/Tp5n/hynbxJqEw==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,

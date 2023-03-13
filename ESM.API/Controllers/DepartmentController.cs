@@ -19,6 +19,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ESM.API.Controllers;
 
@@ -111,33 +112,35 @@ public class DepartmentController : BaseController
 
         foreach (var (facultyName, departments) in importResult)
         {
-            var faculty = await _facultyRepository.CreateAsync(new Faculty
-                {
-                    Name = facultyName
-                },
-                false);
+            EntityEntry<Faculty>? faculty = null;
+            if (facultyName != "Khác")
+            {
+                faculty = await _facultyRepository.CreateAsync(new Faculty
+                    {
+                        Name = facultyName
+                    },
+                    false);
+            }
 
-            foreach (var (departmentName, teachersName) in departments)
+            foreach (var (departmentName, teachers) in departments)
             {
                 var department = await _departmentRepository.CreateAsync(new Department
                     {
                         Name = departmentName,
-                        FacultyId = faculty.Entity.Id
+                        FacultyId = faculty?.Entity.Id
                     },
                     false);
 
-                foreach (var teacherName in teachersName)
+                foreach (var teacher in teachers)
                 {
                     await _userManager.CreateAsync(new User
                     {
                         Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
                            .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
-                        UserName = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
-                           .Select(s => s[random.Next(s.Length)]).ToArray()),
-                        FullName = teacherName,
+                        UserName = "GV" + teacher.Key,
+                        FullName = teacher.Value,
                         Department = department.Entity,
-                        InvigilatorId = "GV" + new string(Enumerable.Repeat("0123456789", 10)
-                           .Select(s => s[random.Next(s.Length)]).ToArray()),
+                        InvigilatorId = teacher.Key,
                         RoleId = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18")
                     });
                 }

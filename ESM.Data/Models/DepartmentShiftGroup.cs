@@ -16,6 +16,8 @@ public class DepartmentShiftGroup
 
     public Guid? UserId { get; set; }
     public User? User { get; set; }
+    
+    public string? TemporaryInvigilatorName { get; set; }
 
     public Guid FacultyShiftGroupId { get; set; }
     public FacultyShiftGroup FacultyShiftGroup { get; set; } = null!;
