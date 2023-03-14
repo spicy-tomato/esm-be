@@ -250,6 +250,12 @@ public class ExaminationService
                     candidatesNumberInShift++;
 
                 var invigilatorsCount = ExaminationHelper.CalculateInvigilatorNumber(candidatesNumberInShift);
+                var invigilatorShift = new List<InvigilatorShift>();
+
+                for (var j = 1; j <= invigilatorsCount; j++)
+                {
+                    invigilatorShift.Add(new InvigilatorShift { OrderIndex = j });
+                }
 
                 shifts.Add(new Shift
                 {
@@ -258,7 +264,8 @@ public class ExaminationService
                     InvigilatorsCount = invigilatorsCount,
                     StartAt = shift.StartAt.Value,
                     RoomId = roomsDictionary[room],
-                    ShiftGroup = shiftGroup
+                    ShiftGroup = shiftGroup,
+                    InvigilatorShift = invigilatorShift
                 });
 
                 shiftGroup.InvigilatorsCount += invigilatorsCount;

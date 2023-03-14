@@ -12,6 +12,7 @@ using ESM.Data.Request.Faculty;
 using ESM.Data.Request.Module;
 using ESM.Data.Request.Room;
 using ESM.Data.Request.User;
+using ESM.Data.Responses.Examination;
 
 namespace ESM.Domain.Mappings;
 
@@ -46,14 +47,18 @@ public class ModelMapping : Profile
         CreateMap<ExaminationData, Shift>();
 
         CreateMap<Shift, ShiftSimple>();
+        CreateMap<Shift, ExaminationGetShiftResponseItem>();
 
         CreateMap<ShiftGroup, ShiftGroupSimple>();
         CreateMap<ShiftGroup, ShiftGroupInDepartmentShiftGroupSimple>();
-        
+        CreateMap<ShiftGroup, ExaminationGetShiftResponseItem.InternalShiftGroup>();
+
         // CreateMap<FacultyShiftGroup, FacultyShiftGroupSimple>();
         CreateMap<FacultyShiftGroup, FacultyShiftGroupInDepartmentShiftGroupSimple>();
 
         CreateMap<DepartmentShiftGroup, DepartmentShiftGroupSimple>();
+
+        CreateMap<InvigilatorShift, ExaminationGetShiftResponseItem.InternalInvigilatorShift>();
 
         #endregion
 

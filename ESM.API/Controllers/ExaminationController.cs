@@ -10,6 +10,7 @@ using ESM.Data.Dtos.Examination;
 using ESM.Data.Enums;
 using ESM.Data.Models;
 using ESM.Data.Request.Examination;
+using ESM.Data.Responses.Examination;
 using ESM.Data.Validations.Examination;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -165,6 +166,30 @@ public class ExaminationController : BaseController
         _context.SaveChanges();
 
         return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Get all shifts in an examination
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpGet("{examinationId}/shift")]
+    public Result<List<ExaminationGetShiftResponseItem>> GetShifts(string examinationId)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
+        var data =
+            Mapper.ProjectTo<ExaminationGetShiftResponseItem>(
+                _context.Shifts
+                   .Include(s => s.InvigilatorShift)
+                   .Include(s => s.Room)
+                   .Include(s => s.ShiftGroup)
+                   .ThenInclude(g => g.Module)
+                   .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
+                   .OrderBy(g => g.StartAt)
+                   .ThenBy(g => g.ShiftGroup.ModuleId)
+                   .ThenBy(g => g.Room.Id)
+            ).ToList();
+        return Result<List<ExaminationGetShiftResponseItem>>.Get(data);
     }
 
     /// <summary>
