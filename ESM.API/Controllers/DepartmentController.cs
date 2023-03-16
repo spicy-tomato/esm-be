@@ -8,7 +8,6 @@ using ESM.Common.Core.Exceptions;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Department;
-using ESM.Data.Dtos.Faculty;
 using ESM.Data.Dtos.User;
 using ESM.Data.Models;
 using ESM.Data.Request.Department;
@@ -59,17 +58,6 @@ public class DepartmentController : BaseController
     #endregion
 
     #region Public Methods
-
-    /// <summary>
-    /// Get all departments
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    public Result<IEnumerable<FacultyWithDepartments>> GetAll()
-    {
-        var result = _facultyRepository.GetAllWithDepartments();
-        return Result<IEnumerable<FacultyWithDepartments>>.Get(result);
-    }
 
     /// <summary>
     /// Create department

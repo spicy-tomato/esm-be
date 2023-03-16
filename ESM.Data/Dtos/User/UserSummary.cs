@@ -1,5 +1,4 @@
 using ESM.Data.Dtos.Department;
-using ESM.Data.Models;
 using JetBrains.Annotations;
 
 namespace ESM.Data.Dtos.User;

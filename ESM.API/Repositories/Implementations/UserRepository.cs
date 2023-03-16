@@ -17,8 +17,6 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
 
     #endregion
 
-    public new IEnumerable<UserSummary> GetAll() => Mapper.ProjectTo<UserSummary>(Context.Users);
-
     public new UserSummary? GetById(Guid id)
     {
         return Mapper.ProjectTo<UserSummary>(

@@ -13,6 +13,7 @@ using ESM.Data.Request.Module;
 using ESM.Data.Request.Room;
 using ESM.Data.Request.User;
 using ESM.Data.Responses.Examination;
+using ESM.Data.Responses.Faculty;
 
 namespace ESM.Domain.Mappings;
 
@@ -24,8 +25,11 @@ public class ModelMapping : Profile
 
         CreateMap<CreateFacultyRequest, Faculty>();
         CreateMap<UpdateFacultyRequest, Faculty>();
+
         CreateMap<Faculty, FacultySummary>();
-        CreateMap<Faculty, FacultyWithDepartments>();
+        CreateMap<Faculty, GetAllResponseItem>();
+        CreateMap<Faculty, GetAllGroupsResponseResponseItem.InternalFaculty>();
+        CreateMap<Faculty, AssignInvigilatorNumerateOfShiftToFacultyResponse.InternalFaculty>();
 
         #endregion
 
@@ -33,8 +37,9 @@ public class ModelMapping : Profile
 
         CreateMap<CreateDepartmentRequest, Department>();
         CreateMap<UpdateDepartmentRequest, Department>();
+
         CreateMap<Department, DepartmentSummary>();
-        CreateMap<Department, DepartmentSimple>();
+        CreateMap<Department, GetAllResponseItem.InternalDepartment>();
 
         #endregion
 
@@ -42,30 +47,38 @@ public class ModelMapping : Profile
 
         CreateMap<CreateExaminationRequest, Examination>();
         CreateMap<Examination, ExaminationSummary>();
-        CreateMap<Examination, ExaminationSimple>();
+        CreateMap<Examination, GetRelatedResponseItem>();
 
         CreateMap<ExaminationData, Shift>();
 
-        CreateMap<Shift, ShiftSimple>();
-        CreateMap<Shift, ExaminationGetShiftResponseItem>();
+        CreateMap<Shift, GetDataResponseItem>();
+        CreateMap<Shift, GetShiftResponseItem>();
 
-        CreateMap<ShiftGroup, ShiftGroupSimple>();
-        CreateMap<ShiftGroup, ShiftGroupInDepartmentShiftGroupSimple>();
-        CreateMap<ShiftGroup, ExaminationGetShiftResponseItem.InternalShiftGroup>();
+        CreateMap<ShiftGroup, GetDataResponseItem.InternalShiftGroup>();
+        CreateMap<ShiftGroup, GetShiftResponseItem.InternalShiftGroup>();
+        CreateMap<ShiftGroup, GetGroupByFacultyIdResponseItem.InternalShiftGroup>();
+        CreateMap<ShiftGroup, GetAllGroupsResponseResponseItem>();
+        CreateMap<ShiftGroup, AssignInvigilatorNumerateOfShiftToFacultyResponse>();
 
-        // CreateMap<FacultyShiftGroup, FacultyShiftGroupSimple>();
-        CreateMap<FacultyShiftGroup, FacultyShiftGroupInDepartmentShiftGroupSimple>();
+        CreateMap<FacultyShiftGroup, GetShiftResponseItem.InternalFacultyShiftGroup>();
+        CreateMap<FacultyShiftGroup, GetGroupByFacultyIdResponseItem.InternalFacultyShiftGroup>();
 
-        CreateMap<DepartmentShiftGroup, DepartmentShiftGroupSimple>();
+        CreateMap<DepartmentShiftGroup, GetShiftResponseItem.InternalDepartmentShiftGroup>();
+        CreateMap<DepartmentShiftGroup, GetGroupByFacultyIdResponseItem>();
 
-        CreateMap<InvigilatorShift, ExaminationGetShiftResponseItem.InternalInvigilatorShift>();
+        CreateMap<InvigilatorShift, GetShiftResponseItem.InternalInvigilatorShift>();
 
         #endregion
 
         #region Module
 
         CreateMap<CreateModuleRequest, Module>();
+
         CreateMap<Module, ModuleSimple>();
+        CreateMap<Module, GetDataResponseItem.InternalModule>();
+        CreateMap<Module, GetGroupByFacultyIdResponseItem.InternalModule>();
+        CreateMap<Module, GetAllGroupsResponseResponseItem.InternalModule>();
+        CreateMap<Module, AssignInvigilatorNumerateOfShiftToFacultyResponse.InternalModule>();
 
         #endregion
 
@@ -73,6 +86,7 @@ public class ModelMapping : Profile
 
         CreateMap<CreateRoomRequest, Room>();
         CreateMap<Room, RoomSummary>();
+        CreateMap<Room, GetDataResponseItem.InternalRoom>();
 
         #endregion
 
@@ -88,7 +102,9 @@ public class ModelMapping : Profile
            .ForMember(des => des.Role,
                 opt => opt.MapFrom(src => src.Role.Name)
             );
+
         CreateMap<User, UserSimple>();
+        CreateMap<User, GetShiftResponseItem.InternalUser>();
 
         #endregion
     }

@@ -23,14 +23,6 @@ public class ExaminationRepository : RepositoryBase<Examination>, IExaminationRe
            .FirstOrDefault(e => e.Id == id);
     }
 
-    public new IEnumerable<ExaminationSummary> Find(Expression<Func<Examination, bool>> expression)
-    {
-        return Mapper.ProjectTo<ExaminationSummary>(Context.Examinations
-           .Include(e => e.CreatedBy)
-           .Where(expression)
-        );
-    }
-
     public ExaminationStatus? GetStatus(Guid id)
     {
         var examination = Context.Examinations

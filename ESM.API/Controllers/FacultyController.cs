@@ -12,11 +12,13 @@ using ESM.Data.Dtos.User;
 using ESM.Data.Models;
 using ESM.Data.Request.Faculty;
 using ESM.Data.Request.Module;
+using ESM.Data.Responses.Faculty;
 using ESM.Data.Validations.Faculty;
 using ESM.Data.Validations.Module;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Controllers;
 
@@ -53,6 +55,20 @@ public class FacultyController : BaseController
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Get all faculties
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public Result<List<GetAllResponseItem>> GetAll()
+    {
+        var result = Mapper.ProjectTo<GetAllResponseItem>(
+                _context.Faculties
+                   .Include(f => f.Departments))
+           .ToList();
+        return Result<List<GetAllResponseItem>>.Get(result);
+    }
 
     /// <summary>
     /// Create faculty
