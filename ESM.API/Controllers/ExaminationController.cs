@@ -196,6 +196,36 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
+    /// Update invigilators in shift
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPatch("{examinationId}/shift")]
+    public Result<bool> AssignInvigilatorsToShifts(string examinationId,
+        [FromBody] AssignInvigilatorsToShiftsRequest request)
+    {
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+
+        _context.Entry(entity)
+           .Collection(e => e.ShiftGroups)
+           .Query()
+           .Include(eg => eg.Shifts)
+           .ThenInclude(fg => fg.InvigilatorShift)
+           .Load();
+
+        foreach (var shiftGroup in entity.ShiftGroups)
+        foreach (var shift in shiftGroup.Shifts)
+        foreach (var invigilatorShift in shift.InvigilatorShift)
+            if (request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
+                invigilatorShift.InvigilatorId = invigilatorId;
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
     /// Change examination status
     /// </summary>
     /// <param name="newStatus"></param>
