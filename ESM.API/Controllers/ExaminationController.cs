@@ -327,9 +327,15 @@ public class ExaminationController : BaseController
             if (rowData.DepartmentId != null)
                 departmentShiftGroup.DepartmentId = new Guid(rowData.DepartmentId);
             if (rowData.UserId != null)
+            {
                 departmentShiftGroup.UserId = new Guid(rowData.UserId);
-            if (rowData.TemporaryInvigilatorName != null)
+                departmentShiftGroup.TemporaryInvigilatorName = null;
+            }
+            else if (rowData.TemporaryInvigilatorName != null)
+            {
                 departmentShiftGroup.TemporaryInvigilatorName = rowData.TemporaryInvigilatorName;
+                departmentShiftGroup.UserId = null;
+            }
         }
 
         _context.SaveChanges();
@@ -491,13 +497,64 @@ public class ExaminationController : BaseController
         var invigilatorsNumberInFaculties = _userRepository.CountByFaculties();
 
         var facultyShiftGroup = _context.FacultyShiftGroups
-           .Where(fg => fg.ShiftGroup.ExaminationId == entity.Id && !fg.ShiftGroup.DepartmentAssign)
+           .Where(fg => fg.ShiftGroupId == groupGuid && !fg.ShiftGroup.DepartmentAssign)
            .ToList();
 
         if (data != null)
             CalculateShiftInvigilatorsNumber(data, facultyShiftGroup, invigilatorsNumberInFaculties);
 
         return Result<AssignInvigilatorNumerateOfShiftToFacultyResponse?>.Get(data);
+    }
+
+    /// <summary>
+    /// Get invigilators for each shift group
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    /// <exception cref="BadRequestException"></exception>
+    [HttpGet("{examinationId}/invigilator")]
+    public Result<Dictionary<string, List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>>>
+        GetAvailableInvigilatorsInShiftGroup(string examinationId)
+    {
+        // var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+
+        var guid = ParseGuid(examinationId);
+        var entity =
+            Mapper.ProjectTo<GetAvailableInvigilatorsInShiftGroupResponse>(
+                    _context.Examinations
+                       .Where(e => e.Id == guid)
+                       .Include(e => e.ShiftGroups)
+                       .ThenInclude(g => g.FacultyShiftGroups)
+                       .ThenInclude(fg => fg.DepartmentShiftGroups)
+                       .ThenInclude(dg => dg.User)
+                )
+               .FirstOrDefault();
+        if (entity == null)
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+
+
+        var result =
+            new Dictionary<string, List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>>();
+
+        foreach (var group in entity.ShiftGroups)
+        {
+            var list = new List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>();
+            var groupId = group.Id.ToString();
+
+            foreach (var facultyShiftGroup in group.FacultyShiftGroups)
+            {
+                foreach (var departmentShiftGroup in facultyShiftGroup.DepartmentShiftGroups)
+                {
+                    if (departmentShiftGroup.User != null)
+                        list.Add(departmentShiftGroup.User);
+                }
+            }
+
+            result.Add(groupId, list);
+        }
+
+        return Result<bool>.Get(result);
     }
 
     /// <summary>

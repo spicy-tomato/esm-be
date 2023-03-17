@@ -48,6 +48,7 @@ public class ModelMapping : Profile
         CreateMap<CreateExaminationRequest, Examination>();
         CreateMap<Examination, ExaminationSummary>();
         CreateMap<Examination, GetRelatedResponseItem>();
+        CreateMap<Examination, GetAvailableInvigilatorsInShiftGroupResponse>();
 
         CreateMap<ExaminationData, Shift>();
 
@@ -59,12 +60,15 @@ public class ModelMapping : Profile
         CreateMap<ShiftGroup, GetGroupByFacultyIdResponseItem.InternalShiftGroup>();
         CreateMap<ShiftGroup, GetAllGroupsResponseResponseItem>();
         CreateMap<ShiftGroup, AssignInvigilatorNumerateOfShiftToFacultyResponse>();
+        CreateMap<ShiftGroup, GetAvailableInvigilatorsInShiftGroupResponse.InternalShiftGroup>();
 
         CreateMap<FacultyShiftGroup, GetShiftResponseItem.InternalFacultyShiftGroup>();
         CreateMap<FacultyShiftGroup, GetGroupByFacultyIdResponseItem.InternalFacultyShiftGroup>();
+        CreateMap<FacultyShiftGroup, GetAvailableInvigilatorsInShiftGroupResponse.InternalFacultyShiftGroup>();
 
         CreateMap<DepartmentShiftGroup, GetShiftResponseItem.InternalDepartmentShiftGroup>();
         CreateMap<DepartmentShiftGroup, GetGroupByFacultyIdResponseItem>();
+        CreateMap<DepartmentShiftGroup, GetAvailableInvigilatorsInShiftGroupResponse.InternalDepartmentShiftGroup>();
 
         CreateMap<InvigilatorShift, GetShiftResponseItem.InternalInvigilatorShift>();
 
@@ -105,6 +109,7 @@ public class ModelMapping : Profile
 
         CreateMap<User, UserSimple>();
         CreateMap<User, GetShiftResponseItem.InternalUser>();
+        CreateMap<User, GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>();
 
         #endregion
     }

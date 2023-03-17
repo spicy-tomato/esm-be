@@ -15,6 +15,7 @@ public class GetShiftResponseItem
 
     public class InternalShiftGroup
     {
+        public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
         public DateTime StartAt { get; set; }
         public int? Shift { get; set; }
