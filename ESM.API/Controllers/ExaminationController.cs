@@ -401,8 +401,10 @@ public class ExaminationController : BaseController
            .Where(dg =>
                 dg.FacultyShiftGroup.FacultyId == facultyGuid &&
                 dg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid)
-           .Include(dg => dg.FacultyShiftGroup)
-           .ThenInclude(fg => fg.ShiftGroup)
+           .Include(dg => dg.FacultyShiftGroup.ShiftGroup)
+           .ThenInclude(g => g.Module)
+           .OrderBy(dg => dg.FacultyShiftGroup.ShiftGroup.StartAt)
+           .ThenBy(dg => dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId)
            .ToList();
 
         var minimumAppearance = shiftGroups.Count / allTeachersInFaculty.Count;
@@ -419,7 +421,7 @@ public class ExaminationController : BaseController
             departmentShiftGroup.DepartmentId = invigilator.DepartmentId;
         }
 
-        for (int i = minIndexToRandom; i < shiftGroups.Count; i++)
+        for (var i = minIndexToRandom; i < shiftGroups.Count; i++)
         {
             var departmentShiftGroup = shiftGroups[i];
             var invigilatorIndex = rand.Next(allTeachersInFaculty.Count);
