@@ -317,10 +317,13 @@ public class ExaminationController : BaseController
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
         var facultyGuid = ParseGuid(facultyId);
         var data = Mapper.ProjectTo<GetGroupByFacultyIdResponseItem>(
-            _context.DepartmentShiftGroups.Where(fg =>
+            _context.DepartmentShiftGroups
+               .Where(fg =>
                     fg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid &&
                     fg.FacultyShiftGroup.FacultyId == facultyGuid
                 )
+               .Include(dg => dg.FacultyShiftGroup)
+               .ThenInclude(fg => fg.ShiftGroup)
                .OrderBy(eg => eg.FacultyShiftGroup.ShiftGroup.StartAt)
         ).ToList();
 
@@ -334,6 +337,7 @@ public class ExaminationController : BaseController
     /// <param name="facultyId"></param>
     /// <param name="data"></param>
     /// <returns></returns>
+    /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/faculty/{facultyId}/group")]
     public Result<bool> UpdateTeacherAssignment(string examinationId,
         string facultyId,
@@ -341,12 +345,13 @@ public class ExaminationController : BaseController
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
         var facultyGuid = ParseGuid(facultyId);
-        var facultyShiftGroups = _context.DepartmentShiftGroups
-            // .Include(fg => fg.DepartmentShiftGroups)
+        var facultyShiftGroupsQuery = _context.DepartmentShiftGroups
            .Where(fg =>
                 fg.FacultyShiftGroup.FacultyId == facultyGuid &&
                 fg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid)
-           .ToDictionary(fg => fg.Id.ToString(), fg => fg);
+           .Include(dg => dg.FacultyShiftGroup)
+           .ThenInclude(fg => fg.ShiftGroup);
+        var facultyShiftGroups = facultyShiftGroupsQuery.ToDictionary(fg => fg.Id.ToString(), fg => fg);
 
         foreach (var (departmentShiftGroupId, rowData) in data)
         {
@@ -366,6 +371,63 @@ public class ExaminationController : BaseController
                 departmentShiftGroup.TemporaryInvigilatorName = rowData.TemporaryInvigilatorName;
                 departmentShiftGroup.UserId = null;
             }
+        }
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Auto assign teachers in faculty to shift groups
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="facultyId"></param>
+    /// <returns></returns>
+    [HttpPost("{examinationId}/faculty/{facultyId}/group/calculate")]
+    public Result<bool> AutoAssignTeachersToShiftGroup(string examinationId, string facultyId)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+        var facultyGuid = ParseGuid(facultyId);
+        if (_context.Faculties.FirstOrDefault(f => f.Id == facultyGuid) == null)
+            throw new NotFoundException("Faculty ID does not exist!");
+
+        var allTeachersInFaculty = _context.Users
+           .Where(u => u.Department != null && u.Department.FacultyId == facultyGuid)
+           .Include(u => u.Department)
+           .ToList();
+
+        var shiftGroups = _context.DepartmentShiftGroups
+           .Where(dg =>
+                dg.FacultyShiftGroup.FacultyId == facultyGuid &&
+                dg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid)
+           .Include(dg => dg.FacultyShiftGroup)
+           .ThenInclude(fg => fg.ShiftGroup)
+           .ToList();
+
+        var minimumAppearance = shiftGroups.Count / allTeachersInFaculty.Count;
+        var minIndexToRandom = minimumAppearance * allTeachersInFaculty.Count;
+        var rand = new Random();
+
+        for (var i = 0; i < minIndexToRandom; i++)
+        {
+            var departmentShiftGroup = shiftGroups[i];
+            var invigilatorIndex = i % allTeachersInFaculty.Count;
+            var invigilator = allTeachersInFaculty[invigilatorIndex];
+
+            departmentShiftGroup.UserId = invigilator.Id;
+            departmentShiftGroup.DepartmentId = invigilator.DepartmentId;
+        }
+
+        for (int i = minIndexToRandom; i < shiftGroups.Count; i++)
+        {
+            var departmentShiftGroup = shiftGroups[i];
+            var invigilatorIndex = rand.Next(allTeachersInFaculty.Count);
+            var invigilator = allTeachersInFaculty[invigilatorIndex];
+
+            departmentShiftGroup.UserId = invigilator.Id;
+            departmentShiftGroup.DepartmentId = invigilator.DepartmentId;
+            allTeachersInFaculty.RemoveAt(invigilatorIndex);
         }
 
         _context.SaveChanges();
@@ -411,7 +473,7 @@ public class ExaminationController : BaseController
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
-    [HttpPost("{examinationId}/group")]
+    [HttpPost("{examinationId}/group/calculate")]
     public Result<bool> CalculateInvigilatorNumerateOfShiftForEachFaculty(string examinationId)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
