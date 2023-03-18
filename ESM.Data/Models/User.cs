@@ -16,7 +16,7 @@ public class User : IdentityUser<Guid>
 
     public ICollection<Examination> Examinations { get; set; } = new List<Examination>();
 
-    public ICollection<InvigilatorShift> CreatorInvigilatorShift { get; set; } = new List<InvigilatorShift>();
+    public ICollection<InvigilatorShift> InvigilatorShifts { get; set; } = new List<InvigilatorShift>();
 
     public Role Role { get; set; } = null!;
     public Guid RoleId { get; set; }

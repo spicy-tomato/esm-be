@@ -28,18 +28,7 @@ public class GetShiftResponseItem
         public Guid Id { get; set; }
         public int OrderIndex { get; set; }
         public string? InvigilatorId { get; set; }
-    }
-
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalFacultyShiftGroup
-    {
-        public ICollection<InternalDepartmentShiftGroup> DepartmentShiftGroups { get; set; } =
-            new List<InternalDepartmentShiftGroup>();
-    }
-
-    public class InternalDepartmentShiftGroup
-    {
-        public InternalUser? User { get; set; }
+        public InternalUser? Invigilator { get; set; }
     }
 
     public class InternalUser
@@ -47,5 +36,19 @@ public class GetShiftResponseItem
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
         public string? InvigilatorId { get; set; }
+        public InternalDepartment? Department { get; set; }
+    }
+
+    public class InternalDepartment
+    {
+        public string? DisplayId { get; set; }
+        public string Name { get; set; } = null!;
+        public InternalFaculty? Faculty { get; set; }
+    }
+    
+    public class InternalFaculty
+    {
+        public string? DisplayId { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

@@ -25,7 +25,7 @@ public class ShiftGroup
     public Guid ExaminationId { get; set; }
     public Examination Examination { get; set; } = null!;
 
-    public Guid? ModuleId { get; set; }
+    public Guid ModuleId { get; set; }
     public Module Module { get; set; } = null!;
 
     public ICollection<Shift> Shifts { get; set; } = new List<Shift>();

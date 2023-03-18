@@ -3,22 +3,18 @@ using JetBrains.Annotations;
 namespace ESM.Data.Responses.Examination;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetAvailableInvigilatorsInShiftGroupResponse
+public class GetAvailableInvigilatorsInShiftGroup
 {
-    public ICollection<InternalShiftGroup> ShiftGroups { get; set; } = new List<InternalShiftGroup>();
+    public Guid Id { get; set; }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalShiftGroup
-    {
-        public Guid Id { get; set; }
-        public ICollection<InternalFacultyShiftGroup> FacultyShiftGroups { get; set; } =
-            new List<InternalFacultyShiftGroup>();
-    }
+    public ICollection<InternalFacultyShiftGroup> FacultyShiftGroups { get; set; } =
+        new List<InternalFacultyShiftGroup>();
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public class InternalFacultyShiftGroup
     {
         public Guid FacultyId { get; set; }
+
         public ICollection<InternalDepartmentShiftGroup> DepartmentShiftGroups { get; set; } =
             new List<InternalDepartmentShiftGroup>();
     }
@@ -34,5 +30,19 @@ public class GetAvailableInvigilatorsInShiftGroupResponse
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
         public string? InvigilatorId { get; set; }
+        public InternalDepartment? Department { get; set; }
+    }
+
+    public class InternalDepartment
+    {
+        public Guid? FacultyId { get; set; }
+    }
+
+    public class ResponseItem
+    {
+        public Guid Id { get; set; }
+        public string FullName { get; set; } = null!;
+        public string? InvigilatorId { get; set; }
+        public bool IsPriority { get; set; }
     }
 }

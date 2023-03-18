@@ -3,6 +3,7 @@ using System;
 using ESM.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230317171648_InvigilatorShift_ChangeInvigilatorIdTypeToGuid")]
+    partial class InvigilatorShift_ChangeInvigilatorIdTypeToGuid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -314,6 +316,9 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)");
 
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
@@ -331,7 +336,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvigilatorId");
+                    b.HasIndex("CreatedById");
 
                     b.HasIndex("ShiftId");
 
@@ -396,14 +401,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "8f163522-f4f5-44fb-9264-2e214791710a",
+                            ConcurrencyStamp = "11f64a2e-0ee5-427c-941d-5051320dbc2b",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "12269493-09c1-429f-b602-a5a4ba2ad9b3",
+                            ConcurrencyStamp = "d7bd4ac6-c66d-4d33-b580-78d3894dc4c2",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -448,6 +453,9 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("ShiftGroupId")
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("StartAt")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
@@ -475,7 +483,7 @@ namespace ESM.API.Migrations
                     b.Property<int>("Method")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ModuleId")
+                    b.Property<Guid?>("ModuleId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("RoomsCount")
@@ -589,14 +597,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2fef428d-66fa-42ca-b7d7-e158646eb505",
+                            ConcurrencyStamp = "614cdc8d-5a8e-4849-a349-2659c071ee82",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFpEOAwCcKi7kEkLBAaHC1dAJeP790vyvEoIwd/87AQrYmuUnzVpbW4z4ZIUpuorKw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ1UV1St1OQ0Wr1lEvdwbEUJ18BRV4EQeP74RCBcWHV9OLDVlj3tAbnIr3CQAK8sdw==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -787,9 +795,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorShift", b =>
                 {
-                    b.HasOne("ESM.Data.Models.User", "Invigilator")
-                        .WithMany("InvigilatorShifts")
-                        .HasForeignKey("InvigilatorId");
+                    b.HasOne("ESM.Data.Models.User", "CreatedBy")
+                        .WithMany("CreatorInvigilatorShift")
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("ESM.Data.Models.Shift", "Shift")
                         .WithMany("InvigilatorShift")
@@ -797,7 +805,7 @@ namespace ESM.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Invigilator");
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("Shift");
                 });
@@ -846,9 +854,7 @@ namespace ESM.API.Migrations
 
                     b.HasOne("ESM.Data.Models.Module", "Module")
                         .WithMany()
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ModuleId");
 
                     b.Navigation("Examination");
 
@@ -958,9 +964,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.User", b =>
                 {
-                    b.Navigation("Examinations");
+                    b.Navigation("CreatorInvigilatorShift");
 
-                    b.Navigation("InvigilatorShifts");
+                    b.Navigation("Examinations");
                 });
 #pragma warning restore 612, 618
         }

@@ -119,7 +119,7 @@ public class ExaminationController : BaseController
                         e => e.ShiftGroup.ExaminationId == guid &&
                              (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign)
                     )
-                   .OrderBy(s => s.StartAt)
+                   .OrderBy(s => s.ShiftGroup.StartAt)
                    .ThenBy(s => s.ShiftGroup.Id)
                    .ThenBy(s => s.ShiftGroup.Module.Name)
                    .ThenBy(s => s.Room.DisplayId)
@@ -181,14 +181,17 @@ public class ExaminationController : BaseController
             Mapper.ProjectTo<GetShiftResponseItem>(
                 _context.Shifts
                    .Include(s => s.InvigilatorShift)
+                   .ThenInclude(i => i.Invigilator)
+                   .ThenInclude(u => u!.Department)
+                   .ThenInclude(d => d!.Faculty)
                    .Include(s => s.Room)
-                   .Include(s => s.ShiftGroup.Module)
+                   .Include(s => s.ShiftGroup)
+                   .ThenInclude(g => g.Module)
                    .Include(s => s.ShiftGroup)
                    .ThenInclude(s => s.FacultyShiftGroups)
                    .ThenInclude(fg => fg.DepartmentShiftGroups)
-                   .ThenInclude(dg => dg.User)
                    .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
-                   .OrderBy(g => g.StartAt)
+                   .OrderBy(g => g.ShiftGroup.StartAt)
                    .ThenBy(g => g.ShiftGroup.ModuleId)
                    .ThenBy(g => g.Room.Id)
             ).ToList();
@@ -218,7 +221,85 @@ public class ExaminationController : BaseController
         foreach (var shift in shiftGroup.Shifts)
         foreach (var invigilatorShift in shift.InvigilatorShift)
             if (request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-                invigilatorShift.InvigilatorId = invigilatorId;
+            {
+                if (Guid.TryParse(invigilatorId, out var invigilatorGuid))
+                    invigilatorShift.InvigilatorId = invigilatorGuid;
+                else
+                    throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+            }
+
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Auto assign teachers to shift group
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    /// <exception cref="BadRequestException"></exception>
+    [HttpPost("{examinationId}/shift/calculate")]
+    public Result<bool> AutoAssignTeachersToShiftGroup(string examinationId)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+
+        var departmentShiftGroups = _context.DepartmentShiftGroups
+           .Where(dg =>
+                dg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid &&
+                !dg.FacultyShiftGroup.ShiftGroup.DepartmentAssign)
+           .Include(dg => dg.FacultyShiftGroup)
+           .ThenInclude(fg => fg.ShiftGroup)
+           .ThenInclude(g => g.Module)
+           .Include(dg => dg.User)
+           .ThenInclude(u => u!.Department)
+           .OrderBy(dg => dg.FacultyShiftGroup.ShiftGroup.StartAt)
+           .ThenBy(dg => dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId)
+           .ToList();
+
+        var departmentShiftGroupsDict = new Dictionary<string, List<DepartmentShiftGroup>>();
+        foreach (var dg in departmentShiftGroups)
+        {
+            var key = dg.FacultyShiftGroup.ShiftGroup.StartAt.ToString("yy-MM-dd:hh:mm:ss") +
+                      dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId;
+            if (!departmentShiftGroupsDict.ContainsKey(key))
+                departmentShiftGroupsDict.Add(key, new List<DepartmentShiftGroup>());
+            departmentShiftGroupsDict[key].Add(dg);
+        }
+
+        var invigilatorShift = _context.InvigilatorShift
+           .Where(i => i.Shift.ShiftGroup.ExaminationId == examinationGuid && !i.Shift.ShiftGroup.DepartmentAssign)
+           .Include(i => i.Shift)
+           .ThenInclude(s => s.ShiftGroup)
+           .ThenInclude(g => g.Module)
+           .ToList();
+
+        foreach (var ivs in invigilatorShift)
+        {
+            var shiftGroupId = ivs.Shift.ShiftGroup.StartAt.ToString("yy-MM-dd:hh:mm:ss") +
+                               ivs.Shift.ShiftGroup.Module.DisplayId;
+            if (!departmentShiftGroupsDict.TryGetValue(shiftGroupId, out var invigilatorsBucket))
+                throw new BadRequestException(
+                    $"Shift group ID does not exist: {shiftGroupId} (in invigilatorShift ID: {ivs.Id}");
+
+            var isPrioritySlot = ivs.OrderIndex == 1;
+            var priorityFacultyId = ivs.Shift.ShiftGroup.Module.FacultyId;
+
+            for (var i = 0; i < invigilatorsBucket.Count; i++)
+            {
+                var departmentShiftGroup = invigilatorsBucket[i];
+                var facultyOfModuleSamePriorityFaculty =
+                    departmentShiftGroup.User?.Department?.FacultyId == priorityFacultyId;
+
+                if ((!isPrioritySlot || !facultyOfModuleSamePriorityFaculty) &&
+                    (isPrioritySlot || facultyOfModuleSamePriorityFaculty)) continue;
+
+                ivs.InvigilatorId = departmentShiftGroup.UserId;
+                invigilatorsBucket.RemoveAt(i);
+                break;
+            }
+        }
 
         _context.SaveChanges();
 
@@ -385,7 +466,7 @@ public class ExaminationController : BaseController
     /// <param name="facultyId"></param>
     /// <returns></returns>
     [HttpPost("{examinationId}/faculty/{facultyId}/group/calculate")]
-    public Result<bool> AutoAssignTeachersToShiftGroup(string examinationId, string facultyId)
+    public Result<bool> AutoAssignTeachersToShiftGroups(string examinationId, string facultyId)
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
         var facultyGuid = ParseGuid(facultyId);
@@ -608,40 +689,51 @@ public class ExaminationController : BaseController
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
     [HttpGet("{examinationId}/invigilator")]
-    public Result<Dictionary<string, List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>>>
+    public Result<Dictionary<string, List<GetAvailableInvigilatorsInShiftGroup.ResponseItem>>>
         GetAvailableInvigilatorsInShiftGroup(string examinationId)
     {
-        // var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId);
 
-        var guid = ParseGuid(examinationId);
-        var entity =
-            Mapper.ProjectTo<GetAvailableInvigilatorsInShiftGroupResponse>(
-                    _context.Examinations
-                       .Where(e => e.Id == guid)
-                       .Include(e => e.ShiftGroups)
-                       .ThenInclude(g => g.FacultyShiftGroups)
+        var shiftGroups =
+            Mapper.ProjectTo<GetAvailableInvigilatorsInShiftGroup>(
+                    _context.ShiftGroups
+                       .Where(s => s.ExaminationId == guid)
+                       .Include(g => g.FacultyShiftGroups)
                        .ThenInclude(fg => fg.DepartmentShiftGroups)
                        .ThenInclude(dg => dg.User)
                 )
-               .FirstOrDefault();
-        if (entity == null)
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
+               .ToList();
 
+        var priorityFacultyOfShiftGroupsQuery = _context.ShiftGroups
+           .Where(g => g.ExaminationId == guid)
+           .Include(g => g.Module)
+           .Select(g => new { g.Id, g.Module.FacultyId })
+           .ToDictionary(g => g.Id, g => g.FacultyId);
 
         var result =
-            new Dictionary<string, List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>>();
+            new Dictionary<string, List<GetAvailableInvigilatorsInShiftGroup.ResponseItem>>();
 
-        foreach (var group in entity.ShiftGroups)
+        foreach (var group in shiftGroups)
         {
-            var list = new List<GetAvailableInvigilatorsInShiftGroupResponse.InternalUser>();
+            var list = new List<GetAvailableInvigilatorsInShiftGroup.ResponseItem>();
             var groupId = group.Id.ToString();
 
             foreach (var facultyShiftGroup in group.FacultyShiftGroups)
             {
+                var priorityFacultyId = priorityFacultyOfShiftGroupsQuery[group.Id];
                 foreach (var departmentShiftGroup in facultyShiftGroup.DepartmentShiftGroups)
                 {
-                    if (departmentShiftGroup.User != null)
-                        list.Add(departmentShiftGroup.User);
+                    if (departmentShiftGroup.User == null)
+                        continue;
+
+                    var isPriority = departmentShiftGroup.User.Department?.FacultyId == priorityFacultyId;
+                    list.Add(new GetAvailableInvigilatorsInShiftGroup.ResponseItem
+                    {
+                        Id = departmentShiftGroup.User.Id,
+                        FullName = departmentShiftGroup.User.FullName,
+                        InvigilatorId = departmentShiftGroup.User.InvigilatorId,
+                        IsPriority = isPriority
+                    });
                 }
             }
 

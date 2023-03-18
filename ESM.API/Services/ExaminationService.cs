@@ -262,7 +262,6 @@ public class ExaminationService
                     ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
                     CandidatesCount = candidatesNumberInShift,
                     InvigilatorsCount = invigilatorsCount,
-                    StartAt = shift.StartAt.Value,
                     RoomId = roomsDictionary[room],
                     ShiftGroup = shiftGroup,
                     InvigilatorShift = invigilatorShift

@@ -17,8 +17,6 @@ public class Shift
 
     public int InvigilatorsCount { get; set; }
 
-    public DateTime StartAt { get; set; }
-
 
     public Guid ShiftGroupId { get; set; }
     public ShiftGroup ShiftGroup { get; set; } = null!;
