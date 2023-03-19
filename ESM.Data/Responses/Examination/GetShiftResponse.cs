@@ -8,10 +8,10 @@ namespace ESM.Data.Responses.Examination;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class GetShiftResponseItem
 {
-    public DateTime StartAt { get; set; }
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
     public RoomSummary Room { get; set; } = null!;
     public ICollection<InternalInvigilatorShift> InvigilatorShift { get; set; } = new List<InternalInvigilatorShift>();
+    public bool IsDuplicated;
 
     public class InternalShiftGroup
     {
@@ -45,7 +45,7 @@ public class GetShiftResponseItem
         public string Name { get; set; } = null!;
         public InternalFaculty? Faculty { get; set; }
     }
-    
+
     public class InternalFaculty
     {
         public string? DisplayId { get; set; }

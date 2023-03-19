@@ -195,6 +195,38 @@ public class ExaminationController : BaseController
                    .ThenBy(g => g.ShiftGroup.ModuleId)
                    .ThenBy(g => g.Room.Id)
             ).ToList();
+
+        var duplicatedShift = _context.Shifts
+           .Include(s => s.ShiftGroup)
+           .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
+           .OrderBy(g => g.ShiftGroup.StartAt)
+           .ThenBy(g => g.ShiftGroup.ModuleId)
+           .ThenBy(g => g.Room.Id)
+           .GroupBy(g => new { g.ShiftGroup.StartAt, g.ShiftGroup.ModuleId, g.RoomId })
+           .Select(r => new
+            {
+                r.Key.StartAt,
+                r.Key.ModuleId,
+                r.Key.RoomId,
+                Count = r.Count()
+            })
+           .Where(r => r.Count > 1)
+           .ToList();
+
+        foreach (var shift in data)
+        {
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var ds in duplicatedShift)
+            {
+                if (ds.StartAt < shift.ShiftGroup.StartAt)
+                    continue;
+                if (ds.StartAt > shift.ShiftGroup.StartAt)
+                    break;
+                if (shift.Room.Id == ds.RoomId && shift.ShiftGroup.Module.Id == ds.ModuleId)
+                    shift.IsDuplicated = true;
+            }
+        }
+
         return Result<List<GetShiftResponseItem>>.Get(data);
     }
 
@@ -220,13 +252,17 @@ public class ExaminationController : BaseController
         foreach (var shiftGroup in entity.ShiftGroups)
         foreach (var shift in shiftGroup.Shifts)
         foreach (var invigilatorShift in shift.InvigilatorShift)
-            if (request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-            {
-                if (Guid.TryParse(invigilatorId, out var invigilatorGuid))
-                    invigilatorShift.InvigilatorId = invigilatorGuid;
-                else
-                    throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
-            }
+        {
+            if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
+                continue;
+
+            if (invigilatorId == null)
+                invigilatorShift.InvigilatorId = null;
+            else if (Guid.TryParse(invigilatorId, out var invigilatorGuid))
+                invigilatorShift.InvigilatorId = invigilatorGuid;
+            else
+                throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+        }
 
 
         _context.SaveChanges();
