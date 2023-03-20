@@ -29,6 +29,7 @@ public class ModelMapping : Profile
         CreateMap<Faculty, FacultySummary>();
         CreateMap<Faculty, GetAllResponseItem>();
         CreateMap<Faculty, GetShiftResponseItem.InternalFaculty>();
+        CreateMap<Faculty, GetHandoverDataResponseItem.InternalFaculty>();
         CreateMap<Faculty, GetAllGroupsResponseResponseItem.InternalFaculty>();
         CreateMap<Faculty, AssignInvigilatorNumerateOfShiftToFacultyResponse.InternalFaculty>();
 
@@ -42,6 +43,7 @@ public class ModelMapping : Profile
         CreateMap<Department, DepartmentSummary>();
         CreateMap<Department, GetAllResponseItem.InternalDepartment>();
         CreateMap<Department, GetShiftResponseItem.InternalDepartment>();
+        CreateMap<Department, GetHandoverDataResponseItem.InternalDepartment>();
         CreateMap<Department, GetAvailableInvigilatorsInShiftGroup.InternalDepartment>();
 
         #endregion
@@ -56,9 +58,11 @@ public class ModelMapping : Profile
 
         CreateMap<Shift, GetDataResponseItem>();
         CreateMap<Shift, GetShiftResponseItem>();
+        CreateMap<Shift, GetHandoverDataResponseItem>();
 
         CreateMap<ShiftGroup, GetDataResponseItem.InternalShiftGroup>();
         CreateMap<ShiftGroup, GetShiftResponseItem.InternalShiftGroup>();
+        CreateMap<ShiftGroup, GetHandoverDataResponseItem.InternalShiftGroup>();
         CreateMap<ShiftGroup, GetGroupByFacultyIdResponseItem.InternalShiftGroup>();
         CreateMap<ShiftGroup, GetAllGroupsResponseResponseItem>();
         CreateMap<ShiftGroup, GetAvailableInvigilatorsInShiftGroup>();
@@ -71,6 +75,7 @@ public class ModelMapping : Profile
         CreateMap<DepartmentShiftGroup, GetAvailableInvigilatorsInShiftGroup.InternalDepartmentShiftGroup>();
 
         CreateMap<InvigilatorShift, GetShiftResponseItem.InternalInvigilatorShift>();
+        CreateMap<InvigilatorShift, GetHandoverDataResponseItem.InternalInvigilatorShift>();
 
         #endregion
 
@@ -80,6 +85,7 @@ public class ModelMapping : Profile
 
         CreateMap<Module, ModuleSimple>();
         CreateMap<Module, GetDataResponseItem.InternalModule>();
+        CreateMap<Module, GetHandoverDataResponseItem.InternalModule>();
         CreateMap<Module, GetGroupByFacultyIdResponseItem.InternalModule>();
         CreateMap<Module, GetAllGroupsResponseResponseItem.InternalModule>();
         CreateMap<Module, AssignInvigilatorNumerateOfShiftToFacultyResponse.InternalModule>();
@@ -91,6 +97,7 @@ public class ModelMapping : Profile
         CreateMap<CreateRoomRequest, Room>();
         CreateMap<Room, RoomSummary>();
         CreateMap<Room, GetDataResponseItem.InternalRoom>();
+        CreateMap<Room, GetHandoverDataResponseItem.InternalRoom>();
 
         #endregion
 
@@ -109,6 +116,7 @@ public class ModelMapping : Profile
 
         CreateMap<User, UserSimple>();
         CreateMap<User, GetShiftResponseItem.InternalUser>();
+        CreateMap<User, GetHandoverDataResponseItem.InternalUser>();
         CreateMap<User, GetAvailableInvigilatorsInShiftGroup.InternalUser>();
 
         #endregion

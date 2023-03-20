@@ -396,14 +396,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "8f163522-f4f5-44fb-9264-2e214791710a",
+                            ConcurrencyStamp = "c5461e72-ea5b-4c7e-9d63-3c718b1dcd56",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "12269493-09c1-429f-b602-a5a4ba2ad9b3",
+                            ConcurrencyStamp = "2e30c187-3194-4cfb-adf3-303d5fb54a3f",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -439,8 +439,14 @@ namespace ESM.API.Migrations
                     b.Property<int>("ExamsCount")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("HandedOverUserId")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("InvigilatorsCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("Report")
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("RoomId")
                         .HasColumnType("char(36)");
@@ -449,6 +455,8 @@ namespace ESM.API.Migrations
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HandedOverUserId");
 
                     b.HasIndex("RoomId");
 
@@ -589,14 +597,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2fef428d-66fa-42ca-b7d7-e158646eb505",
+                            ConcurrencyStamp = "be30ee0c-af9e-4ab6-b463-937b6904105d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFpEOAwCcKi7kEkLBAaHC1dAJeP790vyvEoIwd/87AQrYmuUnzVpbW4z4ZIUpuorKw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGwUqhnwd1Jaxn3ab6s9OzUOftvO96Z5+jD6Zz3/VpzO3uxsYKHbaJWWD7WU+GFR2g==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -821,6 +829,10 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.Shift", b =>
                 {
+                    b.HasOne("ESM.Data.Models.User", "HandedOverUser")
+                        .WithMany("HandedOverShifts")
+                        .HasForeignKey("HandedOverUserId");
+
                     b.HasOne("ESM.Data.Models.Room", "Room")
                         .WithMany("Shift")
                         .HasForeignKey("RoomId");
@@ -830,6 +842,8 @@ namespace ESM.API.Migrations
                         .HasForeignKey("ShiftGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("HandedOverUser");
 
                     b.Navigation("Room");
 
@@ -959,6 +973,8 @@ namespace ESM.API.Migrations
             modelBuilder.Entity("ESM.Data.Models.User", b =>
                 {
                     b.Navigation("Examinations");
+
+                    b.Navigation("HandedOverShifts");
 
                     b.Navigation("InvigilatorShifts");
                 });

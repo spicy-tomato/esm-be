@@ -18,6 +18,8 @@ public class User : IdentityUser<Guid>
 
     public ICollection<InvigilatorShift> InvigilatorShifts { get; set; } = new List<InvigilatorShift>();
 
+    public ICollection<Shift> HandedOverShifts { get; set; } = new List<Shift>();
+
     public Role Role { get; set; } = null!;
     public Guid RoleId { get; set; }
 

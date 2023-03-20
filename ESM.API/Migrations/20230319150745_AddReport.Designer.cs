@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230314065750_Update")]
-    partial class Update
+    [Migration("20230319150745_AddReport")]
+    partial class AddReport
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -316,14 +316,11 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("InvigilatorId")
-                        .HasColumnType("longtext");
+                    b.Property<Guid?>("InvigilatorId")
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");
@@ -336,7 +333,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("InvigilatorId");
 
                     b.HasIndex("ShiftId");
 
@@ -401,14 +398,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "872fa1c8-2d53-4cb5-aebe-80e5a7306487",
+                            ConcurrencyStamp = "c5461e72-ea5b-4c7e-9d63-3c718b1dcd56",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "bf9d551b-96a9-41bd-ad7a-f9d502d83e7a",
+                            ConcurrencyStamp = "2e30c187-3194-4cfb-adf3-303d5fb54a3f",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -444,8 +441,14 @@ namespace ESM.API.Migrations
                     b.Property<int>("ExamsCount")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("HandedOverUserId")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("InvigilatorsCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("Report")
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("RoomId")
                         .HasColumnType("char(36)");
@@ -453,10 +456,9 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("ShiftGroupId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime(6)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("HandedOverUserId");
 
                     b.HasIndex("RoomId");
 
@@ -483,7 +485,7 @@ namespace ESM.API.Migrations
                     b.Property<int>("Method")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ModuleId")
+                    b.Property<Guid>("ModuleId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("RoomsCount")
@@ -597,14 +599,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b7edc780-6c81-413b-b7b8-41ae5c672139",
+                            ConcurrencyStamp = "be30ee0c-af9e-4ab6-b463-937b6904105d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAED+Xu0s+98g0Pt6CJPMIWI2TNreUofbPC5Aso/SubHX99Vq8naCuubF6YhPD3L85tw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGwUqhnwd1Jaxn3ab6s9OzUOftvO96Z5+jD6Zz3/VpzO3uxsYKHbaJWWD7WU+GFR2g==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -795,9 +797,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorShift", b =>
                 {
-                    b.HasOne("ESM.Data.Models.User", "CreatedBy")
-                        .WithMany("CreatorInvigilatorShift")
-                        .HasForeignKey("CreatedById");
+                    b.HasOne("ESM.Data.Models.User", "Invigilator")
+                        .WithMany("InvigilatorShifts")
+                        .HasForeignKey("InvigilatorId");
 
                     b.HasOne("ESM.Data.Models.Shift", "Shift")
                         .WithMany("InvigilatorShift")
@@ -805,7 +807,7 @@ namespace ESM.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("Invigilator");
 
                     b.Navigation("Shift");
                 });
@@ -829,6 +831,10 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.Shift", b =>
                 {
+                    b.HasOne("ESM.Data.Models.User", "HandedOverUser")
+                        .WithMany("HandedOverShifts")
+                        .HasForeignKey("HandedOverUserId");
+
                     b.HasOne("ESM.Data.Models.Room", "Room")
                         .WithMany("Shift")
                         .HasForeignKey("RoomId");
@@ -838,6 +844,8 @@ namespace ESM.API.Migrations
                         .HasForeignKey("ShiftGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("HandedOverUser");
 
                     b.Navigation("Room");
 
@@ -854,7 +862,9 @@ namespace ESM.API.Migrations
 
                     b.HasOne("ESM.Data.Models.Module", "Module")
                         .WithMany()
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Examination");
 
@@ -964,9 +974,11 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.User", b =>
                 {
-                    b.Navigation("CreatorInvigilatorShift");
-
                     b.Navigation("Examinations");
+
+                    b.Navigation("HandedOverShifts");
+
+                    b.Navigation("InvigilatorShifts");
                 });
 #pragma warning restore 612, 618
         }

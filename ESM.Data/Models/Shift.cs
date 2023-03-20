@@ -17,6 +17,10 @@ public class Shift
 
     public int InvigilatorsCount { get; set; }
 
+    public string? Report { get; set; }
+
+    public Guid? HandedOverUserId { get; set; }
+    public User? HandedOverUser { get; set; }
 
     public Guid ShiftGroupId { get; set; }
     public ShiftGroup ShiftGroup { get; set; } = null!;

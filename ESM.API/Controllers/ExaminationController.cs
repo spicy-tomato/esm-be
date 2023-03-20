@@ -120,7 +120,7 @@ public class ExaminationController : BaseController
                              (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign)
                     )
                    .OrderBy(s => s.ShiftGroup.StartAt)
-                   .ThenBy(s => s.ShiftGroup.Id)
+                   .ThenBy(s => s.ShiftGroupId)
                    .ThenBy(s => s.ShiftGroup.Module.Name)
                    .ThenBy(s => s.Room.DisplayId)
             )
@@ -169,6 +169,34 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
+    /// Get handover data
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpGet("{examinationId}/handover")]
+    public Result<List<GetHandoverDataResponseItem>> GetHandoverData(string examinationId)
+    {
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
+
+        var data =
+            Mapper.ProjectTo<GetHandoverDataResponseItem>(
+                _context.Shifts
+                   .Include(s => s.InvigilatorShift)
+                   .ThenInclude(i => i.Invigilator)
+                   .Include(s => s.Room)
+                   .Include(s => s.ShiftGroup)
+                   .ThenInclude(g => g.Module)
+                   .Include(s => s.ShiftGroup)
+                   .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
+                   .OrderBy(g => g.ShiftGroup.StartAt)
+                   .ThenBy(g => g.ShiftGroup.ModuleId)
+                   .ThenBy(g => g.RoomId)
+            ).ToList();
+
+        return Result<List<GetHandoverDataResponseItem>>.Get(data);
+    }
+
+    /// <summary>
     /// Get all shifts in an examination
     /// </summary>
     /// <param name="examinationId"></param>
@@ -187,13 +215,10 @@ public class ExaminationController : BaseController
                    .Include(s => s.Room)
                    .Include(s => s.ShiftGroup)
                    .ThenInclude(g => g.Module)
-                   .Include(s => s.ShiftGroup)
-                   .ThenInclude(s => s.FacultyShiftGroups)
-                   .ThenInclude(fg => fg.DepartmentShiftGroups)
                    .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
                    .OrderBy(g => g.ShiftGroup.StartAt)
                    .ThenBy(g => g.ShiftGroup.ModuleId)
-                   .ThenBy(g => g.Room.Id)
+                   .ThenBy(g => g.RoomId)
             ).ToList();
 
         var duplicatedShift = _context.Shifts
@@ -201,7 +226,7 @@ public class ExaminationController : BaseController
            .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
            .OrderBy(g => g.ShiftGroup.StartAt)
            .ThenBy(g => g.ShiftGroup.ModuleId)
-           .ThenBy(g => g.Room.Id)
+           .ThenBy(g => g.RoomId)
            .GroupBy(g => new { g.ShiftGroup.StartAt, g.ShiftGroup.ModuleId, g.RoomId })
            .Select(r => new
             {
@@ -264,6 +289,48 @@ public class ExaminationController : BaseController
                 throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
         }
 
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Update shift data (handover report, handover person)
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="shiftId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPatch("{examinationId}/shift/{shiftId}")]
+    public Result<bool> UpdateShift(string examinationId,
+        string shiftId,
+        [FromBody] UpdateShiftRequest request)
+    {
+        var notFoundMessage = $"Shift ID {shiftId} does not exist in examination ID {examinationId}";
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
+        var shiftGuid = ParseGuid(shiftId, notFoundMessage);
+
+        var shift = _context.Shifts
+           .Include(s => s.ShiftGroup)
+           .Include(s => s.InvigilatorShift)
+           .FirstOrDefault(s => s.Id == shiftGuid && s.ShiftGroup.ExaminationId == examinationGuid);
+
+        if (shift == null)
+            throw new NotFoundException(notFoundMessage);
+
+        if (request.HandoverUserId != null)
+        {
+            var guid = ParseGuid(request.HandoverUserId, "User ID does not exist!");
+            var userIdIsValid = shift.InvigilatorShift.Any(ivs => ivs.InvigilatorId == guid);
+            if (userIdIsValid)
+                shift.HandedOverUserId = guid;
+            else
+                throw new BadRequestException("User ID is not assigned in this shift");
+        }
+
+        if (request.Report != null)
+            shift.Report = request.Report;
 
         _context.SaveChanges();
 
@@ -364,7 +431,7 @@ public class ExaminationController : BaseController
             // case (ExaminationStatus.AssignInvigilator):
             //     break;
             default:
-                var expectedOldStatus = (ExaminationStatus)((int)newStatus - 1);
+                var expectedOldStatus = (ExaminationStatus)Math.Pow(2, Math.Log2((int)newStatus) - 1);
                 if (Enum.IsDefined(typeof(ExaminationStatus), expectedOldStatus))
                     throw new BadRequestException($"Examination status should be {expectedOldStatus}");
                 throw new BadRequestException("New status is invalid");
@@ -831,13 +898,14 @@ public class ExaminationController : BaseController
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="facultyId"></param>
+    /// <param name="id"></param>
+    /// <param name="message"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    private static Guid ParseGuid(string facultyId)
+    private static Guid ParseGuid(string id, string? message = null)
     {
-        if (!Guid.TryParse(facultyId, out var guid))
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        if (!Guid.TryParse(id, out var guid))
+            throw new NotFoundException(message ?? NOT_FOUND_MESSAGE);
         return guid;
     }
 

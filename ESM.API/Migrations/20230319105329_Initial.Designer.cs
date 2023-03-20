@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230317171648_InvigilatorShift_ChangeInvigilatorIdTypeToGuid")]
-    partial class InvigilatorShift_ChangeInvigilatorIdTypeToGuid
+    [Migration("20230319105329_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -316,11 +316,11 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("HandedOver")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid?>("InvigilatorId")
                         .HasColumnType("char(36)");
@@ -336,7 +336,7 @@ namespace ESM.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("InvigilatorId");
 
                     b.HasIndex("ShiftId");
 
@@ -401,14 +401,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "11f64a2e-0ee5-427c-941d-5051320dbc2b",
+                            ConcurrencyStamp = "3f86478c-7204-494f-b5a1-325feeb64835",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "d7bd4ac6-c66d-4d33-b580-78d3894dc4c2",
+                            ConcurrencyStamp = "b6bdc5a7-6ee0-4825-ad17-741111771bbc",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -453,9 +453,6 @@ namespace ESM.API.Migrations
                     b.Property<Guid>("ShiftGroupId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime(6)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
@@ -483,7 +480,7 @@ namespace ESM.API.Migrations
                     b.Property<int>("Method")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ModuleId")
+                    b.Property<Guid>("ModuleId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("RoomsCount")
@@ -597,14 +594,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "614cdc8d-5a8e-4849-a349-2659c071ee82",
+                            ConcurrencyStamp = "b13e36e0-c822-458f-97c6-919a8247960b",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJ1UV1St1OQ0Wr1lEvdwbEUJ18BRV4EQeP74RCBcWHV9OLDVlj3tAbnIr3CQAK8sdw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBvf8nNGawNY1HoqgGUPNh95xdf5SojDy3HcmFmv6UkO2Y68uxkzzKN2rQQa12HmpQ==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -795,9 +792,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.InvigilatorShift", b =>
                 {
-                    b.HasOne("ESM.Data.Models.User", "CreatedBy")
-                        .WithMany("CreatorInvigilatorShift")
-                        .HasForeignKey("CreatedById");
+                    b.HasOne("ESM.Data.Models.User", "Invigilator")
+                        .WithMany("InvigilatorShifts")
+                        .HasForeignKey("InvigilatorId");
 
                     b.HasOne("ESM.Data.Models.Shift", "Shift")
                         .WithMany("InvigilatorShift")
@@ -805,7 +802,7 @@ namespace ESM.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("Invigilator");
 
                     b.Navigation("Shift");
                 });
@@ -854,7 +851,9 @@ namespace ESM.API.Migrations
 
                     b.HasOne("ESM.Data.Models.Module", "Module")
                         .WithMany()
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Examination");
 
@@ -964,9 +963,9 @@ namespace ESM.API.Migrations
 
             modelBuilder.Entity("ESM.Data.Models.User", b =>
                 {
-                    b.Navigation("CreatorInvigilatorShift");
-
                     b.Navigation("Examinations");
+
+                    b.Navigation("InvigilatorShifts");
                 });
 #pragma warning restore 612, 618
         }
