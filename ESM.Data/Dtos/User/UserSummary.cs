@@ -14,4 +14,5 @@ public class UserSummary
     public string? InvigilatorId { get; set; }
     public DepartmentSummary? Department { get; set; }
     public string Role { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
 }

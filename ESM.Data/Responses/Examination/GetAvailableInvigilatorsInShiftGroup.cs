@@ -30,19 +30,29 @@ public class GetAvailableInvigilatorsInShiftGroup
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
         public string? InvigilatorId { get; set; }
+        public string? PhoneNumber { get; set; }
         public InternalDepartment? Department { get; set; }
     }
 
     public class InternalDepartment
     {
-        public Guid? FacultyId { get; set; }
+        public InternalFaculty? Faculty { get; set; }
     }
 
+    public class InternalFaculty
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public class ResponseItem
     {
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
         public string? InvigilatorId { get; set; }
         public bool IsPriority { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? FacultyName { get; set; }
     }
 }

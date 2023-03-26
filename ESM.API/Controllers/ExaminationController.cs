@@ -829,13 +829,15 @@ public class ExaminationController : BaseController
                     if (departmentShiftGroup.User == null)
                         continue;
 
-                    var isPriority = departmentShiftGroup.User.Department?.FacultyId == priorityFacultyId;
+                    var isPriority = departmentShiftGroup.User.Department?.Faculty?.Id == priorityFacultyId;
                     list.Add(new GetAvailableInvigilatorsInShiftGroup.ResponseItem
                     {
                         Id = departmentShiftGroup.User.Id,
                         FullName = departmentShiftGroup.User.FullName,
                         InvigilatorId = departmentShiftGroup.User.InvigilatorId,
-                        IsPriority = isPriority
+                        IsPriority = isPriority,
+                        PhoneNumber = departmentShiftGroup.User.PhoneNumber,
+                        FacultyName = departmentShiftGroup.User.Department?.Faculty?.Name
                     });
                 }
             }

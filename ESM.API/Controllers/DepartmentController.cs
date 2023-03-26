@@ -34,6 +34,7 @@ public class DepartmentController : BaseController
     private readonly DepartmentRepository _departmentRepository;
     private readonly FacultyRepository _facultyRepository;
     private readonly UserRepository _userRepository;
+    private readonly RoleManager<Role> _roleManager;
     private const string NOT_FOUND_MESSAGE = "Department ID does not exist!";
 
     #endregion
@@ -45,7 +46,8 @@ public class DepartmentController : BaseController
         ApplicationContext context,
         FacultyRepository facultyRepository,
         UserRepository userRepository,
-        UserManager<User> userManager) :
+        UserManager<User> userManager,
+        RoleManager<Role> roleManager) :
         base(mapper)
     {
         _departmentRepository = departmentRepository;
@@ -53,6 +55,7 @@ public class DepartmentController : BaseController
         _facultyRepository = facultyRepository;
         _userRepository = userRepository;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     #endregion
@@ -178,10 +181,16 @@ public class DepartmentController : BaseController
     {
         var guid = ParseGuid(departmentId);
         await new CreateUserRequestValidator().ValidateAndThrowAsync(request);
+        
+        var defaultRole = _roleManager.FindByNameAsync("Teacher").Result;
+        if (defaultRole == null)
+            throw new InternalServerErrorException("Default role is not setup");
+        
         var user = Mapper.Map<User>(request,
             opts => opts.AfterMap((_, des) =>
             {
                 des.DepartmentId = guid;
+                des.Role = defaultRole;
             }));
 
         var errorList = _userRepository.GetDuplicatedDataErrors(guid, request.Email, request.InvigilatorId);

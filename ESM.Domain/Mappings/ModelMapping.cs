@@ -32,6 +32,7 @@ public class ModelMapping : Profile
         CreateMap<Faculty, GetHandoverDataResponseItem.InternalFaculty>();
         CreateMap<Faculty, GetAllGroupsResponseResponseItem.InternalFaculty>();
         CreateMap<Faculty, AssignInvigilatorNumerateOfShiftToFacultyResponse.InternalFaculty>();
+        CreateMap<Faculty, GetAvailableInvigilatorsInShiftGroup.InternalFaculty>();
 
         #endregion
 

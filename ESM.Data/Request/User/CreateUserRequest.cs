@@ -9,4 +9,5 @@ public class CreateUserRequest
     public string? InvigilatorId { get; set; }
     public string FullName { get; set; } = null!;
     public bool IsMale { get; set; }
+    public string? PhoneNumber { get; set; }
 }
