@@ -160,7 +160,7 @@ public class ExaminationService
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public List<ExaminationData> ValidateData(IEnumerable<ExaminationData> data)
+    public IQueryable<ExaminationData> ValidateData(IEnumerable<ExaminationData> data)
     {
         var examinationData = data.ToList();
 
@@ -192,11 +192,11 @@ public class ExaminationService
             ValidateRoom(row, existedRooms);
         }
 
-        return examinationData;
+        return examinationData.AsQueryable();
     }
 
     public IEnumerable<Shift> RetrieveShiftsFromTemporaryData(Guid examinationGuid,
-        List<ExaminationData> data)
+        IEnumerable<ExaminationData> data)
     {
         var modules = _moduleRepository.GetAll();
         var modulesDictionary = modules.ToDictionary(m => m.DisplayId, m => m.Id);

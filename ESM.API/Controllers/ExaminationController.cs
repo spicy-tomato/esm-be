@@ -107,26 +107,25 @@ public class ExaminationController : BaseController
     /// <param name="departmentAssign"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public Result<List<GetDataResponseItem>> GetData(string examinationId,
+    public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId,
         [FromQuery] bool? departmentAssign)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
             ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
 
         var data = Mapper.ProjectTo<GetDataResponseItem>(
-                _context.Shifts
-                   .Where(
-                        e => e.ShiftGroup.ExaminationId == guid &&
-                             (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign)
-                    )
-                   .OrderBy(s => s.ShiftGroup.StartAt)
-                   .ThenBy(s => s.ShiftGroupId)
-                   .ThenBy(s => s.ShiftGroup.Module.Name)
-                   .ThenBy(s => s.Room.DisplayId)
-            )
-           .ToList();
+            _context.Shifts
+               .Where(
+                    e => e.ShiftGroup.ExaminationId == guid &&
+                         (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign)
+                )
+               .OrderBy(s => s.ShiftGroup.StartAt)
+               .ThenBy(s => s.ShiftGroupId)
+               .ThenBy(s => s.ShiftGroup.Module.Name)
+               .ThenBy(s => s.Room.DisplayId)
+        );
 
-        return Result<List<GetDataResponseItem>>.Get(data);
+        return Result<IQueryable<GetDataResponseItem>>.Get(data);
     }
 
     /// <summary>
@@ -174,7 +173,7 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/handover")]
-    public Result<List<GetHandoverDataResponseItem>> GetHandoverData(string examinationId)
+    public Result<IQueryable<GetHandoverDataResponseItem>> GetHandoverData(string examinationId)
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
 
@@ -191,9 +190,9 @@ public class ExaminationController : BaseController
                    .OrderBy(g => g.ShiftGroup.StartAt)
                    .ThenBy(g => g.ShiftGroup.ModuleId)
                    .ThenBy(g => g.RoomId)
-            ).ToList();
+            );
 
-        return Result<List<GetHandoverDataResponseItem>>.Get(data);
+        return Result<IQueryable<GetHandoverDataResponseItem>>.Get(data);
     }
 
     /// <summary>
@@ -219,15 +218,25 @@ public class ExaminationController : BaseController
                    .OrderBy(g => g.ShiftGroup.StartAt)
                    .ThenBy(g => g.ShiftGroup.ModuleId)
                    .ThenBy(g => g.RoomId)
-            ).ToList();
+            ).AsEnumerable().ToList();
 
         var duplicatedShift = _context.Shifts
-           .Include(s => s.ShiftGroup)
-           .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
-           .OrderBy(g => g.ShiftGroup.StartAt)
-           .ThenBy(g => g.ShiftGroup.ModuleId)
-           .ThenBy(g => g.RoomId)
-           .GroupBy(g => new { g.ShiftGroup.StartAt, g.ShiftGroup.ModuleId, g.RoomId })
+           .Select(s => new
+            {
+                s.RoomId,
+                ShiftGroup = new
+                {
+                    s.ShiftGroup.ExaminationId,
+                    s.ShiftGroup.StartAt,
+                    s.ShiftGroup.DepartmentAssign,
+                    s.ShiftGroup.ModuleId
+                }
+            })
+           .Where(s => s.ShiftGroup.ExaminationId == examinationGuid && !s.ShiftGroup.DepartmentAssign)
+           .OrderBy(s => s.ShiftGroup.StartAt)
+           .ThenBy(s => s.ShiftGroup.ModuleId)
+           .ThenBy(s => s.RoomId)
+           .GroupBy(s => new { s.ShiftGroup.StartAt, s.ShiftGroup.ModuleId, s.RoomId })
            .Select(r => new
             {
                 r.Key.StartAt,
@@ -247,8 +256,11 @@ public class ExaminationController : BaseController
                     continue;
                 if (ds.StartAt > shift.ShiftGroup.StartAt)
                     break;
-                if (shift.Room.Id == ds.RoomId && shift.ShiftGroup.Module.Id == ds.ModuleId)
-                    shift.IsDuplicated = true;
+                if (shift.Room.Id != ds.RoomId || shift.ShiftGroup.Module.Id != ds.ModuleId)
+                    continue;
+
+                shift.IsDuplicated = true;
+                break;
             }
         }
 
@@ -272,6 +284,7 @@ public class ExaminationController : BaseController
            .Query()
            .Include(eg => eg.Shifts)
            .ThenInclude(fg => fg.InvigilatorShift)
+           .AsSplitQuery()
            .Load();
 
         foreach (var shiftGroup in entity.ShiftGroups)
@@ -288,7 +301,6 @@ public class ExaminationController : BaseController
             else
                 throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
         }
-
 
         _context.SaveChanges();
 
@@ -496,7 +508,8 @@ public class ExaminationController : BaseController
     /// <param name="facultyId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/faculty/{facultyId}/group")]
-    public Result<List<GetGroupByFacultyIdResponseItem>> GetGroupsByFacultyId(string examinationId, string facultyId)
+    public Result<IQueryable<GetGroupByFacultyIdResponseItem>> GetGroupsByFacultyId(string examinationId,
+        string facultyId)
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
         var facultyGuid = ParseGuid(facultyId);
@@ -509,9 +522,9 @@ public class ExaminationController : BaseController
                .Include(dg => dg.FacultyShiftGroup)
                .ThenInclude(fg => fg.ShiftGroup)
                .OrderBy(eg => eg.FacultyShiftGroup.ShiftGroup.StartAt)
-        ).ToList();
+        );
 
-        return Result<List<GetGroupByFacultyIdResponseItem>>.Get(data);
+        return Result<IQueryable<GetGroupByFacultyIdResponseItem>>.Get(data);
     }
 
     /// <summary>
@@ -529,13 +542,14 @@ public class ExaminationController : BaseController
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
         var facultyGuid = ParseGuid(facultyId);
-        var facultyShiftGroupsQuery = _context.DepartmentShiftGroups
+        var facultyShiftGroups = _context.DepartmentShiftGroups
            .Where(fg =>
                 fg.FacultyShiftGroup.FacultyId == facultyGuid &&
                 fg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid)
            .Include(dg => dg.FacultyShiftGroup)
-           .ThenInclude(fg => fg.ShiftGroup);
-        var facultyShiftGroups = facultyShiftGroupsQuery.ToDictionary(fg => fg.Id.ToString(), fg => fg);
+           .ThenInclude(fg => fg.ShiftGroup)
+           .AsEnumerable()
+           .ToDictionary(fg => fg.Id.ToString(), fg => fg);
 
         foreach (var (departmentShiftGroupId, rowData) in data)
         {
@@ -638,8 +652,7 @@ public class ExaminationController : BaseController
                .OrderBy(eg => eg.StartAt)
         ).ToList();
         var facultyShiftGroup = _context.FacultyShiftGroups
-           .Where(fg => fg.ShiftGroup.ExaminationId == guid && !fg.ShiftGroup.DepartmentAssign)
-           .ToList();
+           .Where(fg => fg.ShiftGroup.ExaminationId == guid && !fg.ShiftGroup.DepartmentAssign);
         var invigilatorsNumberInFaculties = _userRepository.CountByFaculties();
 
         foreach (var group in data)
@@ -799,18 +812,18 @@ public class ExaminationController : BaseController
 
         var shiftGroups =
             Mapper.ProjectTo<GetAvailableInvigilatorsInShiftGroup>(
-                    _context.ShiftGroups
-                       .Where(s => s.ExaminationId == guid)
-                       .Include(g => g.FacultyShiftGroups)
-                       .ThenInclude(fg => fg.DepartmentShiftGroups)
-                       .ThenInclude(dg => dg.User)
-                )
-               .ToList();
+                _context.ShiftGroups
+                   .Where(s => s.ExaminationId == guid)
+                   .Include(g => g.FacultyShiftGroups)
+                   .ThenInclude(fg => fg.DepartmentShiftGroups)
+                   .ThenInclude(dg => dg.User)
+            );
 
         var priorityFacultyOfShiftGroupsQuery = _context.ShiftGroups
            .Where(g => g.ExaminationId == guid)
            .Include(g => g.Module)
            .Select(g => new { g.Id, g.Module.FacultyId })
+           .AsSplitQuery()
            .ToDictionary(g => g.Id, g => g.FacultyId);
 
         var result =
@@ -870,12 +883,12 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/temporary")]
-    public Result<List<ExaminationData>> GetTemporaryData(string examinationId)
+    public Result<IQueryable<ExaminationData>> GetTemporaryData(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Setup);
 
         var data = GetTemporaryData(guid);
-        return Result<List<ExaminationData>>.Get(data);
+        return Result<IQueryable<ExaminationData>>.Get(data);
     }
 
     #endregion
@@ -888,10 +901,10 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <param name="skipValidate"></param>
     /// <returns></returns>
-    private List<ExaminationData> GetTemporaryData(Guid examinationId, bool skipValidate = false)
+    private IQueryable<ExaminationData> GetTemporaryData(Guid examinationId, bool skipValidate = false)
     {
-        var data = _examinationDataRepository.Find(e => e.ExaminationId == examinationId).ToList();
-        if (!skipValidate && data.Count > 0)
+        var data = _context.ExaminationData.Where(e => e.ExaminationId == examinationId);
+        if (!skipValidate && data.Any())
             data = _examinationService.ValidateData(data);
 
         return data;
