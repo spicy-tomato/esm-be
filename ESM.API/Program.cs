@@ -36,6 +36,7 @@ builder.Services.AddIdentityCore<User>(options =>
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<ExaminationService>();
+builder.Services.AddScoped<ExaminationEventService>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<DepartmentRepository>();
 builder.Services.AddScoped<ExaminationDataRepository>();

@@ -33,8 +33,8 @@ public class ExaminationController : BaseController
     private readonly ShiftRepository _shiftRepository;
     private readonly FacultyRepository _facultyRepository;
     private readonly UserRepository _userRepository;
-
     private readonly ExaminationService _examinationService;
+    private readonly ExaminationEventService _examinationEventService;
     private const string NOT_FOUND_MESSAGE = "Examination ID does not exist!";
 
     #endregion
@@ -48,7 +48,8 @@ public class ExaminationController : BaseController
         ApplicationContext context,
         ShiftRepository shiftRepository,
         FacultyRepository facultyRepository,
-        UserRepository userRepository) : base(mapper)
+        UserRepository userRepository,
+        ExaminationEventService examinationEventService) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
@@ -57,6 +58,7 @@ public class ExaminationController : BaseController
         _shiftRepository = shiftRepository;
         _facultyRepository = facultyRepository;
         _userRepository = userRepository;
+        _examinationEventService = examinationEventService;
     }
 
     #endregion
@@ -69,15 +71,17 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns> 
     [HttpPost]
-    public Result<ExaminationSummary> Create(CreateExaminationRequest request)
+    public async Task<Result<ExaminationSummary>> Create(CreateExaminationRequest request)
     {
-        new CreateExaminationRequestValidator().ValidateAndThrow(request);
+        await new CreateExaminationRequestValidator().ValidateAndThrowAsync(request);
         var examination = Mapper.Map<Examination>(request);
         examination.Status = ExaminationStatus.Idle;
         examination.CreatedById = GetUserId();
 
         var createdExamination = _examinationRepository.Create(examination);
         var response = Mapper.Map<ExaminationSummary>(createdExamination);
+
+        await _examinationEventService.CreateAsync(createdExamination.Id.ToString(), request.CreatedAt);
 
         return Result<ExaminationSummary>.Get(response);
     }
@@ -132,23 +136,17 @@ public class ExaminationController : BaseController
     /// Import data
     /// </summary>
     /// <param name="examinationId"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("{examinationId}")]
-    public Result<bool> Import(string examinationId)
+    public async Task<Result<bool>> Import(string examinationId, [FromForm] ImportExaminationRequest request)
     {
+        if (request.File == null)
+            throw new BadRequestException("File should not be empty");
+
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.Idle);
-
-        IFormFile file;
-
-        try
-        {
-            file = Request.Form.Files[0];
-        }
-        catch (Exception)
-        {
-            throw new UnsupportedMediaTypeException();
-        }
+        var file = request.File;
 
         List<ExaminationData> readDataResult;
         try
@@ -162,9 +160,23 @@ public class ExaminationController : BaseController
 
         _examinationDataRepository.CreateRange(readDataResult);
         entity.Status = ExaminationStatus.Setup;
-        _context.SaveChanges();
+
+        await _context.SaveChangesAsync();
+
+        await _examinationEventService.AddEventAsync(examinationId, ExaminationStatus.Setup, request.CreatedAt);
 
         return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Get events of examination
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    [HttpGet("{examinationId}/events")]
+    public async Task<ExaminationEvent> GetEvents(string examinationId)
+    {
+        return await _examinationEventService.GetEvents(examinationId);
     }
 
     /// <summary>
@@ -424,13 +436,16 @@ public class ExaminationController : BaseController
     /// <summary>
     /// Change examination status
     /// </summary>
-    /// <param name="newStatus"></param>
     /// <param name="examinationId"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("{examinationId}/status")]
-    public Result<bool> ChangeStatus([FromBody] ExaminationStatus newStatus, string examinationId)
+    public async Task<Result<bool>> ChangeStatus(string examinationId,
+        [FromBody] ChangeExaminationStatusRequest request)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
+        var newStatus = request.Status;
+        var expectedOldStatus = (ExaminationStatus)Math.Pow(2, Math.Log2((int)newStatus) - 1);
 
         switch (entity.Status, newStatus)
         {
@@ -443,13 +458,13 @@ public class ExaminationController : BaseController
             // case (ExaminationStatus.AssignInvigilator):
             //     break;
             default:
-                var expectedOldStatus = (ExaminationStatus)Math.Pow(2, Math.Log2((int)newStatus) - 1);
                 if (Enum.IsDefined(typeof(ExaminationStatus), expectedOldStatus))
                     throw new BadRequestException($"Examination status should be {expectedOldStatus}");
                 throw new BadRequestException("New status is invalid");
         }
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+        await _examinationEventService.AddEventAsync(examinationId, newStatus, request.CreatedAt);
 
         return Result<bool>.Get(true);
     }

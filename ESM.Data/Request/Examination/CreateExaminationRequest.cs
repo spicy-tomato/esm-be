@@ -10,4 +10,5 @@ public class CreateExaminationRequest
     public string? Description { get; set; }
     public DateTime? ExpectStartAt { get; set; }
     public DateTime? ExpectEndAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
