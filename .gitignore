@@ -7,3 +7,4 @@ deployment.xml
 sshConfigs.xml
 webServers.xml
 workspace.xml
+appsettings.json

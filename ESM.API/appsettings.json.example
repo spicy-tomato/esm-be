@@ -1,0 +1,28 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Jwt": {
+    "Key": "",
+    "Issuer": "",
+    "Audience": "",
+    "Subject": ""
+  },
+  "EPPlus": {
+    "ExcelPackage": {
+      "LicenseContext": "NonCommercial"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": ""
+  },
+  "ExaminationEvent": {
+    "ConnectionURI": "",
+    "DatabaseName": "",
+    "CollectionName": ""
+  }
+}
