@@ -174,9 +174,10 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/events")]
-    public async Task<ExaminationEvent> GetEvents(string examinationId)
+    public async Task<Result<ExaminationEvent>> GetEvents(string examinationId)
     {
-        return await _examinationEventService.GetEvents(examinationId);
+        var data = await _examinationEventService.GetEvents(examinationId);
+        return Result<ExaminationEvent>.Get(data);
     }
 
     /// <summary>
