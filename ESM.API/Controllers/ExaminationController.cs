@@ -10,6 +10,7 @@ using ESM.Data.Dtos.Examination;
 using ESM.Data.Enums;
 using ESM.Data.Interfaces;
 using ESM.Data.Models;
+using ESM.Data.Params.Examination;
 using ESM.Data.Request.Examination;
 using ESM.Data.Responses.Examination;
 using ESM.Data.Validations.Examination;
@@ -17,6 +18,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ESM.API.Controllers;
 
@@ -108,20 +110,22 @@ public class ExaminationController : BaseController
     /// Get examination data
     /// </summary>
     /// <param name="examinationId"></param>
-    /// <param name="departmentAssign"></param>
+    /// <param name="query"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId,
-        [FromQuery] bool? departmentAssign)
+    public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId, [FromQuery] GetDataParams? query)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
             ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
+        var departmentAssign = query?.DepartmentAssign;
+        var shifts = query?.Shift != null && !query.Shift.IsNullOrEmpty() ? query.Shift : null;
 
         var data = Mapper.ProjectTo<GetDataResponseItem>(
             _context.Shifts
                .Where(
                     e => e.ShiftGroup.ExaminationId == guid &&
-                         (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign)
+                         (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign) &&
+                         (shifts == null || (e.ShiftGroup.Shift != null && shifts.Contains(e.ShiftGroup.Shift.Value)))
                 )
                .OrderBy(s => s.ShiftGroup.StartAt)
                .ThenBy(s => s.ShiftGroupId)
