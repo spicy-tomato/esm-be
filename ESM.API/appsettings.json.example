@@ -12,11 +12,6 @@
     "Audience": "",
     "Subject": ""
   },
-  "EPPlus": {
-    "ExcelPackage": {
-      "LicenseContext": "NonCommercial"
-    }
-  },
   "ConnectionStrings": {
     "DefaultConnection": ""
   },

@@ -10,7 +10,6 @@ using ESM.Data.Dtos.Examination;
 using ESM.Data.Enums;
 using ESM.Data.Interfaces;
 using ESM.Data.Models;
-using ESM.Data.Params.Examination;
 using ESM.Data.Request.Examination;
 using ESM.Data.Responses.Examination;
 using ESM.Data.Validations.Examination;
@@ -18,7 +17,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ESM.API.Controllers;
 
@@ -110,23 +108,18 @@ public class ExaminationController : BaseController
     /// Get examination data
     /// </summary>
     /// <param name="examinationId"></param>
-    /// <param name="query"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId, [FromQuery] GetDataParams? query)
+    public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
             ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
-        var departmentAssign = query?.DepartmentAssign;
-        var shifts = query?.Shift != null && !query.Shift.IsNullOrEmpty() ? query.Shift : null;
 
         var data = Mapper.ProjectTo<GetDataResponseItem>(
             _context.Shifts
-               .Where(
-                    e => e.ShiftGroup.ExaminationId == guid &&
-                         (departmentAssign == null || e.ShiftGroup.DepartmentAssign == departmentAssign) &&
-                         (shifts == null || (e.ShiftGroup.Shift != null && shifts.Contains(e.ShiftGroup.Shift.Value)))
-                )
+               .Where(e =>
+                    e.ShiftGroup.ExaminationId == guid &&
+                    e.ShiftGroup.DepartmentAssign == false)
                .OrderBy(s => s.ShiftGroup.StartAt)
                .ThenBy(s => s.ShiftGroupId)
                .ThenBy(s => s.ShiftGroup.Module.Name)
@@ -493,17 +486,19 @@ public class ExaminationController : BaseController
            .Include(eg => eg.Shifts)
            .Load();
 
-        foreach (var (shiftGroupId, examsCount) in request)
+        foreach (var (shiftId, examsCount) in request)
         {
-            if (!Guid.TryParse(shiftGroupId, out var shiftGuid))
-                throw new NotFoundException(notFoundMessage + shiftGroupId);
+            if (!Guid.TryParse(shiftId, out var shiftGuid))
+                throw new NotFoundException(notFoundMessage + shiftId);
 
             var found = false;
             foreach (var shiftGroup in entity.ShiftGroups)
             {
+                if (shiftGroup.DepartmentAssign) continue;
+                
                 foreach (var shift in shiftGroup.Shifts)
                 {
-                    if (shiftGroup.Id != shiftGuid)
+                    if (shift.Id != shiftGuid)
                         continue;
 
                     shift.ExamsCount = examsCount;
@@ -513,7 +508,7 @@ public class ExaminationController : BaseController
             }
 
             if (!found)
-                throw new NotFoundException(notFoundMessage + shiftGroupId);
+                throw new NotFoundException(notFoundMessage + shiftId);
         }
 
         _context.SaveChanges();
