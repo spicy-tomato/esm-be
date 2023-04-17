@@ -495,7 +495,7 @@ public class ExaminationController : BaseController
             foreach (var shiftGroup in entity.ShiftGroups)
             {
                 if (shiftGroup.DepartmentAssign) continue;
-                
+
                 foreach (var shift in shiftGroup.Shifts)
                 {
                     if (shift.Id != shiftGuid)
@@ -854,19 +854,29 @@ public class ExaminationController : BaseController
                 var priorityFacultyId = priorityFacultyOfShiftGroupsQuery[group.Id];
                 foreach (var departmentShiftGroup in facultyShiftGroup.DepartmentShiftGroups)
                 {
-                    if (departmentShiftGroup.User == null)
+                    if (departmentShiftGroup.User == null &&
+                        departmentShiftGroup.TemporaryInvigilatorName.IsNullOrEmpty())
                         continue;
 
-                    var isPriority = departmentShiftGroup.User.Department?.Faculty?.Id == priorityFacultyId;
-                    list.Add(new GetAvailableInvigilatorsInShiftGroup.ResponseItem
-                    {
-                        Id = departmentShiftGroup.User.Id,
-                        FullName = departmentShiftGroup.User.FullName,
-                        InvigilatorId = departmentShiftGroup.User.InvigilatorId,
-                        IsPriority = isPriority,
-                        PhoneNumber = departmentShiftGroup.User.PhoneNumber,
-                        FacultyName = departmentShiftGroup.User.Department?.Faculty?.Name
-                    });
+                    var isPriority = facultyShiftGroup.FacultyId == priorityFacultyId;
+                    GetAvailableInvigilatorsInShiftGroup.ResponseItem item = departmentShiftGroup.User == null
+                        ? new GetAvailableInvigilatorsInShiftGroup.TemporaryInvigilator
+                        {
+                            TemporaryName = departmentShiftGroup.TemporaryInvigilatorName!,
+                            DepartmentId = departmentShiftGroup.DepartmentId,
+                            IsPriority = isPriority
+                        }
+                        : new GetAvailableInvigilatorsInShiftGroup.VerifiedInvigilator
+                        {
+                            Id = departmentShiftGroup.User.Id,
+                            FullName = departmentShiftGroup.User.FullName,
+                            InvigilatorId = departmentShiftGroup.User.InvigilatorId,
+                            IsPriority = isPriority,
+                            PhoneNumber = departmentShiftGroup.User.PhoneNumber,
+                            FacultyName = departmentShiftGroup.User.Department?.Faculty?.Name
+                        };
+
+                    list.Add(item);
                 }
             }
 
