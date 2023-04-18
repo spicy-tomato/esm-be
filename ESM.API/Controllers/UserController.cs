@@ -9,6 +9,7 @@ using ESM.Data.Core.Response;
 using ESM.Data.Dtos;
 using ESM.Data.Dtos.User;
 using ESM.Data.Models;
+using ESM.Data.Params.User;
 using ESM.Data.Request.User;
 using ESM.Data.Validations.User;
 using FluentValidation;
@@ -84,6 +85,23 @@ public class UserController : BaseController
     //     var response = Mapper.Map<UserSummary?>(await _userManager.FindByNameAsync(user.UserName));
     //     return Result<UserSummary?>.Get(response);
     // }
+
+    /// <summary>
+    /// Check if user exists or not
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    [HttpGet("check-exist")]
+    [Authorize]
+    public Result<bool> CheckIfExist([FromQuery] CheckIfExistParams query)
+    {
+        var userIsExist = _context.Users
+           .FirstOrDefault(u =>
+                (query.InvigilatorId == null || u.InvigilatorId == query.InvigilatorId) &&
+                (query.Email == null || u.InvigilatorId == query.Email)
+            ) != null;
+        return Result<bool>.Get(userIsExist);
+    }
 
     /// <summary>
     /// Login
