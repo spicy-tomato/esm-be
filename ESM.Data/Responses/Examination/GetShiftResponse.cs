@@ -27,7 +27,6 @@ public class GetShiftResponseItem
     {
         public Guid Id { get; set; }
         public int OrderIndex { get; set; }
-        public string? InvigilatorId { get; set; }
         public InternalUser? Invigilator { get; set; }
     }
 

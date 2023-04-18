@@ -740,6 +740,43 @@ public class ExaminationController : BaseController
         return Result<bool>.Get(true);
     }
 
+    [HttpPost("{examinationId}/group/{groupId}/department/{departmentId}")]
+    public Result<bool> UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup([FromBody] dynamic request,
+        string examinationId,
+        string groupId,
+        string departmentId)
+    {
+        const string notFoundUserMessage = "User ID does not exist!";
+        const string notFoundGroupMessage = "Group ID does not exist!";
+        const string notFoundFacultyMessage = "Department ID does not exist!";
+
+        if (!Guid.TryParse((string)request.userId, out var userGuid))
+            throw new NotFoundException(notFoundUserMessage);
+        if (!Guid.TryParse(groupId, out var groupGuid))
+            throw new NotFoundException(notFoundGroupMessage);
+        if (!Guid.TryParse(departmentId, out var departmentGuid))
+            throw new NotFoundException(notFoundFacultyMessage);
+
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+
+        var departmentShiftGroup =
+            _context.DepartmentShiftGroups.FirstOrDefault(dsg =>
+                dsg.DepartmentId == departmentGuid &&
+                dsg.FacultyShiftGroup.ShiftGroupId == groupGuid &&
+                dsg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid
+            );
+
+        if (departmentShiftGroup == null)
+            throw new BadRequestException("Data is invalid");
+
+        departmentShiftGroup.UserId = userGuid;
+        departmentShiftGroup.TemporaryInvigilatorName = null;
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
     /// <summary>
     /// Assign invigilator number of a shift for a faculty
     /// </summary>
