@@ -16,6 +16,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESM.API.Controllers;
 
@@ -128,6 +129,23 @@ public class UserController : BaseController
 
         var token = _jwtService.CreateToken(user);
         return Result<GeneratedToken>.Get(token);
+    }
+
+    /// <summary>
+    /// Check if user exists or not
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    [HttpGet("search")]
+    [Authorize]
+    public Result<IQueryable<UserSummary>> Search([FromQuery] SearchParams query)
+    {
+        var result = Mapper.ProjectTo<UserSummary>(
+            _context.Users
+               .Where(u => query.FullName == null || EF.Functions.Like(u.FullName, $"%{query.FullName}%"))
+               .Take(20)
+        );
+        return Result<IQueryable<UserSummary>>.Get(result);
     }
 
     /// <summary>

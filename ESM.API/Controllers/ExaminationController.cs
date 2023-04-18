@@ -311,6 +311,8 @@ public class ExaminationController : BaseController
                 invigilatorShift.InvigilatorId = invigilatorGuid;
             else
                 throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+
+            request.Remove(invigilatorShift.Id.ToString());
         }
 
         _context.SaveChanges();
