@@ -35,15 +35,19 @@ public class GetAvailableInvigilatorsInShiftGroup
         public InternalDepartment? Department { get; set; }
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public class InternalDepartment
     {
         public InternalFaculty? Faculty { get; set; }
+
+        public string? Name { get; set; }
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public class InternalFaculty
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+        public string? Name { get; set; }
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
@@ -60,6 +64,7 @@ public class GetAvailableInvigilatorsInShiftGroup
         public string? InvigilatorId { get; set; }
         public string? PhoneNumber { get; set; }
         public string? FacultyName { get; set; }
+        public string? DepartmentName { get; set; }
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]

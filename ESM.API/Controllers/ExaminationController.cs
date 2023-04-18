@@ -911,7 +911,8 @@ public class ExaminationController : BaseController
                             InvigilatorId = departmentShiftGroup.User.InvigilatorId,
                             IsPriority = isPriority,
                             PhoneNumber = departmentShiftGroup.User.PhoneNumber,
-                            FacultyName = departmentShiftGroup.User.Department?.Faculty?.Name
+                            FacultyName = departmentShiftGroup.User.Department?.Faculty?.Name,
+                            DepartmentName = departmentShiftGroup.User.Department?.Name
                         };
 
                     list.Add(item);
