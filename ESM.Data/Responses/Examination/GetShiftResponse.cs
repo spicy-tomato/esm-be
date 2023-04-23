@@ -10,6 +10,7 @@ public class GetShiftResponseItem
 {
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
     public RoomSummary Room { get; set; } = null!;
+    public int CandidatesCount { get; set; }
     public ICollection<InternalInvigilatorShift> InvigilatorShift { get; set; } = new List<InternalInvigilatorShift>();
     public bool IsDuplicated;
 
