@@ -35,7 +35,6 @@ public class ExaminationController : BaseController
     private readonly FacultyRepository _facultyRepository;
     private readonly UserRepository _userRepository;
     private readonly ExaminationService _examinationService;
-    private readonly ExaminationEventService _examinationEventService;
     private const string NOT_FOUND_MESSAGE = "Examination ID does not exist!";
 
     #endregion
@@ -49,8 +48,7 @@ public class ExaminationController : BaseController
         ApplicationContext context,
         ShiftRepository shiftRepository,
         FacultyRepository facultyRepository,
-        UserRepository userRepository,
-        ExaminationEventService examinationEventService) : base(mapper)
+        UserRepository userRepository) : base(mapper)
     {
         _examinationRepository = examinationRepository;
         _examinationDataRepository = examinationDataRepository;
@@ -59,7 +57,6 @@ public class ExaminationController : BaseController
         _shiftRepository = shiftRepository;
         _facultyRepository = facultyRepository;
         _userRepository = userRepository;
-        _examinationEventService = examinationEventService;
     }
 
     #endregion
@@ -82,7 +79,13 @@ public class ExaminationController : BaseController
         var createdExamination = _examinationRepository.Create(examination);
         var response = Mapper.Map<ExaminationSummary>(createdExamination);
 
-        await _examinationEventService.CreateAsync(createdExamination.Id.ToString(), request.CreatedAt);
+        _context.ExaminationEvents.Add(new ExaminationEvent
+        {
+            ExaminationId = createdExamination.Id,
+            Status = ExaminationStatus.Idle
+        });
+
+        await _context.SaveChangesAsync();
 
         return Result<ExaminationSummary>.Get(response);
     }
@@ -159,9 +162,13 @@ public class ExaminationController : BaseController
         _examinationDataRepository.CreateRange(readDataResult);
         entity.Status = ExaminationStatus.Setup;
 
-        await _context.SaveChangesAsync();
+        _context.ExaminationEvents.Add(new ExaminationEvent
+        {
+            ExaminationId = entity.Id,
+            Status = ExaminationStatus.Setup
+        });
 
-        await _examinationEventService.AddEventAsync(examinationId, ExaminationStatus.Setup, request.CreatedAt);
+        await _context.SaveChangesAsync();
 
         return Result<bool>.Get(true);
     }
@@ -172,10 +179,11 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/events")]
-    public async Task<Result<ExaminationEvent>> GetEvents(string examinationId)
+    public Result<IQueryable<ExaminationEvent>> GetEvents(string examinationId)
     {
-        var data = await _examinationEventService.GetEvents(examinationId);
-        return Result<ExaminationEvent>.Get(data);
+        var guid = CheckIfExaminationExistAndReturnGuid(examinationId);
+        var data = _context.ExaminationEvents.Where(e => e.ExaminationId == guid);
+        return Result<IQueryable<ExaminationEvent>>.Get(data);
     }
 
     /// <summary>
@@ -464,8 +472,13 @@ public class ExaminationController : BaseController
                 throw new BadRequestException("New status is invalid");
         }
 
+        _context.ExaminationEvents.Add(new ExaminationEvent
+        {
+            ExaminationId = entity.Id,
+            Status = newStatus
+        });
+
         await _context.SaveChangesAsync();
-        await _examinationEventService.AddEventAsync(examinationId, newStatus, request.CreatedAt);
 
         return Result<bool>.Get(true);
     }

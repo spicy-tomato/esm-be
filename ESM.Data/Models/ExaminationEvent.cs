@@ -1,25 +1,22 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ESM.Data.Enums;
 using JetBrains.Annotations;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace ESM.Data.Models;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ExaminationEventDetails
-{
-    [BsonElement("status")]
-    public ExaminationStatus Status;
-
-    [BsonElement("dateTime")]
-    public DateTime DateTime;
-}
-
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class ExaminationEvent
 {
-    [BsonId]
-    public string? Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
 
-    [BsonElement("events")]
-    public List<ExaminationEventDetails> Events { get; set; } = null!;
+    public ExaminationStatus Status;
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime CreateAt;
+
+    public Guid ExaminationId { get; set; }
+    public Examination Examination { get; set; } = null!;
 }

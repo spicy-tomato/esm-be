@@ -35,6 +35,8 @@ public class Examination
     public ICollection<CandidateExaminationModule> CandidatesOfModule { get; set; } =
         new List<CandidateExaminationModule>();
 
+    public ICollection<ExaminationEvent> Events { get; set; } = new List<ExaminationEvent>();
+
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;
 }

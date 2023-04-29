@@ -85,24 +85,22 @@ public class ExaminationService
 
             for (var c = 1; c <= colsCount; c++)
             {
-                if (ExaminationDataMapping.ContainsKey(c))
+                if (ExaminationDataMapping.TryGetValue(c, out var field))
                 {
                     if (row.Cell(c).IsEmpty())
                         continue;
 
                     var cellValue = row.Cell(c).GetText().Trim();
-                    var field = ExaminationDataMapping[c];
                     typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
                     continue;
                 }
 
-                if (ExaminationDataIntMapping.ContainsKey(c))
+                if (ExaminationDataIntMapping.TryGetValue(c, out field))
                 {
                     if (row.Cell(c).IsEmpty())
                         continue;
 
                     var cellValue = Convert.ToInt32(row.Cell(c).GetDouble());
-                    var field = ExaminationDataIntMapping[c];
                     typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
                     continue;
                 }
