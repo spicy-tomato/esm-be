@@ -33,7 +33,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PWD }}
           source: "./ESM.API/bin/Release/net6.0/publish/*"
           target: "/var/www/esm-be"
-          strip_components: 5
+          strip_components: 4
