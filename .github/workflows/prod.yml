@@ -36,4 +36,4 @@ jobs:
           password: ${{ secrets.SSH_PWD }}
           source: "./ESM.API/bin/Release/net6.0/publish/*"
           target: "/var/www/esm-be"
-          strip_components: 4
+          strip_components: 5
