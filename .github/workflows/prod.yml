@@ -17,6 +17,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.20.0
+
+      - name: Generate app settings file
+        run: node ./Scripts/env.js
+        env:
+          DEFAULT_CONNECTION_STRING: "${{ secrets.DEFAULT_CONNECTION_STRING }}"
+          JWT_AUDIENCE: "${{ secrets.JWT_AUDIENCE }}"
+          JWT_ISSUER: "${{ secrets.JWT_ISSUER }}"
+          JWT_KEY: "${{ secrets.JWT_KEY }}"
+          JWT_SUBJECT: "${{ secrets.JWT_SUBJECT }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -33,7 +47,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PWD }}
+          key: ${{ secrets.SSH_KEY }}
           source: "./ESM.API/bin/Release/net6.0/publish/*"
           target: "/var/www/esm-be"
           strip_components: 5

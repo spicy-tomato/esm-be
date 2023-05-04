@@ -14,10 +14,5 @@
   },
   "ConnectionStrings": {
     "DefaultConnection": ""
-  },
-  "ExaminationEvent": {
-    "ConnectionURI": "",
-    "DatabaseName": "",
-    "CollectionName": ""
   }
 }
