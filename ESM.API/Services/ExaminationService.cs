@@ -257,7 +257,7 @@ public class ExaminationService
 
                 shifts.Add(new Shift
                 {
-                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
+                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift.Method, candidatesNumberInShift),
                     CandidatesCount = candidatesNumberInShift,
                     InvigilatorsCount = invigilatorsCount,
                     RoomId = roomsDictionary[room],

@@ -1,20 +1,16 @@
-using System.Data;
 using ESM.Data.Enums;
-using ESM.Data.Models;
 
 namespace ESM.Common.Core.Helpers;
 
 public static class ExaminationHelper
 {
-    public static int CalculateExamsNumber(ExaminationData examination)
+    public static int CalculateExamsNumber(ExamMethod? method, int candidatesNumberInShift)
     {
-        if (examination.Method != ExamMethod.Write)
+        if (method != ExamMethod.Write)
             return 0;
-        if (examination.CandidatesCount == null)
-            throw new NoNullAllowedException();
         
-        var shouldRoundUp = examination.CandidatesCount.Value % 5 != 0;
-        return (examination.CandidatesCount.Value / 5 + (shouldRoundUp ? 1 : 0)) * 5;
+        var shouldRoundUp = candidatesNumberInShift % 5 != 0;
+        return (candidatesNumberInShift / 5 + (shouldRoundUp ? 1 : 0)) * 5;
     }
     
     public static int CalculateInvigilatorNumber(int candidatesCount)
