@@ -101,16 +101,33 @@ public class DepartmentController : BaseController
         var importResult = DepartmentService.Import(file);
         var random = new Random();
 
-        foreach (var (facultyName, departments) in importResult)
+        foreach (var (facultyNameWithAbbreviation, departments) in importResult)
         {
             EntityEntry<Faculty>? faculty = null;
-            if (facultyName != "Khác")
+            if (facultyNameWithAbbreviation != "Khác")
             {
+                var lastSpaceIndex = facultyNameWithAbbreviation.LastIndexOf(' ');
+                var facultyName = facultyNameWithAbbreviation[..lastSpaceIndex];
+                var abbreviation =
+                    facultyNameWithAbbreviation[(lastSpaceIndex + 2)..^1];
+
                 faculty = await _facultyRepository.CreateAsync(new Faculty
                     {
-                        Name = facultyName
+                        Name = facultyName,
+                        DisplayId = abbreviation
                     },
                     false);
+
+                await _userManager.CreateAsync(new User
+                    {
+                        Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
+                           .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
+                        UserName = "K_" + abbreviation,
+                        FullName = "Khoa " + abbreviation,
+                        FacultyId = faculty.Entity.Id,
+                        RoleId = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18")
+                    },
+                    "e10adc3949ba59abbe56e057f20f883e");
             }
 
             foreach (var (departmentName, teachers) in departments)
@@ -125,15 +142,16 @@ public class DepartmentController : BaseController
                 foreach (var teacher in teachers)
                 {
                     await _userManager.CreateAsync(new User
-                    {
-                        Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
-                           .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
-                        UserName = "GV" + teacher.Key,
-                        FullName = teacher.Value,
-                        Department = department.Entity,
-                        InvigilatorId = teacher.Key,
-                        RoleId = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18")
-                    });
+                        {
+                            Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
+                               .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
+                            UserName = "GV" + teacher.Key,
+                            FullName = teacher.Value,
+                            Department = department.Entity,
+                            InvigilatorId = teacher.Key,
+                            RoleId = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18")
+                        },
+                        "e10adc3949ba59abbe56e057f20f883e");
                 }
             }
         }
@@ -181,11 +199,11 @@ public class DepartmentController : BaseController
     {
         var guid = ParseGuid(departmentId);
         await new CreateUserRequestValidator().ValidateAndThrowAsync(request);
-        
+
         var defaultRole = _roleManager.FindByNameAsync("Teacher").Result;
         if (defaultRole == null)
             throw new InternalServerErrorException("Default role is not setup");
-        
+
         var user = Mapper.Map<User>(request,
             opts => opts.AfterMap((_, des) =>
             {
@@ -249,9 +267,6 @@ public class DepartmentController : BaseController
         throw new HttpException(HttpStatusCode.Conflict, errorList);
     }
 
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// 

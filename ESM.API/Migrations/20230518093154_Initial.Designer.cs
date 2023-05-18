@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230429163601_AddEvent")]
-    partial class AddEvent
+    [Migration("20230518093154_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -414,14 +414,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "add7624f-f63b-4d48-8cb5-a51a19a9dd12",
+                            ConcurrencyStamp = "1c8ae92b-07b0-4378-a3c7-a0d8987d341e",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "41cb3ca3-869a-4d9a-aaf2-a83335593820",
+                            ConcurrencyStamp = "20066a31-69d7-406d-b1af-d32397a8e8d2",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -549,6 +549,9 @@ namespace ESM.API.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<Guid?>("FacultyId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -599,6 +602,8 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("FacultyId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -615,14 +620,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "68217d9d-9f61-41fb-9b66-e8a643522866",
+                            ConcurrencyStamp = "e5e366ae-f545-4d55-8f59-57055c75494d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAELl/J7ORdJQ7+mp38aQCuEcPC8dzT/4D7mn4raVcKT1RKpE00t2frjEwfWrYcA8bHQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJC2sqOwaYCjgv8me0F6ZkSIQsULO+ILxecQ6atw9ZsFLuwhDlZoAaRig/ksgDOt2Q==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -904,6 +909,10 @@ namespace ESM.API.Migrations
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
 
+                    b.HasOne("ESM.Data.Models.Faculty", "Faculty")
+                        .WithMany("Users")
+                        .HasForeignKey("FacultyId");
+
                     b.HasOne("ESM.Data.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
@@ -911,6 +920,8 @@ namespace ESM.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
+
+                    b.Navigation("Faculty");
 
                     b.Navigation("Role");
                 });
@@ -970,6 +981,8 @@ namespace ESM.API.Migrations
                     b.Navigation("Departments");
 
                     b.Navigation("FacultyShiftGroups");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.FacultyShiftGroup", b =>
