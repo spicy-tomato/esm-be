@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 
 namespace ESM.Common.Core.Exceptions;
@@ -10,6 +11,8 @@ public class NotFoundException : InnerException
     private const HttpStatusCode CODE = HttpStatusCode.NotFound;
 
     public NotFoundException(string? message, Exception? innerException = null) : base(message, innerException) { }
+
+    public NotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {
