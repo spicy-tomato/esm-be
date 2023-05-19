@@ -12,10 +12,10 @@ public class ExaminationEvent
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
-    public ExaminationStatus Status;
+    public ExaminationStatus Status { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public DateTime CreateAt;
+    public DateTime CreateAt { get; set; }
 
     public Guid ExaminationId { get; set; }
     public Examination Examination { get; set; } = null!;

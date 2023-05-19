@@ -5,6 +5,7 @@ using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Common.Core;
 using ESM.Common.Core.Exceptions;
+using ESM.Common.Core.Helpers;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Department;
@@ -99,7 +100,6 @@ public class DepartmentController : BaseController
         }
 
         var importResult = DepartmentService.Import(file);
-        var random = new Random();
 
         foreach (var (facultyNameWithAbbreviation, departments) in importResult)
         {
@@ -121,7 +121,7 @@ public class DepartmentController : BaseController
                 await _userManager.CreateAsync(new User
                     {
                         Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
-                           .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
+                           .Select(s => s[RandomHelper.Next(s.Length)]).ToArray()) + "@com",
                         UserName = "K_" + abbreviation,
                         FullName = "Khoa " + abbreviation,
                         FacultyId = faculty.Entity.Id,
@@ -144,7 +144,7 @@ public class DepartmentController : BaseController
                     await _userManager.CreateAsync(new User
                         {
                             Email = new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10)
-                               .Select(s => s[random.Next(s.Length)]).ToArray()) + "@com",
+                               .Select(s => s[RandomHelper.Next(s.Length)]).ToArray()) + "@com",
                             UserName = "GV" + teacher.Key,
                             FullName = teacher.Value,
                             Department = department.Entity,

@@ -69,7 +69,6 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns> 
     [HttpPost]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public async Task<Result<ExaminationSummary>> Create(CreateExaminationRequest request)
     {
         await new CreateExaminationRequestValidator().ValidateAndThrowAsync(request);
@@ -124,7 +123,7 @@ public class ExaminationController : BaseController
             _context.Shifts
                .Where(e =>
                     e.ShiftGroup.ExaminationId == guid &&
-                    e.ShiftGroup.DepartmentAssign == false)
+                    !e.ShiftGroup.DepartmentAssign)
                .OrderBy(s => s.ShiftGroup.StartAt)
                .ThenBy(s => s.ShiftGroupId)
                .ThenBy(s => s.ShiftGroup.Module.Name)
@@ -142,7 +141,6 @@ public class ExaminationController : BaseController
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("{examinationId}")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public async Task<Result<bool>> Import(string examinationId, [FromForm] ImportExaminationRequest request)
     {
         if (request.File == null)
@@ -194,7 +192,6 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/handover")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<IQueryable<GetHandoverDataResponseItem>> GetHandoverData(string examinationId)
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
@@ -296,7 +293,6 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPatch("{examinationId}/shift")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<bool> AssignInvigilatorsToShifts(string examinationId,
         [FromBody] AssignInvigilatorsToShiftsRequest request)
     {
@@ -311,21 +307,25 @@ public class ExaminationController : BaseController
            .Load();
 
         foreach (var shiftGroup in entity.ShiftGroups)
-        foreach (var shift in shiftGroup.Shifts)
-        foreach (var invigilatorShift in shift.InvigilatorShift)
-        {
-            if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-                continue;
+            foreach (var shift in shiftGroup.Shifts)
+                foreach (var invigilatorShift in shift.InvigilatorShift)
+                {
+                    if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
+                        continue;
 
-            if (invigilatorId == null)
-                invigilatorShift.InvigilatorId = null;
-            else if (Guid.TryParse(invigilatorId, out var invigilatorGuid))
-                invigilatorShift.InvigilatorId = invigilatorGuid;
-            else
-                throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+                    if (invigilatorId == null)
+                    {
+                        invigilatorShift.InvigilatorId = null;
+                        request.Remove(invigilatorShift.Id.ToString());
+                        continue;
+                    }
 
-            request.Remove(invigilatorShift.Id.ToString());
-        }
+                    if (!Guid.TryParse(invigilatorId, out var invigilatorGuid))
+                        throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+
+                    invigilatorShift.InvigilatorId = invigilatorGuid;
+                    request.Remove(invigilatorShift.Id.ToString());
+                }
 
         _context.SaveChanges();
 
@@ -340,7 +340,6 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPatch("{examinationId}/shift/{shiftId}")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<bool> UpdateShift(string examinationId,
         string shiftId,
         [FromBody] UpdateShiftRequest request)
@@ -382,7 +381,6 @@ public class ExaminationController : BaseController
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/shift/calculate")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<bool> AutoAssignTeachersToShiftGroup(string examinationId)
     {
         var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
@@ -455,7 +453,6 @@ public class ExaminationController : BaseController
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("{examinationId}/status")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public async Task<Result<bool>> ChangeStatus(string examinationId,
         [FromBody] ChangeExaminationStatusRequest request)
     {
@@ -497,7 +494,6 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpPatch("{examinationId}/exams-number")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Task<Result<bool>> UpdateExamsCount([FromBody] Dictionary<string, int> request, string examinationId)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
@@ -680,7 +676,6 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/group")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<List<GetAllGroupsResponseResponseItem>> GetAllGroups(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
@@ -713,7 +708,6 @@ public class ExaminationController : BaseController
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/group/calculate")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<bool> CalculateInvigilatorNumerateOfShiftForEachFaculty(string examinationId)
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignFaculty);
@@ -735,19 +729,19 @@ public class ExaminationController : BaseController
             var teachersNumberInRestFaculties =
                 teachersTotal - teachersNumberInFaculties.GetValueOrDefault(mainFacultyId, 0);
 
-            foreach (var faculty in faculties)
+            foreach (var facultyId in faculties.Select(f => f.Id))
             {
-                var calculatedInvigilatorsCount = faculty.Id == mainFacultyId
+                var calculatedInvigilatorsCount = facultyId == mainFacultyId
                     ? group.RoomsCount
                     : Convert.ToInt32((group.InvigilatorsCount - group.RoomsCount) *
-                                      (teachersNumberInFaculties.GetValueOrDefault(faculty.Id, 0) * 1.0 /
+                                      (teachersNumberInFaculties.GetValueOrDefault(facultyId, 0) * 1.0 /
                                        teachersNumberInRestFaculties));
                 var savedRecord = group.FacultyShiftGroups
-                   .FirstOrDefault(feg => feg.FacultyId == faculty.Id);
+                   .FirstOrDefault(feg => feg.FacultyId == facultyId);
                 if (savedRecord == null)
                     group.FacultyShiftGroups.Add(new FacultyShiftGroup
                     {
-                        FacultyId = faculty.Id,
+                        FacultyId = facultyId,
                         ShiftGroup = group,
                         InvigilatorsCount = calculatedInvigilatorsCount,
                         CalculatedInvigilatorsCount = calculatedInvigilatorsCount
@@ -766,7 +760,6 @@ public class ExaminationController : BaseController
     }
 
     [HttpPost("{examinationId}/group/{groupId}/department/{departmentId}")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<bool> UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup([FromBody] dynamic request,
         string examinationId,
         string groupId,
@@ -814,7 +807,6 @@ public class ExaminationController : BaseController
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/group/{groupId}/{facultyId}")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<AssignInvigilatorNumerateOfShiftToFacultyResponse?> AssignInvigilatorNumerateOfShiftToFaculty(
         [FromBody] int numberOfInvigilator,
         string examinationId,
@@ -885,7 +877,6 @@ public class ExaminationController : BaseController
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
     [HttpGet("{examinationId}/invigilator")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<Dictionary<string, List<GetAvailableInvigilatorsInShiftGroup.ResponseItem>>>
         GetAvailableInvigilatorsInShiftGroup(string examinationId)
     {
@@ -975,7 +966,6 @@ public class ExaminationController : BaseController
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/temporary")]
-    [Authorize(Roles = "ExaminationDepartmentHead")]
     public Result<IQueryable<ExaminationData>> GetTemporaryData(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.Setup);

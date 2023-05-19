@@ -265,8 +265,15 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("CreateAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -412,14 +419,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "1c8ae92b-07b0-4378-a3c7-a0d8987d341e",
+                            ConcurrencyStamp = "d13da7af-0e0c-4039-bba3-7ca70c704472",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "20066a31-69d7-406d-b1af-d32397a8e8d2",
+                            ConcurrencyStamp = "c58b3ae4-8379-4802-951d-f3fdda127f7d",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -618,14 +625,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e5e366ae-f545-4d55-8f59-57055c75494d",
+                            ConcurrencyStamp = "964d7a9f-b25e-44f5-9188-0bdb9f9e4538",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJC2sqOwaYCjgv8me0F6ZkSIQsULO+ILxecQ6atw9ZsFLuwhDlZoAaRig/ksgDOt2Q==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKSC3BWjBtWGZzmItn51ZCoycooxYBy8tRpFxFF2lEUE2DKXZXsOX4IwXk2Hm5Ta/A==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -912,7 +919,7 @@ namespace ESM.API.Migrations
                         .HasForeignKey("FacultyId");
 
                     b.HasOne("ESM.Data.Models.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -991,6 +998,11 @@ namespace ESM.API.Migrations
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
                 {
                     b.Navigation("CandidatesOfExamination");
+                });
+
+            modelBuilder.Entity("ESM.Data.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Room", b =>

@@ -31,12 +31,10 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     public Task<List<T>> FindAsync(Expression<Func<T, bool>> expression) =>
         Context.Set<T>().Where(expression).ToListAsync();
 
-    public T Create(T entity, bool saveChanges = true)
+    public T Create(T entity)
     {
         var result = Context.Set<T>().Add(entity).Entity;
-        if (saveChanges)
-            Context.SaveChanges();
-
+        Context.SaveChanges();
         return result;
     }
 

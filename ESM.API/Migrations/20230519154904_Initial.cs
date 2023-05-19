@@ -378,6 +378,9 @@ namespace ESM.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ExaminationId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
@@ -581,17 +584,17 @@ namespace ESM.API.Migrations
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), "1c8ae92b-07b0-4378-a3c7-a0d8987d341e", "ExaminationDepartmentHead", "EXAMINATIONDEPARTMENTHEAD" });
+                values: new object[] { new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), "d13da7af-0e0c-4039-bba3-7ca70c704472", "ExaminationDepartmentHead", "EXAMINATIONDEPARTMENTHEAD" });
 
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"), "20066a31-69d7-406d-b1af-d32397a8e8d2", "Teacher", "TEACHER" });
+                values: new object[] { new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"), "c58b3ae4-8379-4802-951d-f3fdda127f7d", "Teacher", "TEACHER" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FacultyId", "FullName", "InvigilatorId", "IsMale", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RoleId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "e5e366ae-f545-4d55-8f59-57055c75494d", null, null, false, null, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEJC2sqOwaYCjgv8me0F6ZkSIQsULO+ILxecQ6atw9ZsFLuwhDlZoAaRig/ksgDOt2Q==", null, false, new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), null, false, "admin" });
+                values: new object[] { new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"), 0, "964d7a9f-b25e-44f5-9188-0bdb9f9e4538", null, null, false, null, "Admin", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEKSC3BWjBtWGZzmItn51ZCoycooxYBy8tRpFxFF2lEUE2DKXZXsOX4IwXk2Hm5Ta/A==", null, false, new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"), null, false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
