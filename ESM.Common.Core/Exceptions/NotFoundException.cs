@@ -12,7 +12,7 @@ public class NotFoundException : InnerException
 
     public NotFoundException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
-    public NotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected NotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

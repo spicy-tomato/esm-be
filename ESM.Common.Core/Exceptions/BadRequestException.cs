@@ -12,7 +12,7 @@ public class BadRequestException : InnerException
 
     public BadRequestException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
-    public BadRequestException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected BadRequestException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

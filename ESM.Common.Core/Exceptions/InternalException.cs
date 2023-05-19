@@ -13,7 +13,7 @@ public class InternalServerErrorException : InnerException
     public InternalServerErrorException(string? message, Exception? innerException = null) : base(message,
         innerException) { }
 
-    public InternalServerErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected InternalServerErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

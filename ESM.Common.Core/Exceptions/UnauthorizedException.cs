@@ -13,7 +13,7 @@ public class UnauthorizedException : InnerException
     public UnauthorizedException(string message = "Unauthorized", Exception? innerException = null) :
         base(message, innerException) { }
 
-    public UnauthorizedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected UnauthorizedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

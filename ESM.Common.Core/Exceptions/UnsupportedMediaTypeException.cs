@@ -12,7 +12,7 @@ public class UnsupportedMediaTypeException : InnerException
 
     public UnsupportedMediaTypeException(string message = "Unsupported media type", Exception? innerException = null) : base(message, innerException) { }
 
-    public UnsupportedMediaTypeException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected UnsupportedMediaTypeException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

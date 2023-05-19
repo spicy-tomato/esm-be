@@ -12,7 +12,7 @@ public class ConflictException : InnerException
 
     public ConflictException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
-    public ConflictException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected ConflictException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {
