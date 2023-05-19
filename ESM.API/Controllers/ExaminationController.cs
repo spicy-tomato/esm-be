@@ -4,6 +4,7 @@ using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
+using ESM.Common.Core.Helpers;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Examination;
@@ -642,7 +643,6 @@ public class ExaminationController : BaseController
 
         var minimumAppearance = shiftGroups.Count / allTeachersInFaculty.Count;
         var minIndexToRandom = minimumAppearance * allTeachersInFaculty.Count;
-        var rand = new Random();
 
         for (var i = 0; i < minIndexToRandom; i++)
         {
@@ -657,7 +657,7 @@ public class ExaminationController : BaseController
         for (var i = minIndexToRandom; i < shiftGroups.Count; i++)
         {
             var departmentShiftGroup = shiftGroups[i];
-            var invigilatorIndex = rand.Next(allTeachersInFaculty.Count);
+            var invigilatorIndex = RandomHelper.Next(allTeachersInFaculty.Count);
             var invigilator = allTeachersInFaculty[invigilatorIndex];
 
             departmentShiftGroup.UserId = invigilator.Id;
