@@ -14,7 +14,7 @@ public class DepartmentRepository : RepositoryBase<Department>, IDepartmentRepos
 
     #endregion
 
-    public void Create(Department entity)
+    public new void Create(Department entity)
     {
         Context.Departments.Include(d => d.Faculty);
         Context.Departments.Add(entity);

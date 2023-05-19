@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace ESM.Common.Core.Exceptions;
 
+[Serializable]
 [UsedImplicitly]
 public class ConflictException : InnerException
 {

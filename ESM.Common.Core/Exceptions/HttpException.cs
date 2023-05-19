@@ -2,6 +2,7 @@ using System.Net;
 
 namespace ESM.Common.Core.Exceptions;
 
+[Serializable]
 public class HttpException : Exception
 {
     public HttpStatusCode StatusCode { get; }
