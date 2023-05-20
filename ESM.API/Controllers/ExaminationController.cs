@@ -175,6 +175,31 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
+    /// Import data
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    /// <exception cref="UnsupportedMediaTypeException"></exception>
+    [HttpPatch("{examinationId}")]
+    public Result<bool> Update(string examinationId, [FromBody] UpdateExaminationRequest request)
+    {
+        new UpdateExaminationRequestValidator().ValidateAndThrow(request);
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+
+        entity.DisplayId = request.DisplayId ?? entity.DisplayId;
+        entity.Name = request.Name ?? entity.Name;
+        entity.Description = request.Description ?? entity.Description;
+        entity.ExpectStartAt = request.ExpectStartAt ?? entity.ExpectStartAt;
+        entity.ExpectEndAt = request.ExpectEndAt ?? entity.ExpectEndAt;
+        entity.UpdatedAt = request.UpdatedAt;
+
+        _context.SaveChanges();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
     /// Get events of examination
     /// </summary>
     /// <param name="examinationId"></param>
