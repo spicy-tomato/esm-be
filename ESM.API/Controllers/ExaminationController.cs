@@ -607,6 +607,22 @@ public class ExaminationController : BaseController
             }
         }
 
+        foreach (var facultyShiftGroup in facultyShiftGroups.Select(fg => fg.Value.FacultyShiftGroup))
+        {
+            var selectedTeachers = new Dictionary<Guid, bool>();
+            foreach (var userId in facultyShiftGroup.DepartmentShiftGroups.Select(dg => dg.UserId))
+            {
+                if (userId == null)
+                    continue;
+
+                if (selectedTeachers.ContainsKey(userId.Value))
+                    throw new BadRequestException(
+                        $"User ID {userId} is selected more than one time in faculty group ID {facultyShiftGroup.Id}");
+
+                selectedTeachers.Add(userId.Value, true);
+            }
+        }
+
         _context.SaveChanges();
 
         return Result<bool>.Get(true);
