@@ -54,10 +54,13 @@ public class UserController : BaseController
 
     [HttpGet]
     [Authorize]
-    public Result<IEnumerable<UserSummary>> GetUsers([FromQuery] bool? isInvigilator)
+    public Result<IEnumerable<UserSummary>> GetUsers([FromQuery] GetUsersParams query)
     {
         var result = _userRepository.Find(u =>
-            isInvigilator == null || isInvigilator == false || u.InvigilatorId != null
+            (query.IsInvigilator == true && (query.IsFaculty == null || query.IsFaculty == false) &&
+             u.InvigilatorId != null) ||
+            (query.IsFaculty == true && (query.IsInvigilator == null || query.IsInvigilator == false) &&
+             u.Department == null && u.FacultyId != null)
         );
 
         return Result<IEnumerable<UserSummary>>.Get(result);
@@ -135,20 +138,41 @@ public class UserController : BaseController
     {
         // ReSharper disable once MethodHasAsyncOverload
         new LoginValidator().ValidateAndThrow(request);
-        User user;
+        var isEmail = request.UserName.Contains('@');
 
-        if (request.UserName.Contains('@'))
-            // Email
-            user = await _userManager.FindByEmailAsync(request.UserName);
-        else
-            // UserName
-            user = await _userManager.FindByNameAsync(request.UserName);
+        // Email
+        var user = isEmail
+            ? await _userManager.FindByEmailAsync(request.UserName)
+            : await _userManager.FindByNameAsync(request.UserName);
 
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
             throw new UnauthorizedException();
 
         var token = _jwtService.CreateToken(user);
         return Result<GeneratedToken>.Get(token);
+    }
+
+    /// <summary>
+    /// Reset password
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpPatch("reset-password")]
+    [Authorize]
+    public async Task<Result<bool>> ResetPassword([FromQuery] string userId)
+    {
+        var currentUserId = GetUserId();
+        var currentUser = await _userManager.FindByIdAsync(currentUserId.ToString());
+
+        if (currentUser is not { FullName: "Admin" })
+            throw new UnauthorizedException("User ID does not exist or doesn't have permission");
+
+        var user = await _userManager.FindByIdAsync(userId);
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        await _userManager.ResetPasswordAsync(user, token, "e10adc3949ba59abbe56e057f20f883e");
+
+        return Result<bool>.Get(true);
     }
 
     /// <summary>
