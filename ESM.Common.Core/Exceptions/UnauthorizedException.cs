@@ -1,8 +1,10 @@
 using System.Net;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 
 namespace ESM.Common.Core.Exceptions;
 
+[Serializable]
 [UsedImplicitly]
 public class UnauthorizedException : InnerException
 {
@@ -10,6 +12,8 @@ public class UnauthorizedException : InnerException
 
     public UnauthorizedException(string message = "Unauthorized", Exception? innerException = null) :
         base(message, innerException) { }
+
+    protected UnauthorizedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override HttpException WrapException()
     {

@@ -1,3 +1,10 @@
+using System.Runtime.Serialization;
+
 namespace ESM.Data.Request.Examination;
 
-public class AssignInvigilatorsToShiftsRequest : Dictionary<string, string?> { }
+[Serializable]
+public class AssignInvigilatorsToShiftsRequest : Dictionary<string, string?>
+{
+    protected AssignInvigilatorsToShiftsRequest(SerializationInfo info, StreamingContext context) :
+        base(info, context) { }
+}

@@ -4,6 +4,7 @@ using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
 using ESM.Common.Core.Exceptions;
+using ESM.Common.Core.Helpers;
 using ESM.Core.API.Controllers;
 using ESM.Data.Core.Response;
 using ESM.Data.Dtos.Examination;
@@ -123,7 +124,7 @@ public class ExaminationController : BaseController
             _context.Shifts
                .Where(e =>
                     e.ShiftGroup.ExaminationId == guid &&
-                    e.ShiftGroup.DepartmentAssign == false)
+                    !e.ShiftGroup.DepartmentAssign)
                .OrderBy(s => s.ShiftGroup.StartAt)
                .ThenBy(s => s.ShiftGroupId)
                .ThenBy(s => s.ShiftGroup.Module.Name)
@@ -169,6 +170,31 @@ public class ExaminationController : BaseController
         });
 
         await _context.SaveChangesAsync();
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
+    /// Import data
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    /// <exception cref="UnsupportedMediaTypeException"></exception>
+    [HttpPatch("{examinationId}")]
+    public Result<bool> Update(string examinationId, [FromBody] UpdateExaminationRequest request)
+    {
+        new UpdateExaminationRequestValidator().ValidateAndThrow(request);
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+
+        entity.DisplayId = request.DisplayId ?? entity.DisplayId;
+        entity.Name = request.Name ?? entity.Name;
+        entity.Description = request.Description ?? entity.Description;
+        entity.ExpectStartAt = request.ExpectStartAt ?? entity.ExpectStartAt;
+        entity.ExpectEndAt = request.ExpectEndAt ?? entity.ExpectEndAt;
+        entity.UpdatedAt = request.UpdatedAt;
+
+        _context.SaveChanges();
 
         return Result<bool>.Get(true);
     }
@@ -307,21 +333,25 @@ public class ExaminationController : BaseController
            .Load();
 
         foreach (var shiftGroup in entity.ShiftGroups)
-        foreach (var shift in shiftGroup.Shifts)
-        foreach (var invigilatorShift in shift.InvigilatorShift)
-        {
-            if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-                continue;
+            foreach (var shift in shiftGroup.Shifts)
+                foreach (var invigilatorShift in shift.InvigilatorShift)
+                {
+                    if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
+                        continue;
 
-            if (invigilatorId == null)
-                invigilatorShift.InvigilatorId = null;
-            else if (Guid.TryParse(invigilatorId, out var invigilatorGuid))
-                invigilatorShift.InvigilatorId = invigilatorGuid;
-            else
-                throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+                    if (invigilatorId == null)
+                    {
+                        invigilatorShift.InvigilatorId = null;
+                        request.Remove(invigilatorShift.Id.ToString());
+                        continue;
+                    }
 
-            request.Remove(invigilatorShift.Id.ToString());
-        }
+                    if (!Guid.TryParse(invigilatorId, out var invigilatorGuid))
+                        throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+
+                    invigilatorShift.InvigilatorId = invigilatorGuid;
+                    request.Remove(invigilatorShift.Id.ToString());
+                }
 
         _context.SaveChanges();
 
@@ -602,6 +632,22 @@ public class ExaminationController : BaseController
             }
         }
 
+        foreach (var facultyShiftGroup in facultyShiftGroups.Select(fg => fg.Value.FacultyShiftGroup))
+        {
+            var selectedTeachers = new Dictionary<Guid, bool>();
+            foreach (var userId in facultyShiftGroup.DepartmentShiftGroups.Select(dg => dg.UserId))
+            {
+                if (userId == null)
+                    continue;
+
+                if (selectedTeachers.ContainsKey(userId.Value))
+                    throw new BadRequestException(
+                        $"User ID {userId} is selected more than one time in faculty group ID {facultyShiftGroup.Id}");
+
+                selectedTeachers.Add(userId.Value, true);
+            }
+        }
+
         _context.SaveChanges();
 
         return Result<bool>.Get(true);
@@ -638,7 +684,6 @@ public class ExaminationController : BaseController
 
         var minimumAppearance = shiftGroups.Count / allTeachersInFaculty.Count;
         var minIndexToRandom = minimumAppearance * allTeachersInFaculty.Count;
-        var rand = new Random();
 
         for (var i = 0; i < minIndexToRandom; i++)
         {
@@ -653,7 +698,7 @@ public class ExaminationController : BaseController
         for (var i = minIndexToRandom; i < shiftGroups.Count; i++)
         {
             var departmentShiftGroup = shiftGroups[i];
-            var invigilatorIndex = rand.Next(allTeachersInFaculty.Count);
+            var invigilatorIndex = RandomHelper.Next(allTeachersInFaculty.Count);
             var invigilator = allTeachersInFaculty[invigilatorIndex];
 
             departmentShiftGroup.UserId = invigilator.Id;
@@ -725,19 +770,19 @@ public class ExaminationController : BaseController
             var teachersNumberInRestFaculties =
                 teachersTotal - teachersNumberInFaculties.GetValueOrDefault(mainFacultyId, 0);
 
-            foreach (var faculty in faculties)
+            foreach (var facultyId in faculties.Select(f => f.Id))
             {
-                var calculatedInvigilatorsCount = faculty.Id == mainFacultyId
+                var calculatedInvigilatorsCount = facultyId == mainFacultyId
                     ? group.RoomsCount
                     : Convert.ToInt32((group.InvigilatorsCount - group.RoomsCount) *
-                                      (teachersNumberInFaculties.GetValueOrDefault(faculty.Id, 0) * 1.0 /
+                                      (teachersNumberInFaculties.GetValueOrDefault(facultyId, 0) * 1.0 /
                                        teachersNumberInRestFaculties));
                 var savedRecord = group.FacultyShiftGroups
-                   .FirstOrDefault(feg => feg.FacultyId == faculty.Id);
+                   .FirstOrDefault(feg => feg.FacultyId == facultyId);
                 if (savedRecord == null)
                     group.FacultyShiftGroups.Add(new FacultyShiftGroup
                     {
-                        FacultyId = faculty.Id,
+                        FacultyId = facultyId,
                         ShiftGroup = group,
                         InvigilatorsCount = calculatedInvigilatorsCount,
                         CalculatedInvigilatorsCount = calculatedInvigilatorsCount

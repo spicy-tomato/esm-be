@@ -14,10 +14,10 @@ public class DepartmentRepository : RepositoryBase<Department>, IDepartmentRepos
 
     #endregion
 
-    public new Department Create(Department entity, bool saveChanges = true)
+    public new void Create(Department entity)
     {
         Context.Departments.Include(d => d.Faculty);
         Context.Departments.Add(entity);
-        return base.Create(entity);
+        base.Create(entity);
     }
 }

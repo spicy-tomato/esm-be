@@ -12,7 +12,7 @@ public class GetShiftResponseItem
     public RoomSummary Room { get; set; } = null!;
     public int CandidatesCount { get; set; }
     public ICollection<InternalInvigilatorShift> InvigilatorShift { get; set; } = new List<InternalInvigilatorShift>();
-    public bool IsDuplicated;
+    public bool IsDuplicated { get; set; }
 
     public class InternalShiftGroup
     {

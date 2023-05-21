@@ -20,7 +20,7 @@ public static class DepartmentService
         var currCol = 0;
         int currRow;
 
-        while (!ws.Cell(1, currCol + 1).Value.IsBlank)
+        while (!CellIsBlank(1, currCol + 1, ws))
         {
             currCol++;
             var facultyName = ws.Row(1).Cell(currCol).GetText();
@@ -39,7 +39,7 @@ public static class DepartmentService
         ws = wb.Worksheets.Worksheet("BM");
         currRow = 1;
 
-        while (!ws.Cell(++currRow, 2).Value.IsBlank)
+        while (!CellIsBlank(++currRow, 2, ws))
         {
             var teacherName = ws.Row(currRow).Cell(2).GetText();
             var departmentName = ws.Row(currRow).Cell(4).GetText();
@@ -58,8 +58,11 @@ public static class DepartmentService
                     teacherId = ws.Row(currRow).Cell(6).GetString();
                 }
 
-            if (!result.TryGetValue(facultyName, out var departments))
+            var facultyNameInDict = result.Keys.FirstOrDefault(k => k.Contains(facultyName));
+            if (facultyNameInDict == null) 
                 throw new BadRequestException($"Faculty does not exist: {facultyName}");
+
+            var departments = result[facultyNameInDict];
             if (!departments.TryGetValue(departmentName, out var teachers))
                 throw new BadRequestException($"Department does not exist: {departmentName}");
 
@@ -67,6 +70,11 @@ public static class DepartmentService
         }
 
         return result;
+    }
+
+    private static bool CellIsBlank(int row, int col, IXLWorksheet ws)
+    {
+        return ws.Cell(row, col).Value.IsBlank;
     }
 
     #endregion

@@ -88,6 +88,26 @@ public class UserController : BaseController
     // }
 
     /// <summary>
+    /// Change password
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    [HttpPatch("change-password")]
+    [Authorize]
+    public async Task<Result<bool>> ChangePassword([FromBody] ChangePasswordRequest query)
+    {
+        var userId = GetUserId();
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+            throw new UnauthorizedException(NOT_FOUND_MESSAGE);
+
+        await _userManager.ChangePasswordAsync(user, query.Password, query.NewPassword);
+
+        return Result<bool>.Get(true);
+    }
+
+    /// <summary>
     /// Check if user exists or not
     /// </summary>
     /// <param name="query"></param>

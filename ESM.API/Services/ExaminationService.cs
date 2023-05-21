@@ -64,16 +64,11 @@ public class ExaminationService
     public static List<ExaminationData> Import(IFormFile file, string examinationId)
     {
         using var wb = new XLWorkbook(file.OpenReadStream());
+
+        var ws = GetWorkSheet(wb);
         var examinationsList = new List<ExaminationData>();
 
-        var ws = wb.Worksheets.FirstOrDefault();
-        if (ws == null)
-            throw new BadRequestException("Worksheet is empty!");
-
-        var rowsCount = 0;
-        var colsCount = 0;
-        while (!ws.Cell(rowsCount + 1, 1).Value.IsBlank) rowsCount++;
-        while (!ws.Cell(1, colsCount + 1).Value.IsBlank) colsCount++;
+        GetColsAndRowsCount(ws, out var rowsCount, out var colsCount);
 
         for (var r = 2; r <= rowsCount; r++)
         {
@@ -85,66 +80,10 @@ public class ExaminationService
 
             for (var c = 1; c <= colsCount; c++)
             {
-                if (ExaminationDataMapping.TryGetValue(c, out var field))
-                {
-                    if (row.Cell(c).IsEmpty())
-                        continue;
-
-                    var cellValue = row.Cell(c).GetText().Trim();
-                    typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
+                if (TrySetPrimitiveTypesField(row, c, examinationData))
                     continue;
-                }
 
-                if (ExaminationDataIntMapping.TryGetValue(c, out field))
-                {
-                    if (row.Cell(c).IsEmpty())
-                        continue;
-
-                    var cellValue = Convert.ToInt32(row.Cell(c).GetDouble());
-                    typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
-                    continue;
-                }
-
-                if (ExaminationDataHandleFields.Contains(c))
-                {
-                    if (row.Cell(c).IsEmpty())
-                        continue;
-
-                    var cellValue = row.Cell(c).Value;
-
-                    switch (c)
-                    {
-                        case DATE_COLUMN:
-                            examinationData.Date = cellValue.GetDateTime();
-                            break;
-                        case SHIFT_COLUMN:
-                            var cv = cellValue.GetText().ToLower();
-                            var timeStr = Regex.Matches(cv, @"\d\d")
-                               .Select(x => int.Parse(x.Value))
-                               .ToArray();
-
-                            if (cv.Contains("ca"))
-                            {
-                                var splitArr = cv.Split(" ");
-                                examinationData.Shift = int.Parse(splitArr[1]);
-                            }
-
-                            examinationData.StartAt = examinationData.EndAt = examinationData.Date;
-
-                            examinationData.StartAt =
-                                examinationData.StartAt?.Add(new TimeSpan(timeStr[0], timeStr[1], 0));
-                            examinationData.EndAt =
-                                examinationData.EndAt?.Add(new TimeSpan(timeStr[2], timeStr[3], 0));
-
-                            break;
-                        case METHOD_COLUMN:
-                            examinationData.Method = ExamMethodHelper.FromString(cellValue.GetText().ToLower());
-                            break;
-                        case DEPARTMENT_ASSIGN:
-                            examinationData.DepartmentAssign = cellValue.GetText().ToLower().Equals("bộ môn");
-                            break;
-                    }
-                }
+                TrySetCustomField(row, c, examinationData);
             }
 
             examinationsList.Add(examinationData);
@@ -257,7 +196,7 @@ public class ExaminationService
 
                 shifts.Add(new Shift
                 {
-                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift),
+                    ExamsCount = ExaminationHelper.CalculateExamsNumber(shift.Method, candidatesNumberInShift),
                     CandidatesCount = candidatesNumberInShift,
                     InvigilatorsCount = invigilatorsCount,
                     RoomId = roomsDictionary[room],
@@ -326,6 +265,99 @@ public class ExaminationService
                     "Các phòng thi sau không tồn tại: " + string.Join(", ", notExistedRooms),
                     notExistedRooms)
             );
+    }
+
+    private static IXLWorksheet GetWorkSheet(IXLWorkbook wb)
+    {
+        var ws = wb.Worksheets.FirstOrDefault();
+        if (ws == null)
+            throw new BadRequestException("Worksheet is empty!");
+
+        return ws;
+    }
+
+    private static void GetColsAndRowsCount(IXLWorksheet ws, out int rowsCount, out int colsCount)
+    {
+        rowsCount = 0;
+        colsCount = 0;
+        while (!ws.Cell(rowsCount + 1, 1).Value.IsBlank) rowsCount++;
+        while (!ws.Cell(1, colsCount + 1).Value.IsBlank) colsCount++;
+    }
+
+    private static bool TrySetPrimitiveTypesField(IXLRow row, int columnIndex, ExaminationData examinationData)
+    {
+        return TrySetStringField(row, columnIndex, examinationData) ||
+               TrySetIntField(row, columnIndex, examinationData);
+    }
+
+    private static void TrySetCustomField(IXLRow row, int columnIndex, ExaminationData examinationData)
+    {
+        if (!ExaminationDataHandleFields.Contains(columnIndex) || row.Cell(columnIndex).IsEmpty())
+            return;
+
+        var cellValue = row.Cell(columnIndex).Value;
+
+        switch (columnIndex)
+        {
+            case DATE_COLUMN:
+                examinationData.Date = cellValue.GetDateTime();
+                break;
+
+            case SHIFT_COLUMN:
+                var cv = cellValue.GetText().ToLower();
+                var timeStr = Regex.Matches(cv, @"\d\d", RegexOptions.None, TimeSpan.FromSeconds(1))
+                   .Select(x => int.Parse(x.Value))
+                   .ToArray();
+
+                if (cv.Contains("ca"))
+                {
+                    var splitArr = cv.Split(" ");
+                    examinationData.Shift = int.Parse(splitArr[1]);
+                }
+
+                examinationData.StartAt = examinationData.EndAt = examinationData.Date;
+
+                examinationData.StartAt =
+                    examinationData.StartAt?.Add(new TimeSpan(timeStr[0], timeStr[1], 0));
+                examinationData.EndAt =
+                    examinationData.EndAt?.Add(new TimeSpan(timeStr[2], timeStr[3], 0));
+
+                break;
+
+            case METHOD_COLUMN:
+                examinationData.Method = ExamMethodHelper.FromString(cellValue.GetText().ToLower());
+                break;
+
+            case DEPARTMENT_ASSIGN:
+                examinationData.DepartmentAssign = cellValue.GetText().ToLower().Equals("bộ môn");
+                break;
+        }
+    }
+
+    private static bool TrySetStringField(IXLRow row, int columnIndex, ExaminationData examinationData)
+    {
+        if (!ExaminationDataMapping.TryGetValue(columnIndex, out var field))
+            return false;
+
+        if (row.Cell(columnIndex).IsEmpty())
+            return true;
+
+        var cellValue = row.Cell(columnIndex).GetText().Trim();
+        typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
+        return true;
+    }
+
+    private static bool TrySetIntField(IXLRow row, int columnIndex, ExaminationData examinationData)
+    {
+        if (!ExaminationDataIntMapping.TryGetValue(columnIndex, out var field))
+            return false;
+
+        if (row.Cell(columnIndex).IsEmpty())
+            return true;
+
+        var cellValue = Convert.ToInt32(row.Cell(columnIndex).GetDouble());
+        typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
+        return true;
     }
 
     #endregion

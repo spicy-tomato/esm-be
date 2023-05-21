@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ESM.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20230429163601_AddEvent")]
-    partial class AddEvent
+    [Migration("20230519154904_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -267,8 +267,15 @@ namespace ESM.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("CreateAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("ExaminationId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -414,14 +421,14 @@ namespace ESM.API.Migrations
                         new
                         {
                             Id = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
-                            ConcurrencyStamp = "add7624f-f63b-4d48-8cb5-a51a19a9dd12",
+                            ConcurrencyStamp = "d13da7af-0e0c-4039-bba3-7ca70c704472",
                             Name = "ExaminationDepartmentHead",
                             NormalizedName = "EXAMINATIONDEPARTMENTHEAD"
                         },
                         new
                         {
                             Id = new Guid("08db1e1a-7953-4790-8ebe-272e34a8fe18"),
-                            ConcurrencyStamp = "41cb3ca3-869a-4d9a-aaf2-a83335593820",
+                            ConcurrencyStamp = "c58b3ae4-8379-4802-951d-f3fdda127f7d",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         });
@@ -549,6 +556,9 @@ namespace ESM.API.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<Guid?>("FacultyId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -599,6 +609,8 @@ namespace ESM.API.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("FacultyId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -615,14 +627,14 @@ namespace ESM.API.Migrations
                         {
                             Id = new Guid("08db0f36-7dbb-436f-88e5-f1be70b3bda6"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "68217d9d-9f61-41fb-9b66-e8a643522866",
+                            ConcurrencyStamp = "964d7a9f-b25e-44f5-9188-0bdb9f9e4538",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             FullName = "Admin",
                             IsMale = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAELl/J7ORdJQ7+mp38aQCuEcPC8dzT/4D7mn4raVcKT1RKpE00t2frjEwfWrYcA8bHQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKSC3BWjBtWGZzmItn51ZCoycooxYBy8tRpFxFF2lEUE2DKXZXsOX4IwXk2Hm5Ta/A==",
                             PhoneNumberConfirmed = false,
                             RoleId = new Guid("08db1e18-c46f-4e76-8e77-69430f54d796"),
                             TwoFactorEnabled = false,
@@ -904,13 +916,19 @@ namespace ESM.API.Migrations
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
 
+                    b.HasOne("ESM.Data.Models.Faculty", "Faculty")
+                        .WithMany("Users")
+                        .HasForeignKey("FacultyId");
+
                     b.HasOne("ESM.Data.Models.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Department");
+
+                    b.Navigation("Faculty");
 
                     b.Navigation("Role");
                 });
@@ -970,6 +988,8 @@ namespace ESM.API.Migrations
                     b.Navigation("Departments");
 
                     b.Navigation("FacultyShiftGroups");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.FacultyShiftGroup", b =>
@@ -980,6 +1000,11 @@ namespace ESM.API.Migrations
             modelBuilder.Entity("ESM.Data.Models.Module", b =>
                 {
                     b.Navigation("CandidatesOfExamination");
+                });
+
+            modelBuilder.Entity("ESM.Data.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ESM.Data.Models.Room", b =>

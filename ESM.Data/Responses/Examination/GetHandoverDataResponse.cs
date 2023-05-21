@@ -10,8 +10,8 @@ public class GetHandoverDataResponseItem
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
     public InternalRoom Room { get; set; } = null!;
     public ICollection<InternalInvigilatorShift> InvigilatorShift { get; set; } = new List<InternalInvigilatorShift>();
-    public Guid? HandedOverUserId;
-    public string? Report;
+    public Guid? HandedOverUserId { get; set; }
+    public string? Report { get; set; }
 
     public class InternalShiftGroup
     {

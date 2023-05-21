@@ -26,5 +26,9 @@ public class User : IdentityUser<Guid>
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
 
+    // For faculty account
+    public Guid? FacultyId { get; set; }
+    public Faculty? Faculty { get; set; }
+
     public string? InvigilatorId { get; set; }
 }
