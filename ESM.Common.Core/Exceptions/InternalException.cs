@@ -17,7 +17,7 @@ public class InternalServerErrorException : InnerException
 
     public override HttpException WrapException()
     {
-        var errorResponse = new List<Error> { new(CODE.GetHashCode(), Message) };
+        var errorResponse = new List<Error> { new(CODE, Message) };
         return new HttpException(CODE, errorResponse, Message, this);
     }
 }

@@ -32,7 +32,7 @@ public class HttpResponseExceptionFilter : IExceptionFilter
             default:
             {
                 var errorResponse = new List<Error>
-                    { new(HttpStatusCode.InternalServerError.GetHashCode(), exception.Message) };
+                    { new(HttpStatusCode.InternalServerError, exception.Message) };
                 exceptionToHandle = new HttpException(HttpStatusCode.InternalServerError,
                     errorResponse,
                     exception.Message,

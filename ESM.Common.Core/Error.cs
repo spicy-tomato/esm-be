@@ -1,3 +1,4 @@
+using System.Net;
 using JetBrains.Annotations;
 
 namespace ESM.Common.Core;
@@ -5,7 +6,7 @@ namespace ESM.Common.Core;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Error
 {
-    public int? Code { get; }
+    public HttpStatusCode? Code { get; }
 
     public string Message { get; }
 
@@ -16,7 +17,7 @@ public class Error
         Message = message;
     }
 
-    public Error(int code, string message)
+    public Error(HttpStatusCode code, string message)
     {
         Code = code;
         Message = message;
