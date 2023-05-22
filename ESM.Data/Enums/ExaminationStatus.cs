@@ -10,5 +10,6 @@ public enum ExaminationStatus
     Idle = 1,
     Setup = 2,
     AssignFaculty = 4,
-    AssignInvigilator = 8
+    AssignInvigilator = 8,
+    Closed = 16,
 }

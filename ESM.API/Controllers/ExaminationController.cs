@@ -120,7 +120,7 @@ public class ExaminationController : BaseController
     public Result<IQueryable<GetDataResponseItem>> GetData(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
-            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
+            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator | ExaminationStatus.Closed);
 
         var data = Mapper.ProjectTo<GetDataResponseItem>(
             _context.Shifts
@@ -500,7 +500,7 @@ public class ExaminationController : BaseController
             case (ExaminationStatus.AssignFaculty, ExaminationStatus.AssignInvigilator):
                 FinishAssignFaculty(entity);
                 break;
-            case (ExaminationStatus.AssignInvigilator, ExaminationStatus.None):
+            case (ExaminationStatus.AssignInvigilator, ExaminationStatus.Closed):
                 FinishExamination(entity);
                 break;
             default:
@@ -577,7 +577,8 @@ public class ExaminationController : BaseController
     public Result<IQueryable<GetGroupByFacultyIdResponseItem>> GetGroupsByFacultyId(string examinationId,
         string facultyId)
     {
-        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
+        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId,
+            ExaminationStatus.AssignInvigilator | ExaminationStatus.Closed);
         var facultyGuid = ParseGuid(facultyId);
         var data = Mapper.ProjectTo<GetGroupByFacultyIdResponseItem>(
             _context.DepartmentShiftGroups
@@ -725,7 +726,7 @@ public class ExaminationController : BaseController
     public Result<List<GetAllGroupsResponseResponseItem>> GetAllGroups(string examinationId)
     {
         var guid = CheckIfExaminationExistAndReturnGuid(examinationId,
-            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator);
+            ExaminationStatus.AssignFaculty | ExaminationStatus.AssignInvigilator | ExaminationStatus.Closed);
         var data = Mapper.ProjectTo<GetAllGroupsResponseResponseItem>(
             _context.ShiftGroups
                .Include(eg => eg.FacultyShiftGroups)
@@ -1136,7 +1137,7 @@ public class ExaminationController : BaseController
         {
             { ExaminationStatus.Setup, new[] { ExaminationStatus.AssignFaculty } },
             { ExaminationStatus.AssignFaculty, new[] { ExaminationStatus.AssignInvigilator } },
-            { ExaminationStatus.AssignInvigilator, new[] { ExaminationStatus.AssignFaculty, ExaminationStatus.None } }
+            { ExaminationStatus.AssignInvigilator, new[] { ExaminationStatus.AssignFaculty, ExaminationStatus.Closed } }
         };
 
         foreach (var (validCurrentStatus, validNewStatuses) in statusMap)
@@ -1224,7 +1225,7 @@ public class ExaminationController : BaseController
         }
 
 
-        entity.Status = ExaminationStatus.None;
+        entity.Status = ExaminationStatus.Closed;
     }
 
     #endregion
