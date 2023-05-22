@@ -1,8 +1,10 @@
+using System.Net;
 using AutoMapper;
 using DocumentFormat.OpenXml.Packaging;
 using ESM.API.Contexts;
 using ESM.API.Repositories.Implementations;
 using ESM.API.Services;
+using ESM.Common.Core;
 using ESM.Common.Core.Exceptions;
 using ESM.Common.Core.Helpers;
 using ESM.Core.API.Controllers;
@@ -322,6 +324,9 @@ public class ExaminationController : BaseController
     public Result<bool> AssignInvigilatorsToShifts(string examinationId,
         [FromBody] AssignInvigilatorsToShiftsRequest request)
     {
+        if (request.IsNullOrEmpty())
+            return Result<bool>.Get(true);
+
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
 
         _context.Entry(entity)
@@ -484,7 +489,8 @@ public class ExaminationController : BaseController
     {
         var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
         var newStatus = request.Status;
-        var expectedOldStatus = (ExaminationStatus)Math.Pow(2, Math.Log2((int)newStatus) - 1);
+
+        CheckNewStatusIsValid(entity.Status, newStatus);
 
         switch (entity.Status, newStatus)
         {
@@ -494,12 +500,11 @@ public class ExaminationController : BaseController
             case (ExaminationStatus.AssignFaculty, ExaminationStatus.AssignInvigilator):
                 FinishAssignFaculty(entity);
                 break;
-            // case (ExaminationStatus.AssignInvigilator):
-            //     break;
+            case (ExaminationStatus.AssignInvigilator, ExaminationStatus.None):
+                FinishExamination(entity);
+                break;
             default:
-                if (Enum.IsDefined(typeof(ExaminationStatus), expectedOldStatus))
-                    throw new BadRequestException($"Examination status should be {expectedOldStatus}");
-                throw new BadRequestException("New status is invalid");
+                throw new BadRequestException($"Unexpected condition (current: {entity.Status}, new: {newStatus})");
         }
 
         _context.ExaminationEvents.Add(new ExaminationEvent
@@ -1120,6 +1125,35 @@ public class ExaminationController : BaseController
             });
     }
 
+    private static void CheckNewStatusIsValid(ExaminationStatus currentStatus, ExaminationStatus newStatus)
+    {
+        if (!Enum.IsDefined(typeof(ExaminationStatus), newStatus))
+            throw new BadRequestException("New status is invalid");
+
+        // Key  : Valid current status
+        // Value: Valid new status
+        var statusMap = new Dictionary<ExaminationStatus, ExaminationStatus[]>
+        {
+            { ExaminationStatus.Setup, new[] { ExaminationStatus.AssignFaculty } },
+            { ExaminationStatus.AssignFaculty, new[] { ExaminationStatus.AssignInvigilator } },
+            { ExaminationStatus.AssignInvigilator, new[] { ExaminationStatus.AssignFaculty, ExaminationStatus.None } }
+        };
+
+        foreach (var (validCurrentStatus, validNewStatuses) in statusMap)
+        {
+            if (currentStatus == validCurrentStatus && validNewStatuses.Contains(newStatus))
+                return;
+        }
+
+        var expectedCurrentStatusSatisfiesNewStatus = statusMap.Where(item => item.Value.Contains(newStatus)).ToList();
+        if (expectedCurrentStatusSatisfiesNewStatus.IsNullOrEmpty())
+            throw new BadRequestException($"Cannot change status to {newStatus} (current: {currentStatus})");
+
+        var expectedCurrentStatusSatisfiesNewStatusStr =
+            string.Join(", ", expectedCurrentStatusSatisfiesNewStatus.Select(s => s.Key));
+        throw new BadRequestException($"Examination status should be {expectedCurrentStatusSatisfiesNewStatusStr}");
+    }
+
     private void FinishSetup(Examination entity)
     {
         var temporaryData = GetTemporaryData(entity.Id, true);
@@ -1164,6 +1198,33 @@ public class ExaminationController : BaseController
         }
 
         entity.Status = ExaminationStatus.AssignInvigilator;
+    }
+
+    private void FinishExamination(Examination entity)
+    {
+        _context.Entry(entity)
+           .Collection(e => e.ShiftGroups)
+           .Query()
+           .Include(eg => eg.Shifts)
+           .ThenInclude(s => s.Room)
+           .Where(eg => !eg.DepartmentAssign)
+           .Load();
+
+        var shifts = entity.ShiftGroups.SelectMany(sg => sg.Shifts);
+        var notHandedOverShifts = shifts.Where(s => s.HandedOverUserId == null).ToList();
+
+        if (notHandedOverShifts.Any())
+        {
+            var errorList = notHandedOverShifts.Select(s =>
+                new Error(
+                    HttpStatusCode.BadRequest,
+                    $"Shift have not been handed over yet: Date {s.ShiftGroup.StartAt}, module {s.ShiftGroup.ModuleId}, room {s.Room.DisplayId}")
+            );
+            throw new HttpException(HttpStatusCode.Conflict, errorList);
+        }
+
+
+        entity.Status = ExaminationStatus.None;
     }
 
     #endregion
