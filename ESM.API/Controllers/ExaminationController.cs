@@ -187,7 +187,7 @@ public class ExaminationController : BaseController
     public Result<bool> Update(string examinationId, [FromBody] UpdateExaminationRequest request)
     {
         new UpdateExaminationRequestValidator().ValidateAndThrow(request);
-        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
 
         entity.DisplayId = request.DisplayId ?? entity.DisplayId;
         entity.Name = request.Name ?? entity.Name;

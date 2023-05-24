@@ -87,7 +87,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.WebHost.UseUrls("https://*:5001");
+builder.WebHost.UseUrls("http://*:5001");
 
 var app = builder.Build();
 
