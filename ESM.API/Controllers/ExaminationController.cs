@@ -98,12 +98,12 @@ public class ExaminationController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpGet("related")]
-    public Result<List<GetRelatedResponseItem>> GetRelated([FromQuery] bool? filterActive)
+    public Result<List<GetRelatedResponseItem>> GetRelated([FromQuery] bool? isActive)
     {
         var createdExamination =
             Mapper.ProjectTo<GetRelatedResponseItem>(
                     _context.Examinations
-                       .Where(e => filterActive == null || !filterActive.Value || e.Status > 0)
+                       .Where(e => isActive == null || !isActive.Value || e.Status > 0)
                        .OrderBy(e => e.CreatedAt)
                 )
                .ToList();
