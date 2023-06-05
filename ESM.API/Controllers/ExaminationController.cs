@@ -100,13 +100,15 @@ public class ExaminationController : BaseController
     [HttpGet("related")]
     public Result<List<GetRelatedResponseItem>> GetRelated([FromQuery] bool? isActive)
     {
-        var createdExamination =
-            Mapper.ProjectTo<GetRelatedResponseItem>(
-                    _context.Examinations
-                       .Where(e => isActive == null || !isActive.Value || e.Status > 0)
-                       .OrderBy(e => e.CreatedAt)
-                )
-               .ToList();
+        var query = isActive switch
+        {
+            null => _context.Examinations,
+            true => _context.Examinations.Where(e => 0 < e.Status && e.Status < ExaminationStatus.Closed),
+            _ => _context.Examinations.Where(e => e.Status == ExaminationStatus.Closed)
+        };
+
+        var createdExamination = Mapper.ProjectTo<GetRelatedResponseItem>(query.OrderBy(e => e.CreatedAt))
+           .ToList();
 
         return Result<List<GetRelatedResponseItem>>.Get(createdExamination);
     }
