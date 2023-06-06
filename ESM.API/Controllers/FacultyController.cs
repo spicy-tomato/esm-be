@@ -65,7 +65,7 @@ public class FacultyController : BaseController
     {
         var result = Mapper.ProjectTo<GetAllResponseItem>(
                 _context.Faculties
-                   .Include(f => f.Departments))
+                   .Include(f => f.Departments.OrderBy(d => d.Name)))
            .ToList();
         return Result<List<GetAllResponseItem>>.Get(result);
     }
@@ -117,14 +117,15 @@ public class FacultyController : BaseController
     /// <param name="facultyId"></param>
     /// <returns></returns>
     [HttpGet("{facultyId}/user")]
-    public Result<IEnumerable<UserSummary>> GetUser(string facultyId)
+    public Result<IOrderedEnumerable<UserSummary>> GetUser(string facultyId)
     {
         var guid = ParseGuid(facultyId);
         var response = _userRepository.Find(u =>
             u.Department != null &&
             u.Department.FacultyId == guid
-        );
-        return Result<IEnumerable<UserSummary>>.Get(response);
+        ).OrderBy(u => u.FullName);
+        
+        return Result<IOrderedEnumerable<UserSummary>>.Get(response);
     }
 
     /// <summary>

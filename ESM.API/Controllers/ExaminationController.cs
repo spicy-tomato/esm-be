@@ -465,8 +465,8 @@ public class ExaminationController : BaseController
                 var facultyOfModuleSamePriorityFaculty =
                     departmentShiftGroup.User?.Department?.FacultyId == priorityFacultyId;
 
-                if ((!isPrioritySlot || !facultyOfModuleSamePriorityFaculty) &&
-                    (isPrioritySlot || facultyOfModuleSamePriorityFaculty)) continue;
+                if ((isPrioritySlot && !facultyOfModuleSamePriorityFaculty) ||
+                    (!isPrioritySlot && facultyOfModuleSamePriorityFaculty)) continue;
 
                 ivs.InvigilatorId = departmentShiftGroup.UserId;
                 invigilatorsBucket.RemoveAt(i);
