@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.API", "ESM.API\ESM.API.csproj", "{7E60D920-398E-42A6-895D-56D7F5552BD7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.Presentation", "ESM.Presentation\ESM.Presentation.csproj", "{7E60D920-398E-42A6-895D-56D7F5552BD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.Data", "ESM.Data\ESM.Data.csproj", "{1A3D803D-7F5A-4F59-99F3-28FD552408D8}"
 EndProject
@@ -15,6 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.Data.Core", "ESM.Data.Core\ESM.Data.Core.csproj", "{7693D755-828C-4BEB-987C-05A5C4CAB3B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scripts", "Scripts\Scripts.csproj", "{07170F33-CB32-4D3A-BCAD-563597A759AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.Infrastructure", "ESM.Infrastructure\ESM.Infrastructure.csproj", "{096D89D7-5845-497C-8DB5-ACE053A51BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESM.Application", "ESM.Application\ESM.Application.csproj", "{B9E34981-631E-456E-BD71-DBFB9A997203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +54,14 @@ Global
 		{07170F33-CB32-4D3A-BCAD-563597A759AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07170F33-CB32-4D3A-BCAD-563597A759AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07170F33-CB32-4D3A-BCAD-563597A759AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{096D89D7-5845-497C-8DB5-ACE053A51BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{096D89D7-5845-497C-8DB5-ACE053A51BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{096D89D7-5845-497C-8DB5-ACE053A51BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{096D89D7-5845-497C-8DB5-ACE053A51BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E34981-631E-456E-BD71-DBFB9A997203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E34981-631E-456E-BD71-DBFB9A997203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E34981-631E-456E-BD71-DBFB9A997203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E34981-631E-456E-BD71-DBFB9A997203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F119C391-B995-4F80-97D0-BA00CFA4C04F} = {ECE22A51-C117-4D60-88BA-3F001BFD306E}

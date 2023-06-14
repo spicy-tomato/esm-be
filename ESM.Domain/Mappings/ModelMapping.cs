@@ -14,6 +14,7 @@ using ESM.Data.Request.Room;
 using ESM.Data.Request.User;
 using ESM.Data.Responses.Examination;
 using ESM.Data.Responses.Faculty;
+using ESM.Domain.Entities;
 
 namespace ESM.Domain.Mappings;
 

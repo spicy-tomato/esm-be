@@ -1,5 +1,0 @@
-using ESM.Data.Models;
-
-namespace ESM.API.Repositories.Interface;
-
-public interface IShiftGroupRepository : IRepositoryBase<ShiftGroup> { }
