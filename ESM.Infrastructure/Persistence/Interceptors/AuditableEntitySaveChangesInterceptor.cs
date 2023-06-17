@@ -1,5 +1,7 @@
+using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Domain.Common;
+using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -32,13 +34,26 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
         return base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
-    public void UpdateEntities(DbContext? context)
+    private void UpdateEntities(DbContext? context)
     {
-        if (context == null) return;
+        if (context == null)
+        {
+            return;
+        }
 
         foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {
-            Guid.TryParse(_currentUserService.UserId, out var userId);
+            if (!Guid.TryParse(_currentUserService.UserId, out var userId))
+            {
+                throw new NotFoundException(nameof(ApplicationUser), _currentUserService.UserId ?? "");
+            }
+
+            if (entry.State != EntityState.Added &&
+                entry.State != EntityState.Modified &&
+                !entry.HasChangedOwnedEntities())
+            {
+                continue;
+            }
 
             if (entry.State == EntityState.Added)
             {
@@ -46,13 +61,8 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
                 entry.Entity.Created = _dateTime.Now;
             }
 
-            if (entry.State == EntityState.Added ||
-                entry.State == EntityState.Modified ||
-                entry.HasChangedOwnedEntities())
-            {
-                entry.Entity.CreatedBy = userId;
-                entry.Entity.Created = _dateTime.Now;
-            }
+            entry.Entity.CreatedBy = userId;
+            entry.Entity.Created = _dateTime.Now;
         }
     }
 }

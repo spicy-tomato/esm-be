@@ -1,18 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ESM.Data.Enums;
-using ESM.Data.Models;
+using ESM.Domain.Common;
 using JetBrains.Annotations;
 
 namespace ESM.Domain.Entities;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class Examination
+public class Examination : BaseAuditableEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; set; }
-
     public string? DisplayId { get; set; }
 
     public string Name { get; set; } = null!;
@@ -37,7 +32,4 @@ public class Examination
         new List<CandidateExaminationModule>();
 
     public ICollection<ExaminationEvent> Events { get; set; } = new List<ExaminationEvent>();
-
-    public Guid CreatedById { get; set; }
-    public User CreatedBy { get; set; } = null!;
 }

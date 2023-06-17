@@ -21,8 +21,11 @@ public interface IExaminationService
     /// <param name="data"></param>
     /// <returns></returns>
     public IQueryable<ExaminationData> ValidateTemporaryData(IEnumerable<ExaminationData> data);
-    
+
     public Guid CheckIfExaminationExistAndReturnGuid(string examinationId, ExaminationStatus? acceptStatus = null);
+
+    public Examination CheckIfExaminationExistAndReturnEntity(string examinationId,
+        ExaminationStatus? acceptStatus = null);
 
     public IEnumerable<Shift> RetrieveShiftsFromTemporaryData(Guid examinationGuid, IEnumerable<ExaminationData> data);
 }

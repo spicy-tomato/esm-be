@@ -1,11 +1,11 @@
 using System.Net;
 using AutoMapper;
-using DocumentFormat.OpenXml.Packaging;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Examinations.Commands.CreateExamination;
+using ESM.Application.Examinations.Commands.ImportExamination;
 using ESM.Application.Examinations.Query.GetAllShiftsInExamination;
 using ESM.Application.Examinations.Query.GetRelatedExaminations;
 using ESM.Data.Dtos.Examination;
@@ -72,52 +72,24 @@ public class ExaminationController : ApiControllerBase
     /// <summary>
     /// Get examination data
     /// </summary>
-    /// <param name="query"></param>
+    /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public async Task<Result<List<ShiftInExaminationDto>>> GetData(GetAllShiftsInExaminationQuery query)
+    public async Task<Result<List<ShiftInExaminationDto>>> GetData(string examinationId)
     {
-        return await Mediator.Send(query);
+        return await Mediator.Send(new GetAllShiftsInExaminationQuery(examinationId));
     }
 
     /// <summary>
     /// Import data
     /// </summary>
-    /// <param name="examinationId"></param>
-    /// <param name="request"></param>
+    /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("{examinationId}")]
-    public async Task<Result<bool>> Import(string examinationId, [FromForm] ImportExaminationRequest request)
+    public async Task<Result<bool>> Import(ImportExaminationCommand command)
     {
-        if (request.File == null)
-            throw new BadRequestException("File should not be empty");
-
-        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.Idle);
-        var file = request.File;
-
-        List<ExaminationData> readDataResult;
-        try
-        {
-            readDataResult = _examinationService.Import(file, examinationId);
-        }
-        catch (OpenXmlPackageException)
-        {
-            throw new UnsupportedMediaTypeException();
-        }
-
-        _examinationDataRepository.CreateRange(readDataResult);
-        entity.Status = ExaminationStatus.Setup;
-
-        _context.ExaminationEvents.Add(new ExaminationEvent
-        {
-            ExaminationId = entity.Id,
-            Status = ExaminationStatus.Setup
-        });
-
-        await _context.SaveChangesAsync();
-
-        return Result<bool>.Get(true);
+        return await Mediator.Send(command);
     }
 
     /// <summary>

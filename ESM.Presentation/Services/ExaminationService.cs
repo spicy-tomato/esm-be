@@ -149,6 +149,25 @@ public class ExaminationService : IExaminationService
         return guid;
     }
 
+    public Examination CheckIfExaminationExistAndReturnEntity(string examinationId,
+        ExaminationStatus? acceptStatus = null)
+    {
+        var guid = ParseGuid(examinationId);
+        var entity = _context.Examinations.FirstOrDefault(e => e.Id == guid);
+
+        if (entity == null)
+        {
+            throw new NotFoundException(nameof(Examination), guid);
+        }
+
+        if (acceptStatus != null && (acceptStatus.Value & entity.Status) == 0)
+        {
+            throw new BadRequestException($"Examination status should be {acceptStatus.ToString()}");
+        }
+
+        return entity;
+    }
+
     public IEnumerable<Shift> RetrieveShiftsFromTemporaryData(Guid examinationGuid,
         IEnumerable<ExaminationData> data)
     {

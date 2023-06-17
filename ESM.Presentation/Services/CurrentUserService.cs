@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using ESM.Application.Common.Interfaces;
 
-namespace ESM.API.Services;
+namespace ESM.Presentation.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
@@ -12,5 +12,5 @@ public class CurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
