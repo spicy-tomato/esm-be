@@ -994,6 +994,74 @@ public class ExaminationController : BaseController
     }
 
     /// <summary>
+    /// Get statistic
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns> 
+    [HttpGet("{examinationId}/statistic")]
+    public Result<ExaminationStatistic> GetStatistic(string examinationId)
+    {
+        var now = DateTime.Now;
+        var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
+        var startAt = _context.ShiftGroups
+           .Where(g => g.ExaminationId == entity.Id)
+           .Min(g => g.StartAt)
+           .Date;
+        var endAt = _context.ShiftGroups
+           .Where(g => g.ExaminationId == entity.Id)
+           .Max(g => g.StartAt)
+           .AddDays(1).Date;
+        var numberOfModules = _context.ShiftGroups
+           .Where(g => g.ExaminationId == entity.Id)
+           .GroupBy(g => g.ModuleId)
+           .Count();
+        var numberOfModulesOver = _context.ShiftGroups
+           .Where(g => g.ExaminationId == entity.Id)
+           .GroupBy(g =>
+                new
+                {
+                    g.ModuleId,
+                    over = g.StartAt < now
+                })
+           .Count();
+        var numberOfShifts = _context.Shifts
+           .Count(s => s.ShiftGroup.ExaminationId == entity.Id);
+        var numberOfShiftsOver = _context.Shifts
+           .Count(s => s.ShiftGroup.StartAt < now &&
+                       s.ShiftGroup.ExaminationId == entity.Id);
+        var numberOfCandidates = _context.Shifts
+           .Where(s => s.ShiftGroup.ExaminationId == entity.Id)
+           .Sum(s => s.CandidatesCount);
+        var numberOfInvigilators = _context.InvigilatorShift
+           .Where(ivs =>
+                ivs.DeletedAt == null &&
+                ivs.InvigilatorId != null &&
+                ivs.Shift.ShiftGroup.ExaminationId == entity.Id)
+           .GroupBy(ivs => ivs.InvigilatorId)
+           .Count();
+
+        var result = new ExaminationStatistic
+        {
+            Id = entity.Id,
+            DisplayId = entity.DisplayId,
+            Name = entity.Name,
+            StartAt = startAt,
+            EndAt = endAt,
+            TimePercent = endAt < now
+                ? 100
+                : (now - startAt) * 1f / (endAt - startAt),
+            NumberOfModules = numberOfModules,
+            NumberOfModulesOver = numberOfModulesOver,
+            NumberOfShifts = numberOfShifts,
+            NumberOfShiftsOver = numberOfShiftsOver,
+            NumberOfCandidates = numberOfCandidates,
+            NumberOfInvigilators = numberOfInvigilators
+        };
+
+        return Result<ExaminationStatistic>.Get(result);
+    }
+
+    /// <summary>
     /// Get summary
     /// </summary>
     /// <param name="examinationId"></param>

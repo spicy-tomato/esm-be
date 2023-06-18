@@ -32,4 +32,8 @@
       <ProjectReference Include="..\ESM.Domain\ESM.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="appsettings.json" />
+    </ItemGroup>
+
 </Project>
