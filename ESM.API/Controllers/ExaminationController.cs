@@ -1017,13 +1017,12 @@ public class ExaminationController : BaseController
            .Count();
         var numberOfModulesOver = _context.ShiftGroups
            .Where(g => g.ExaminationId == entity.Id)
-           .GroupBy(g =>
-                new
-                {
-                    g.ModuleId,
-                    over = g.StartAt < now
-                })
-           .Count();
+           .GroupBy(g => new
+            {
+                g.ModuleId,
+                Over = g.StartAt < now
+            })
+           .Count(g => g.All(x => x.StartAt < now));
         var numberOfShifts = _context.Shifts
            .Count(s => s.ShiftGroup.ExaminationId == entity.Id);
         var numberOfShiftsOver = _context.Shifts
@@ -1049,7 +1048,7 @@ public class ExaminationController : BaseController
             EndAt = endAt,
             TimePercent = endAt < now
                 ? 100
-                : (now - startAt) * 1f / (endAt - startAt),
+                : (now - startAt) * 100f / (endAt - startAt),
             NumberOfModules = numberOfModules,
             NumberOfModulesOver = numberOfModulesOver,
             NumberOfShifts = numberOfShifts,

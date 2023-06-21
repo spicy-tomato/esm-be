@@ -16,5 +16,12 @@
       <jdbc-url>mongodb+srv://esm:esm-mongodb@cluster0.1t92udc.mongodb.net</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="esm@14.225.192.63" uuid="5f0a166b-e17c-4308-b5bc-b66f122dd633">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://14.225.192.63:3306/esm</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
