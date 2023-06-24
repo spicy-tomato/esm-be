@@ -5,7 +5,7 @@ using ESM.Presentation.Services;
 using FluentValidation.AspNetCore;
 using Newtonsoft.Json;
 
-namespace ESM.API;
+namespace ESM.Presentation;
 
 public static class ConfigureServices
 {
@@ -17,6 +17,8 @@ public static class ConfigureServices
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IModuleService, ModuleService>();
         services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IShiftService, ShiftService>();
+        services.AddScoped<IUserService, UserService>();
         
         services.AddHttpContextAccessor();
         

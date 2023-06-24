@@ -1,9 +1,11 @@
 using ESM.Data.Models;
 using ESM.Domain.Common;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace ESM.Domain.Entities;
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Teacher : BaseAuditableEntity
 {
     public string? TeacherId { get; set; }

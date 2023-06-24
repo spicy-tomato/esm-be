@@ -6,7 +6,7 @@ using ESM.Data.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ESM.Application.Examinations.Query.GetAllShiftsInExamination;
+namespace ESM.Application.Examinations.Query.GetAllShifts;
 
 public record GetAllShiftsInExaminationQuery(string Id) : IRequest<Result<List<ShiftInExaminationDto>>>;
 

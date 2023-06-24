@@ -4,18 +4,22 @@ using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Application.Examinations.Commands.CreateExamination;
-using ESM.Application.Examinations.Commands.ImportExamination;
-using ESM.Application.Examinations.Query.GetAllShiftsInExamination;
+using ESM.Application.Examinations.Commands.AssignInvigilatorsToShifts;
+using ESM.Application.Examinations.Commands.AutoAssignInvigilatorsToShifts;
+using ESM.Application.Examinations.Commands.Create;
+using ESM.Application.Examinations.Commands.Import;
+using ESM.Application.Examinations.Commands.Update;
+using ESM.Application.Examinations.Query.GetAllShifts;
+using ESM.Application.Examinations.Query.GetAllShiftsDetails;
+using ESM.Application.Examinations.Query.GetEvents;
+using ESM.Application.Examinations.Query.GetHandoverData;
 using ESM.Application.Examinations.Query.GetRelatedExaminations;
 using ESM.Data.Dtos.Examination;
 using ESM.Data.Enums;
 using ESM.Data.Interfaces;
 using ESM.Data.Request.Examination;
 using ESM.Data.Responses.Examination;
-using ESM.Data.Validations.Examination;
 using ESM.Domain.Entities;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +58,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns> 
     [HttpPost]
-    public async Task<Result<Guid>> Create(CreateExaminationCommand command)
+    public async Task<Result<Guid>> Create(CreateCommand command)
     {
         return await Mediator.Send(command);
     }
@@ -75,9 +79,10 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}")]
-    public async Task<Result<List<ShiftInExaminationDto>>> GetData(string examinationId)
+    public async Task<Result<List<ShiftInExaminationDto>>> GetAllShifts(string examinationId)
     {
-        return await Mediator.Send(new GetAllShiftsInExaminationQuery(examinationId));
+        var query = new GetAllShiftsInExaminationQuery(examinationId);
+        return await Mediator.Send(query);
     }
 
     /// <summary>
@@ -87,7 +92,7 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("{examinationId}")]
-    public async Task<Result<bool>> Import(ImportExaminationCommand command)
+    public async Task<Result<bool>> Import(ImportCommand command)
     {
         return await Mediator.Send(command);
     }
@@ -95,26 +100,13 @@ public class ExaminationController : ApiControllerBase
     /// <summary>
     /// Import data
     /// </summary>
-    /// <param name="examinationId"></param>
-    /// <param name="request"></param>
+    /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPatch("{examinationId}")]
-    public Result<bool> Update(string examinationId, [FromBody] UpdateExaminationRequest request)
+    public async Task<Result<bool>> Update(UpdateCommand command)
     {
-        new UpdateExaminationRequestValidator().ValidateAndThrow(request);
-        var entity = CheckIfExaminationExistAndReturnEntity(examinationId);
-
-        entity.DisplayId = request.DisplayId ?? entity.DisplayId;
-        entity.Name = request.Name ?? entity.Name;
-        entity.Description = request.Description ?? entity.Description;
-        entity.ExpectStartAt = request.ExpectStartAt ?? entity.ExpectStartAt;
-        entity.ExpectEndAt = request.ExpectEndAt ?? entity.ExpectEndAt;
-        entity.UpdatedAt = request.UpdatedAt;
-
-        _context.SaveChanges();
-
-        return Result<bool>.Get(true);
+        return await Mediator.Send(command);
     }
 
     /// <summary>
@@ -123,11 +115,10 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/events")]
-    public Result<IQueryable<ExaminationEvent>> GetEvents(string examinationId)
+    public async Task<Result<List<ExaminationEvent>>> GetEvents(string examinationId)
     {
-        var guid = CheckIfExaminationExistAndReturnGuid(examinationId);
-        var data = _context.ExaminationEvents.Where(e => e.ExaminationId == guid);
-        return Result<IQueryable<ExaminationEvent>>.Get(data);
+        var query = new GetEventsQuery(examinationId);
+        return await Mediator.Send(query);
     }
 
     /// <summary>
@@ -136,26 +127,10 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/handover")]
-    public Result<IQueryable<GetHandoverDataResponseItem>> GetHandoverData(string examinationId)
+    public async Task<Result<List<HandoverDataDto>>> GetHandoverData(string examinationId)
     {
-        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
-
-        var data =
-            Mapper.ProjectTo<GetHandoverDataResponseItem>(
-                _context.Shifts
-                   .Include(s => s.InvigilatorShift)
-                   .ThenInclude(i => i.Invigilator)
-                   .Include(s => s.Room)
-                   .Include(s => s.ShiftGroup)
-                   .ThenInclude(g => g.Module)
-                   .Include(s => s.ShiftGroup)
-                   .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
-                   .OrderBy(g => g.ShiftGroup.StartAt)
-                   .ThenBy(g => g.ShiftGroup.ModuleId)
-                   .ThenBy(g => g.RoomId)
-            );
-
-        return Result<IQueryable<GetHandoverDataResponseItem>>.Get(data);
+        var query = new GetHandoverDataQuery(examinationId);
+        return await Mediator.Send(query);
     }
 
     /// <summary>
@@ -164,70 +139,10 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/shift")]
-    public Result<List<GetShiftResponseItem>> GetShifts(string examinationId)
+    public async Task<Result<List<ShiftDetailsDto>>> GetShifts(string examinationId)
     {
-        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
-        var data =
-            Mapper.ProjectTo<GetShiftResponseItem>(
-                _context.Shifts
-                   .Include(s => s.InvigilatorShift)
-                   .ThenInclude(i => i.Invigilator)
-                   .ThenInclude(u => u!.Department)
-                   .ThenInclude(d => d!.Faculty)
-                   .Include(s => s.Room)
-                   .Include(s => s.ShiftGroup)
-                   .ThenInclude(g => g.Module)
-                   .Where(g => g.ShiftGroup.ExaminationId == examinationGuid && !g.ShiftGroup.DepartmentAssign)
-                   .OrderBy(g => g.ShiftGroup.StartAt)
-                   .ThenBy(g => g.ShiftGroup.ModuleId)
-                   .ThenBy(g => g.RoomId)
-            ).AsEnumerable().ToList();
-
-        var duplicatedShift = _context.Shifts
-           .Select(s => new
-            {
-                s.RoomId,
-                ShiftGroup = new
-                {
-                    s.ShiftGroup.ExaminationId,
-                    s.ShiftGroup.StartAt,
-                    s.ShiftGroup.DepartmentAssign,
-                    s.ShiftGroup.ModuleId
-                }
-            })
-           .Where(s => s.ShiftGroup.ExaminationId == examinationGuid && !s.ShiftGroup.DepartmentAssign)
-           .OrderBy(s => s.ShiftGroup.StartAt)
-           .ThenBy(s => s.ShiftGroup.ModuleId)
-           .ThenBy(s => s.RoomId)
-           .GroupBy(s => new { s.ShiftGroup.StartAt, s.ShiftGroup.ModuleId, s.RoomId })
-           .Select(r => new
-            {
-                r.Key.StartAt,
-                r.Key.ModuleId,
-                r.Key.RoomId,
-                Count = r.Count()
-            })
-           .Where(r => r.Count > 1)
-           .ToList();
-
-        foreach (var shift in data)
-        {
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var ds in duplicatedShift)
-            {
-                if (ds.StartAt < shift.ShiftGroup.StartAt)
-                    continue;
-                if (ds.StartAt > shift.ShiftGroup.StartAt)
-                    break;
-                if (shift.Room.Id != ds.RoomId || shift.ShiftGroup.Module.Id != ds.ModuleId)
-                    continue;
-
-                shift.IsDuplicated = true;
-                break;
-            }
-        }
-
-        return Result<List<GetShiftResponseItem>>.Get(data);
+        var query = new GetAllShiftsDetailsQuery(examinationId);
+        return await Mediator.Send(query);
     }
 
     /// <summary>
@@ -237,86 +152,21 @@ public class ExaminationController : ApiControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPatch("{examinationId}/shift")]
-    public Result<bool> AssignInvigilatorsToShifts(string examinationId,
+    public async Task<Result<bool>> AssignInvigilatorsToShifts(string examinationId,
         [FromBody] AssignInvigilatorsToShiftsRequest request)
     {
-        if (request.IsNullOrEmpty())
-            return Result<bool>.Get(true);
-
-        var entity = CheckIfExaminationExistAndReturnEntity(examinationId, ExaminationStatus.AssignInvigilator);
-
-        _context.Entry(entity)
-           .Collection(e => e.ShiftGroups)
-           .Query()
-           .Include(eg => eg.Shifts)
-           .ThenInclude(fg => fg.InvigilatorShift)
-           .AsSplitQuery()
-           .Load();
-
-        foreach (var shiftGroup in entity.ShiftGroups)
-            foreach (var shift in shiftGroup.Shifts)
-                foreach (var invigilatorShift in shift.InvigilatorShift)
-                {
-                    if (!request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-                        continue;
-
-                    if (invigilatorId == null)
-                    {
-                        invigilatorShift.InvigilatorId = null;
-                        request.Remove(invigilatorShift.Id.ToString());
-                        continue;
-                    }
-
-                    if (!Guid.TryParse(invigilatorId, out var invigilatorGuid))
-                        throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
-
-                    invigilatorShift.InvigilatorId = invigilatorGuid;
-                    request.Remove(invigilatorShift.Id.ToString());
-                }
-
-        _context.SaveChanges();
-
-        return Result<bool>.Get(true);
+        var command = new AssignInvigilatorsToShiftsCommand(examinationId, request);
+        return await Mediator.Send(command);
     }
 
     /// <summary>
     /// Update shift data (handover report, handover person)
     /// </summary>
-    /// <param name="examinationId"></param>
-    /// <param name="shiftId"></param>
-    /// <param name="request"></param>
     /// <returns></returns>
     [HttpPatch("{examinationId}/shift/{shiftId}")]
-    public Result<bool> UpdateShift(string examinationId,
-        string shiftId,
-        [FromBody] UpdateShiftRequest request)
+    public Result<bool> UpdateShift()
     {
-        var notFoundMessage = $"Shift ID {shiftId} does not exist in examination ID {examinationId}";
-        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId);
-        var shiftGuid = ParseGuid(shiftId, notFoundMessage);
-
-        var shift = _context.Shifts
-           .Include(s => s.ShiftGroup)
-           .Include(s => s.InvigilatorShift)
-           .FirstOrDefault(s => s.Id == shiftGuid && s.ShiftGroup.ExaminationId == examinationGuid);
-
-        if (shift == null)
-            throw new NotFoundException(notFoundMessage);
-
-        if (request.HandoverUserId != null)
-        {
-            var guid = ParseGuid(request.HandoverUserId, "User ID does not exist!");
-            var userIdIsValid = shift.InvigilatorShift.Any(ivs => ivs.InvigilatorId == guid);
-            if (userIdIsValid)
-                shift.HandedOverUserId = guid;
-            else
-                throw new BadRequestException("User ID is not assigned in this shift");
-        }
-
-        if (request.Report != null)
-            shift.Report = request.Report;
-
-        _context.SaveChanges();
+        // Moved to /shift/{shiftId} 
 
         return Result<bool>.Get(true);
     }
@@ -328,69 +178,10 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/shift/calculate")]
-    public Result<bool> AutoAssignTeachersToShiftGroup(string examinationId)
+    public async Task<Result<bool>> AutoAssignTeachersToShift(string examinationId)
     {
-        var examinationGuid = CheckIfExaminationExistAndReturnGuid(examinationId, ExaminationStatus.AssignInvigilator);
-
-        var departmentShiftGroups = _context.DepartmentShiftGroups
-           .Where(dg =>
-                dg.FacultyShiftGroup.ShiftGroup.ExaminationId == examinationGuid &&
-                !dg.FacultyShiftGroup.ShiftGroup.DepartmentAssign)
-           .Include(dg => dg.FacultyShiftGroup)
-           .ThenInclude(fg => fg.ShiftGroup)
-           .ThenInclude(g => g.Module)
-           .Include(dg => dg.User)
-           .ThenInclude(u => u!.Department)
-           .OrderBy(dg => dg.FacultyShiftGroup.ShiftGroup.StartAt)
-           .ThenBy(dg => dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId)
-           .ToList();
-
-        var departmentShiftGroupsDict = new Dictionary<string, List<DepartmentShiftGroup>>();
-        foreach (var dg in departmentShiftGroups)
-        {
-            var key = dg.FacultyShiftGroup.ShiftGroup.StartAt.ToString("yy-MM-dd:hh:mm:ss") +
-                      dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId;
-            if (!departmentShiftGroupsDict.ContainsKey(key))
-                departmentShiftGroupsDict.Add(key, new List<DepartmentShiftGroup>());
-            departmentShiftGroupsDict[key].Add(dg);
-        }
-
-        var invigilatorShift = _context.InvigilatorShift
-           .Where(i => i.Shift.ShiftGroup.ExaminationId == examinationGuid && !i.Shift.ShiftGroup.DepartmentAssign)
-           .Include(i => i.Shift)
-           .ThenInclude(s => s.ShiftGroup)
-           .ThenInclude(g => g.Module)
-           .ToList();
-
-        foreach (var ivs in invigilatorShift)
-        {
-            var shiftGroupId = ivs.Shift.ShiftGroup.StartAt.ToString("yy-MM-dd:hh:mm:ss") +
-                               ivs.Shift.ShiftGroup.Module.DisplayId;
-            if (!departmentShiftGroupsDict.TryGetValue(shiftGroupId, out var invigilatorsBucket))
-                throw new BadRequestException(
-                    $"Shift group ID does not exist: {shiftGroupId} (in invigilatorShift ID: {ivs.Id}");
-
-            var isPrioritySlot = ivs.OrderIndex == 1;
-            var priorityFacultyId = ivs.Shift.ShiftGroup.Module.FacultyId;
-
-            for (var i = 0; i < invigilatorsBucket.Count; i++)
-            {
-                var departmentShiftGroup = invigilatorsBucket[i];
-                var facultyOfModuleSamePriorityFaculty =
-                    departmentShiftGroup.User?.Department?.FacultyId == priorityFacultyId;
-
-                if ((isPrioritySlot && !facultyOfModuleSamePriorityFaculty) ||
-                    (!isPrioritySlot && facultyOfModuleSamePriorityFaculty)) continue;
-
-                ivs.InvigilatorId = departmentShiftGroup.UserId;
-                invigilatorsBucket.RemoveAt(i);
-                break;
-            }
-        }
-
-        _context.SaveChanges();
-
-        return Result<bool>.Get(true);
+        var command = new AutoAssignInvigilatorsToShiftsCommand(examinationId);
+        return await Mediator.Send(command);
     }
 
     /// <summary>

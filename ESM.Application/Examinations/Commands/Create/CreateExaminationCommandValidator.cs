@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace ESM.Application.Examinations.Commands.CreateExamination;
+namespace ESM.Application.Examinations.Commands.Create;
 
-public class CreateExaminationCommandValidator : AbstractValidator<CreateExaminationCommand>
+public class CreateCommandValidator : AbstractValidator<CreateCommand>
 {
-    public CreateExaminationCommandValidator()
+    public CreateCommandValidator()
     {
         RuleFor(e => e.Name).NotEmpty();
         RuleFor(e => e).Must(x =>

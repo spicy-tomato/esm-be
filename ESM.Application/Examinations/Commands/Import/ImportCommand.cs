@@ -9,10 +9,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ESM.Application.Examinations.Commands.ImportExamination;
+namespace ESM.Application.Examinations.Commands.Import;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public record ImportExaminationCommand : IRequest<Result<bool>>
+public record ImportCommand : IRequest<Result<bool>>
 {
     [FromRoute]
     public string ExaminationId { get; set; } = null!;
@@ -24,18 +24,18 @@ public record ImportExaminationCommand : IRequest<Result<bool>>
     public DateTime CreatedAt { get; set; }
 }
 
-public class ImportExaminationCommandHandler : IRequestHandler<ImportExaminationCommand, Result<bool>>
+public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IExaminationService _examinationService;
 
-    public ImportExaminationCommandHandler(IApplicationDbContext context, IExaminationService examinationService)
+    public ImportCommandHandler(IApplicationDbContext context, IExaminationService examinationService)
     {
         _context = context;
         _examinationService = examinationService;
     }
 
-    public async Task<Result<bool>> Handle(ImportExaminationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(ImportCommand request, CancellationToken cancellationToken)
     {
         var entity =
             _examinationService.CheckIfExaminationExistAndReturnEntity(request.ExaminationId, ExaminationStatus.Idle);
@@ -60,7 +60,7 @@ public class ImportExaminationCommandHandler : IRequestHandler<ImportExamination
             ExaminationId = entity.Id,
             Status = ExaminationStatus.Setup
         });
-        
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Get(true);

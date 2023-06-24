@@ -3,7 +3,7 @@ using ESM.Data.Enums;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 
-namespace ESM.Application.Examinations.Query.GetAllShiftsInExamination;
+namespace ESM.Application.Examinations.Query.GetAllShifts;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class ShiftInExaminationDto : IMapFrom<Examination>
@@ -15,12 +15,14 @@ public class ShiftInExaminationDto : IMapFrom<Examination>
     public InternalRoom Room { get; set; } = null!;
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
 
-    public class InternalRoom
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+    public class InternalRoom : IMapFrom<Room>
     {
         public string DisplayId { get; set; } = null!;
     }
-    
-    public class InternalShiftGroup
+
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+    public class InternalShiftGroup : IMapFrom<ShiftGroup>
     {
         public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
@@ -29,8 +31,9 @@ public class ShiftInExaminationDto : IMapFrom<Examination>
         public bool DepartmentAssign { get; set; }
         public InternalModule Module { get; set; } = null!;
     }
-    
-    public class InternalModule
+
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+    public class InternalModule : IMapFrom<Module>
     {
         public string DisplayId { get; set; } = null!;
         public string Name { get; set; } = null!;

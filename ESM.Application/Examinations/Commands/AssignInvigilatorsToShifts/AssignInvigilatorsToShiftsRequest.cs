@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace ESM.Data.Request.Examination;
+namespace ESM.Application.Examinations.Commands.AssignInvigilatorsToShifts;
 
 [Serializable]
 public class AssignInvigilatorsToShiftsRequest : Dictionary<string, string?>

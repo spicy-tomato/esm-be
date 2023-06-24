@@ -2,13 +2,14 @@ using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Data.Enums;
-using ESM.Data.Models;
 using ESM.Domain.Entities;
+using JetBrains.Annotations;
 using MediatR;
 
-namespace ESM.Application.Examinations.Commands.CreateExamination;
+namespace ESM.Application.Examinations.Commands.Create;
 
-public record CreateExaminationCommand : IRequest<Result<Guid>>
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+public record CreateCommand : IRequest<Result<Guid>>
 {
     public string? DisplayId { get; set; }
     public string Name { get; set; } = null!;
@@ -18,24 +19,24 @@ public record CreateExaminationCommand : IRequest<Result<Guid>>
     public DateTime CreatedAt { get; set; }
 }
 
-public class CreateExaminationCommandHandler : IRequestHandler<CreateExaminationCommand, Result<Guid>>
+public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Guid>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
 
-    public CreateExaminationCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public CreateCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<Guid>> Handle(CreateExaminationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(_currentUserService.UserId ?? "", out var currentUserId))
         {
             throw new BadRequestException("Cannot get current user");
         }
-        
+
         var entity = new Examination
         {
             DisplayId = request.DisplayId,
@@ -45,7 +46,7 @@ public class CreateExaminationCommandHandler : IRequestHandler<CreateExamination
             ExpectEndAt = request.ExpectEndAt,
             CreatedAt = request.CreatedAt,
             Status = ExaminationStatus.Idle,
-            CreatedById = currentUserId
+            CreatedBy = currentUserId
         };
 
         _context.Examinations.Add(entity);
