@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ESM.Domain.Entities;
 using JetBrains.Annotations;
 
-namespace ESM.Data.Models;
+namespace ESM.Domain.Entities;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Shift

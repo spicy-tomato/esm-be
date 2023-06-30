@@ -1,9 +1,9 @@
+using ESM.Application.Common.Interfaces;
 using ESM.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Identity;
 
-public class ApplicationUser : IdentityUser<Guid>
+public class ApplicationUser : IApplicationUser
 {
     public Teacher? Teacher { get; set; }
     public Guid? TeacherId { get; set; }

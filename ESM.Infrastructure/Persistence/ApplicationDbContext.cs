@@ -1,7 +1,6 @@
 using System.Reflection;
 using EntityFramework.Exceptions.MySQL.Pomelo;
 using ESM.Application.Common.Interfaces;
-using ESM.Data.Models;
 using ESM.Domain.Entities;
 using Infrastructure.Common;
 using Infrastructure.Identity;

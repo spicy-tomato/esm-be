@@ -4,15 +4,13 @@ using System.Security.Claims;
 using System.Text;
 using ESM.Application.Common.Interfaces;
 using ESM.Data.Dtos;
-using ESM.Data.Models;
-using ESM.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ESM.API.Services;
+namespace ESM.Presentation.Services;
 
 public class JwtService : IJwtService
 {
-    private const int EXPIRATION_MINUTES = 60 * 24 * 10; // 10 days
+    private const int ExpirationMinutes = 60 * 24 * 10; // 10 days
     private readonly IConfiguration _configuration;
 
     public JwtService(IConfiguration configuration)
@@ -20,16 +18,15 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
-    public GeneratedToken CreateToken(User user)
+    public GeneratedToken CreateToken(IApplicationUser user)
     {
-        var expiration = DateTime.UtcNow.AddMinutes(EXPIRATION_MINUTES);
+        var expiration = DateTime.UtcNow.AddMinutes(ExpirationMinutes);
         var token = CreateJwtToken(CreateClaims(user), CreateSigningCredentials(), expiration);
         var tokenHandler = new JwtSecurityTokenHandler();
 
         return new GeneratedToken
         {
             Token = tokenHandler.WriteToken(token),
-            // RefreshToken = CreateRefreshToken(),
             Expiration = expiration
         };
     }
@@ -44,7 +41,7 @@ public class JwtService : IJwtService
             expires: expiration,
             signingCredentials: credentials);
 
-    private static IEnumerable<Claim> CreateClaims(User user) => new[]
+    private static IEnumerable<Claim> CreateClaims(IApplicationUser user) => new[]
     {
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),

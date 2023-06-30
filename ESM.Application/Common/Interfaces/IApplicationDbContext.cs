@@ -1,4 +1,3 @@
-using ESM.Data.Models;
 using ESM.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +23,6 @@ public interface IApplicationDbContext
     DbSet<ShiftGroup> ShiftGroups { get; }
     DbSet<Teacher> Teachers { get; }
     DbSet<IdentityUser<Guid>> Users { get; }
-
-    int SaveChanges();
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = new());
 

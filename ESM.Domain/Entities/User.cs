@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using ESM.Data.Models;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
 

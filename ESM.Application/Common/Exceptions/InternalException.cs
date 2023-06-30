@@ -9,7 +9,7 @@ namespace ESM.Application.Common.Exceptions;
 [UsedImplicitly]
 public class InternalServerErrorException : InnerException
 {
-    private const HttpStatusCode CODE = HttpStatusCode.InternalServerError;
+    private const HttpStatusCode Code = HttpStatusCode.InternalServerError;
 
     public InternalServerErrorException(string? message, Exception? innerException = null) : base(message,
         innerException) { }
@@ -18,7 +18,7 @@ public class InternalServerErrorException : InnerException
 
     public override HttpException WrapException()
     {
-        var errorResponse = new List<Error> { new(CODE, Message) };
-        return new HttpException(CODE, errorResponse, Message, this);
+        var errorResponse = new List<Error> { new(Code, Message) };
+        return new HttpException(Code, errorResponse, Message, this);
     }
 }

@@ -1,3 +1,4 @@
+using ESM.Application.Common.Interfaces;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +10,13 @@ public class ApplicationDbContextInitializer
 {
     private readonly ILogger<ApplicationDbContextInitializer> _logger;
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly UserManager<IApplicationUser> _userManager;
+    private readonly RoleManager<IApplicationRole> _roleManager;
 
     public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+        UserManager<IApplicationUser> userManager,
+        RoleManager<IApplicationRole> roleManager)
     {
         _logger = logger;
         _context = context;
@@ -51,8 +52,14 @@ public class ApplicationDbContextInitializer
 
     private async Task TrySeedAsync()
     {
-        var examinationDepartmentHeadRole = new IdentityRole("ExaminationDepartmentHead");
-        var teacherRole = new IdentityRole("Teacher");
+        var examinationDepartmentHeadRole = new ApplicationRole
+        {
+            Name = "ExaminationDepartmentHead"
+        };
+        var teacherRole = new ApplicationRole
+        {
+            Name = "Teacher"
+        };
 
         if (await _roleManager.FindByNameAsync(examinationDepartmentHeadRole.Name) == null)
         {

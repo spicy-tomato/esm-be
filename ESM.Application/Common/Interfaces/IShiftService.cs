@@ -1,10 +1,8 @@
-using ESM.Data.Models;
+using ESM.Domain.Entities;
 
 namespace ESM.Application.Common.Interfaces;
 
 public interface IShiftService
 {
-    public Guid CheckIfShiftExistAndReturnGuid(string id);
-
     public Shift CheckIfShiftExistAndReturnEntity(string id);
 }

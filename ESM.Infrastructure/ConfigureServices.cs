@@ -32,7 +32,7 @@ public static class ConfigureServices
 
         services.AddScoped<ApplicationDbContextInitializer>();
 
-        services.AddIdentityCore<ApplicationUser>(options =>
+        services.AddIdentityCore<IApplicationUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.User.RequireUniqueEmail = false;
@@ -42,9 +42,9 @@ public static class ConfigureServices
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             })
-           .AddRoles<IdentityRole>()
+           .AddRoles<IApplicationRole>()
            .AddEntityFrameworkStores<ApplicationDbContext>()
-           .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
+           .AddTokenProvider<DataProtectorTokenProvider<IApplicationUser>>(TokenOptions.DefaultProvider);
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();

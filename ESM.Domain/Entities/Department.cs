@@ -1,4 +1,3 @@
-using ESM.Data.Models;
 using ESM.Domain.Common;
 using JetBrains.Annotations;
 

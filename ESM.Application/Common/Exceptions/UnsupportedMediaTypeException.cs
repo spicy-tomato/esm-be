@@ -9,7 +9,7 @@ namespace ESM.Application.Common.Exceptions;
 [UsedImplicitly]
 public class UnsupportedMediaTypeException : InnerException
 {
-    private const HttpStatusCode CODE = HttpStatusCode.UnsupportedMediaType;
+    private const HttpStatusCode Code = HttpStatusCode.UnsupportedMediaType;
 
     public UnsupportedMediaTypeException(string message = "Unsupported media type", Exception? innerException = null) : base(message, innerException) { }
 
@@ -17,7 +17,7 @@ public class UnsupportedMediaTypeException : InnerException
 
     public override HttpException WrapException()
     {
-        var errorResponse = new List<Error> { new(CODE, Message) };
-        return new HttpException(CODE, errorResponse, Message, this);
+        var errorResponse = new List<Error> { new(Code, Message) };
+        return new HttpException(Code, errorResponse, Message, this);
     }
 }

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Infrastructure.Identity;
+namespace ESM.Application.Common.Interfaces;
 
 public abstract class IApplicationUser : IdentityUser<Guid> { }

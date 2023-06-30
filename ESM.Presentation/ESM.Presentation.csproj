@@ -24,11 +24,10 @@
       <PackageReference Include="MySqlConnector" Version="2.2.5" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.1" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.31.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ESM.API.Core\ESM.API.Core.csproj" />
       <ProjectReference Include="..\ESM.Application\ESM.Application.csproj" />
       <ProjectReference Include="..\ESM.Data\ESM.Data.csproj" />
       <ProjectReference Include="..\ESM.Domain\ESM.Domain.csproj" />
@@ -36,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Contexts\" />
+      <None Include="appsettings.json" />
     </ItemGroup>
 
 </Project>

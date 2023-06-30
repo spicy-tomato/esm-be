@@ -8,10 +8,10 @@ namespace Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly UserManager<IApplicationUser> _userManager;
+    private readonly RoleManager<IApplicationRole> _roleManager;
 
-    public IdentityService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public IdentityService(UserManager<IApplicationUser> userManager, RoleManager<IApplicationRole> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -23,6 +23,15 @@ public class IdentityService : IIdentityService
 
         return user.UserName;
     }
+
+    public async Task<IApplicationUser?> FindUserByEmailAsync(string email) =>
+        await _userManager.FindByEmailAsync(email);
+
+    public async Task<IApplicationUser?> FindUserByIdAsync(string userId) =>
+        await _userManager.FindByIdAsync(userId);
+
+    public async Task<IApplicationUser?> FindUserByNameAsync(string name) =>
+        await _userManager.FindByNameAsync(name);
 
     public async Task<(Result<bool> Result, Guid UserId)> CreateUserAsync(string userName,
         string email,
@@ -39,7 +48,7 @@ public class IdentityService : IIdentityService
         return (result.ToApplicationResult(), user.Id);
     }
 
-    public async Task<Result<bool>> AddUserToRole(Guid userId, string roleName)
+    public async Task<Result<bool>> AddUserToRoleAsync(Guid userId, string roleName)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -57,4 +66,30 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
+
+    public async Task<Result<bool>> SetEmailAsync(IApplicationUser user, string email) =>
+        (await _userManager.SetEmailAsync(user, email)).ToApplicationResult();
+
+    public async Task<bool> CheckPasswordAsync(IApplicationUser user, string password) =>
+        await _userManager.CheckPasswordAsync(user, password);
+
+
+    public async Task<Result<bool>> ChangePasswordAsync(string userId, string oldPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(nameof(ApplicationUser), userId);
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+
+        return result.ToApplicationResult();
+    }
+
+    public async Task<string> GeneratePasswordResetTokenAsync(IApplicationUser user) =>
+        await _userManager.GeneratePasswordResetTokenAsync(user);
+
+    public async Task<Result<bool>> ResetPasswordAsync(IApplicationUser user, string token, string newPassword) =>
+        (await _userManager.ResetPasswordAsync(user, token, newPassword)).ToApplicationResult();
 }

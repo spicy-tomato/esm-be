@@ -1,5 +1,5 @@
 using ESM.Data.Enums;
-using ESM.Data.Models;
+using ESM.Data.Interfaces;
 using ESM.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 
@@ -15,17 +15,12 @@ public interface IExaminationService
     /// <returns></returns>
     public List<ExaminationData> Import(IFormFile file, string examinationId);
 
-    /// <summary>
-    /// Validate temporary data
-    /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public IQueryable<ExaminationData> ValidateTemporaryData(IEnumerable<ExaminationData> data);
-
     public Guid CheckIfExaminationExistAndReturnGuid(string examinationId, ExaminationStatus? acceptStatus = null);
 
     public Examination CheckIfExaminationExistAndReturnEntity(string examinationId,
         ExaminationStatus? acceptStatus = null);
 
-    public IEnumerable<Shift> RetrieveShiftsFromTemporaryData(Guid examinationGuid, IEnumerable<ExaminationData> data);
+    public void CalculateInvigilatorsNumberInShift<T>(T group,
+        ICollection<FacultyShiftGroup> facultyShiftGroup,
+        IReadOnlyDictionary<Guid, int> invigilatorsNumberInFaculties) where T : IShiftGroup;
 }

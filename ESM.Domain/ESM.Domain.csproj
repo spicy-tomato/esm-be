@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Events\" />
+      <Folder Include="Mappings\" />
     </ItemGroup>
 
 </Project>

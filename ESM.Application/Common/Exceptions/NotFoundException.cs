@@ -9,7 +9,7 @@ namespace ESM.Application.Common.Exceptions;
 [UsedImplicitly]
 public class NotFoundException : InnerException
 {
-    private const HttpStatusCode CODE = HttpStatusCode.NotFound;
+    private const HttpStatusCode Code = HttpStatusCode.NotFound;
 
     public NotFoundException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
@@ -22,7 +22,7 @@ public class NotFoundException : InnerException
 
     public override HttpException WrapException()
     {
-        var errorResponse = new List<Error> { new(CODE, Message) };
-        return new HttpException(CODE, errorResponse, Message, this);
+        var errorResponse = new List<Error> { new(Code, Message) };
+        return new HttpException(Code, errorResponse, Message, this);
     }
 }

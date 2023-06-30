@@ -1,4 +1,3 @@
-using ESM.API.Services;
 using ESM.Application.Common.Interfaces;
 using ESM.Presentation.Filters;
 using ESM.Presentation.Services;
@@ -13,10 +12,10 @@ public static class ConfigureServices
     {
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IJwtService, JwtService>();
-        services.AddScoped<IExaminationService, ExaminationService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
-        services.AddScoped<IModuleService, ModuleService>();
-        services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IExaminationService, ExaminationService>();
+        services.AddScoped<IFacultyService, FacultyService>();
+        services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IShiftService, ShiftService>();
         services.AddScoped<IUserService, UserService>();
         

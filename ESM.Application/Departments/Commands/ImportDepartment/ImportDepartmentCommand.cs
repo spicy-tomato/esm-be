@@ -11,11 +11,10 @@ namespace ESM.Application.Departments.Commands.ImportDepartment;
 
 public class ImportDepartmentCommand : IRequest<Result<bool>>
 {
-    public IEnumerable<IFormFile> Files { get; init; } = Array.Empty<IFormFile>();
+    public IEnumerable<IFormFile> Files { get; set; } = Array.Empty<IFormFile>();
 }
 
-public class ImportDepartmentCommandHandler<TUser> : IRequestHandler<ImportDepartmentCommand, Result<bool>>
-    where TUser : class
+public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IDepartmentService _departmentService;
@@ -91,7 +90,7 @@ public class ImportDepartmentCommandHandler<TUser> : IRequestHandler<ImportDepar
 
         var createUserResponse = await _identityService.CreateUserAsync("K_" + abbreviation,
             StringHelper.RandomEmail());
-        var addToRoleResponse = await _identityService.AddUserToRole(facultyEntity.Id, "Teacher");
+        var addToRoleResponse = await _identityService.AddUserToRoleAsync(facultyEntity.Id, "Teacher");
 
         if (createUserResponse.Result.Success && addToRoleResponse.Success)
         {
@@ -99,7 +98,7 @@ public class ImportDepartmentCommandHandler<TUser> : IRequestHandler<ImportDepar
             {
                 UserId = createUserResponse.UserId,
                 FullName = "Khoa " + abbreviation,
-                FacultyId = facultyEntity.Id,
+                FacultyId = facultyEntity.Id
             };
 
             _context.Teachers.Add(teacher);
@@ -110,7 +109,7 @@ public class ImportDepartmentCommandHandler<TUser> : IRequestHandler<ImportDepar
     {
         var createUserResponse = await _identityService.CreateUserAsync("GV" + teacher.Key,
             StringHelper.RandomEmail());
-        var addToRoleResponse = await _identityService.AddUserToRole(departmentEntity.Id, "Teacher");
+        var addToRoleResponse = await _identityService.AddUserToRoleAsync(departmentEntity.Id, "Teacher");
 
         if (createUserResponse.Result.Success && addToRoleResponse.Success)
         {

@@ -1,6 +1,6 @@
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
-using ESM.Data.Models;
+using ESM.Domain.Entities;
 
 namespace ESM.Presentation.Services;
 
@@ -11,14 +11,6 @@ public class ShiftService : IShiftService
     public ShiftService(IApplicationDbContext context)
     {
         _context = context;
-    }
-
-    public Guid CheckIfShiftExistAndReturnGuid(string id)
-    {
-        TryParseGuid(id, out var guid);
-        Find(guid);
-
-        return guid;
     }
 
     public Shift CheckIfShiftExistAndReturnEntity(string id)

@@ -1,4 +1,3 @@
-using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Shifts.Commands.Update;
 using Microsoft.AspNetCore.Authorization;
@@ -11,17 +10,6 @@ namespace ESM.Presentation.Controllers;
 [Authorize]
 public class ShiftController : ApiControllerBase
 {
-    private readonly IApplicationDbContext _context;
-
-    #region Constructor
-
-    public ShiftController(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    #endregion
-
     #region Public Methods
 
     /// <summary>

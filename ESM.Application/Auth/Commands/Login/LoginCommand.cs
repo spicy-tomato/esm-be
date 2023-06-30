@@ -1,0 +1,42 @@
+using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Interfaces;
+using ESM.Application.Common.Models;
+using ESM.Data.Dtos;
+using MediatR;
+
+namespace ESM.Application.Auth.Commands.Login;
+
+public record LoginCommand(string UserName, string Password) : IRequest<Result<GeneratedToken>>;
+
+public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<GeneratedToken>>
+{
+    private readonly IIdentityService _identityService;
+    private readonly IJwtService _jwtService;
+
+    public LoginCommandHandler(IIdentityService identityService, IJwtService jwtService)
+    {
+        _identityService = identityService;
+        _jwtService = jwtService;
+    }
+
+    public async Task<Result<GeneratedToken>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    {
+        var isEmail = request.UserName.Contains('@');
+
+        // Email
+        var user = isEmail
+            ? await _identityService.FindUserByEmailAsync(request.UserName)
+            : await _identityService.FindUserByNameAsync(request.UserName);
+
+        if (user is null || await WrongPassword(user, request.Password))
+        {
+            throw new UnauthorizedException();
+        }
+
+        var token = _jwtService.CreateToken(user);
+        return Result<GeneratedToken>.Get(token);
+    }
+
+    private async Task<bool> WrongPassword(IApplicationUser user, string password) =>
+        !await _identityService.CheckPasswordAsync(user, password);
+}

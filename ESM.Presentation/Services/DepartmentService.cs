@@ -2,11 +2,23 @@ using System.Globalization;
 using ClosedXML.Excel;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
+using ESM.Domain.Entities;
 
 namespace ESM.Presentation.Services;
 
-public class DepartmentService: IDepartmentService
+public class DepartmentService : IDepartmentService
 {
+    #region Properties
+
+    private readonly IApplicationDbContext _context;
+
+    #endregion
+
+    public DepartmentService(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     #region Public methods
 
     public Dictionary<string, Dictionary<string, List<KeyValuePair<string, string>>>> Import(IFormFile file)
@@ -60,7 +72,7 @@ public class DepartmentService: IDepartmentService
                 }
 
             var facultyNameInDict = result.Keys.FirstOrDefault(k => k.Contains(facultyName));
-            if (facultyNameInDict == null) 
+            if (facultyNameInDict == null)
                 throw new BadRequestException($"Faculty does not exist: {facultyName}");
 
             var departments = result[facultyNameInDict];
@@ -71,6 +83,24 @@ public class DepartmentService: IDepartmentService
         }
 
         return result;
+    }
+
+    public Guid CheckIfExistAndReturnGuid(string id)
+    {
+        if (!Guid.TryParse(id, out var guid))
+        {
+            throw new NotFoundException(nameof(Department), id);
+        }
+
+        var entity = _context.Faculties
+            .FirstOrDefault(f => f.Id == guid);
+
+        if (entity == null)
+        {
+            throw new NotFoundException(nameof(Faculty), guid);
+        }
+
+        return guid;
     }
 
     private static bool CellIsBlank(int row, int col, IXLWorksheet ws)

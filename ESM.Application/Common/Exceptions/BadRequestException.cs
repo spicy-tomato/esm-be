@@ -9,7 +9,7 @@ namespace ESM.Application.Common.Exceptions;
 [UsedImplicitly]
 public class BadRequestException : InnerException
 {
-    private const HttpStatusCode CODE = HttpStatusCode.BadRequest;
+    private const HttpStatusCode Code = HttpStatusCode.BadRequest;
 
     public BadRequestException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
@@ -17,7 +17,7 @@ public class BadRequestException : InnerException
 
     public override HttpException WrapException()
     {
-        var errorResponse = new List<Error> { new(CODE, Message) };
-        return new HttpException(CODE, errorResponse, Message, this);
+        var errorResponse = new List<Error> { new(Code, Message) };
+        return new HttpException(Code, errorResponse, Message, this);
     }
 }
