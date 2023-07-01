@@ -34,7 +34,7 @@ public class GetAllShiftsDetailsQueryHandler : IRequestHandler<GetAllShiftsDetai
         var data = await _context.Shifts
            .Include(s => s.InvigilatorShift)
                .ThenInclude(i => i.Invigilator)
-               .ThenInclude(u => u!.Department)
+               .ThenInclude(u => u!.Teacher!.Department)
                .ThenInclude(d => d!.Faculty)
            .Include(s => s.Room)
            .Include(s => s.ShiftGroup)

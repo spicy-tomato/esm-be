@@ -2,7 +2,7 @@ using ESM.Domain.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Common;
+namespace ESM.Infrastructure.Common;
 
 public static class MediatorExtensions
 {

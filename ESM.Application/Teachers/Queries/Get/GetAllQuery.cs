@@ -1,7 +1,7 @@
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos.Department;
-using ESM.Data.Dtos.Faculty;
+using ESM.Domain.Dtos.Department;
+using ESM.Domain.Dtos.Faculty;
 using MediatR;
 
 namespace ESM.Application.Teachers.Queries.Get;

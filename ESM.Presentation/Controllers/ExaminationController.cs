@@ -20,7 +20,7 @@ using ESM.Application.Examinations.Queries.GetHandoverData;
 using ESM.Application.Examinations.Queries.GetRelatedExaminations;
 using ESM.Application.Examinations.Queries.GetSummary;
 using ESM.Application.Examinations.Queries.GetTemporaryData;
-using ESM.Data.Dtos.Examination;
+using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

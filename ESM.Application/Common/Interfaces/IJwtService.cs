@@ -1,8 +1,9 @@
-using ESM.Data.Dtos;
+using ESM.Domain.Dtos;
+using ESM.Domain.Identity;
 
 namespace ESM.Application.Common.Interfaces;
 
 public interface IJwtService
 {
-    GeneratedToken CreateToken(IApplicationUser user);
+    GeneratedToken CreateToken(ApplicationUser user);
 }

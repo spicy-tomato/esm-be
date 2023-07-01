@@ -2,7 +2,7 @@ using ESM.Application.Common.Models;
 using ESM.Application.Teachers.Commands.Update;
 using ESM.Application.Teachers.Queries.Get;
 using ESM.Application.Teachers.Queries.Search;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

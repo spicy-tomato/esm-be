@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using ESM.Domain.Identity;
 using JetBrains.Annotations;
 
 namespace ESM.Domain.Entities;
@@ -13,7 +14,7 @@ public class InvigilatorShift
 
     public int Paid { get; set; }
 
-    public User? Invigilator { get; set; }
+    public ApplicationUser? Invigilator { get; set; }
     public Guid? InvigilatorId { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

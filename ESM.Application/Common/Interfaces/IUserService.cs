@@ -1,3 +1,5 @@
+using ESM.Domain.Identity;
+
 namespace ESM.Application.Common.Interfaces;
 
 public interface IUserService
@@ -6,5 +8,5 @@ public interface IUserService
     
     public bool UserExist(string id);
     
-    public Task<IApplicationUser> CheckIfExistAndReturnEntity(string id);
+    public Task<ApplicationUser> CheckIfExistAndReturnEntity(string id);
 }

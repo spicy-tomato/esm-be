@@ -1,22 +1,21 @@
-using ESM.Application.Common.Interfaces;
-using Infrastructure.Identity;
+using ESM.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Persistence;
+namespace ESM.Infrastructure.Persistence;
 
 public class ApplicationDbContextInitializer
 {
     private readonly ILogger<ApplicationDbContextInitializer> _logger;
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<IApplicationUser> _userManager;
-    private readonly RoleManager<IApplicationRole> _roleManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
     public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
-        UserManager<IApplicationUser> userManager,
-        RoleManager<IApplicationRole> roleManager)
+        UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager)
     {
         _logger = logger;
         _context = context;

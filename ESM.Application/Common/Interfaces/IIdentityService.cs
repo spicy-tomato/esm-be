@@ -1,4 +1,5 @@
 using ESM.Application.Common.Models;
+using ESM.Domain.Identity;
 
 namespace ESM.Application.Common.Interfaces;
 
@@ -6,11 +7,11 @@ public interface IIdentityService
 {
     Task<string?> GetUserNameAsync(string userId);
 
-    Task<IApplicationUser?> FindUserByEmailAsync(string email);
+    Task<ApplicationUser?> FindUserByEmailAsync(string email);
 
-    Task<IApplicationUser?> FindUserByIdAsync(string userId);
+    Task<ApplicationUser?> FindUserByIdAsync(string userId);
 
-    Task<IApplicationUser?> FindUserByNameAsync(string name);
+    Task<ApplicationUser?> FindUserByNameAsync(string name);
 
     Task<(Result<bool> Result, Guid UserId)> CreateUserAsync(string userName,
         string email,
@@ -18,13 +19,13 @@ public interface IIdentityService
 
     Task<Result<bool>> AddUserToRoleAsync(Guid userId, string roleName);
 
-    Task<Result<bool>> SetEmailAsync(IApplicationUser user, string email);
+    Task<Result<bool>> SetEmailAsync(ApplicationUser user, string email);
 
-    Task<bool> CheckPasswordAsync(IApplicationUser user, string password);
+    Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
 
     Task<Result<bool>> ChangePasswordAsync(string userId, string oldPassword, string newPassword);
 
-    Task<string> GeneratePasswordResetTokenAsync(IApplicationUser user);
+    Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
 
-    Task<Result<bool>> ResetPasswordAsync(IApplicationUser user, string token, string newPassword);
+    Task<Result<bool>> ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
 }

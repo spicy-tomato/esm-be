@@ -1,5 +1,5 @@
-﻿using ESM.Data.Dtos.Department;
-using ESM.Data.Dtos.Faculty;
+﻿using ESM.Domain.Dtos.Department;
+using ESM.Domain.Dtos.Faculty;
 using JetBrains.Annotations;
 
 namespace ESM.Application.Teachers.Queries.Get;

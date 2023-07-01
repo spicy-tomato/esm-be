@@ -1,8 +1,8 @@
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Enums;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +40,7 @@ public class
                .ThenInclude(fg => fg.ShiftGroup)
                .ThenInclude(g => g.Module)
            .Include(dg => dg.User)
-               .ThenInclude(u => u!.Department)
+               .ThenInclude(u => u!.Teacher!.Department)
            .OrderBy(dg => dg.FacultyShiftGroup.ShiftGroup.StartAt)
                .ThenBy(dg => dg.FacultyShiftGroup.ShiftGroup.Module.DisplayId)
            .ToList();
@@ -89,7 +89,7 @@ public class
             {
                 var departmentShiftGroup = invigilatorsBucket[i];
                 var facultyOfModuleSamePriorityFaculty =
-                    departmentShiftGroup.User?.Department?.FacultyId == priorityFacultyId;
+                    departmentShiftGroup.User?.Teacher?.Department?.FacultyId == priorityFacultyId;
 
                 if ((isPrioritySlot && !facultyOfModuleSamePriorityFaculty) ||
                     (!isPrioritySlot && facultyOfModuleSamePriorityFaculty))

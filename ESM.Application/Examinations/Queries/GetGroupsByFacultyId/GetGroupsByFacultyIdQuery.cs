@@ -2,7 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Enums;
+using ESM.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

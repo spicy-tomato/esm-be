@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EfCoreDialogsState">
+    <option name="keyValueStorage">
+      <map>
+        <entry key="Common:096d89d7-5845-497c-8db5-ace053a51bcf:dbContext" value="ESM.Infrastructure.Persistence.ApplicationDbContext" />
+        <entry key="Common:7e60d920-398e-42a6-895d-56d7f5552bd7:dbContext" value="ESM.Infrastructure.Persistence.ApplicationDbContext" />
+        <entry key="Common:buildConfiguration" value="Debug" />
+        <entry key="Common:c4d8f2ce-8ebe-4450-b961-6a3957ef2996:dbContext" value="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserContext`2" />
+        <entry key="Common:noBuild" value="false" />
+        <entry key="Common:outputFolder" value="Migrations" />
+        <entry key="Common:targetFramework" value="net6.0" />
+        <entry key="Common:useDefaultConnection" value="true" />
+      </map>
+    </option>
+  </component>
+</project>

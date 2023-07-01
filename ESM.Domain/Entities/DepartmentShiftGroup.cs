@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ESM.Domain.Identity;
 using JetBrains.Annotations;
 
 namespace ESM.Domain.Entities;
@@ -15,7 +16,7 @@ public class DepartmentShiftGroup
     public Department? Department { get; set; }
 
     public Guid? UserId { get; set; }
-    public User? User { get; set; }
+    public ApplicationUser? User { get; set; }
     
     public string? TemporaryInvigilatorName { get; set; }
 

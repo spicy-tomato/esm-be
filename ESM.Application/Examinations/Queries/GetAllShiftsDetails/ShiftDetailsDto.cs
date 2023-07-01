@@ -1,8 +1,8 @@
 using ESM.Application.Common.Mappings;
-using ESM.Data.Dtos.Module;
-using ESM.Data.Dtos.Room;
-using ESM.Data.Enums;
+using ESM.Domain.Dtos.Module;
+using ESM.Domain.Dtos.Room;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Application.Examinations.Queries.GetAllShiftsDetails;

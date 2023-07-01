@@ -1,6 +1,6 @@
 using ESM.Domain.Common;
+using ESM.Domain.Identity;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Identity;
 
 namespace ESM.Domain.Entities;
 
@@ -19,7 +19,7 @@ public class Teacher : BaseAuditableEntity
 
     public ICollection<Shift> HandedOverShifts { get; set; } = new List<Shift>();
 
-    public IdentityUser<Guid> User { get; set; } = null!;
+    public ApplicationUser User { get; set; } = null!;
     public Guid UserId { get; set; }
 
     public Guid? DepartmentId { get; set; }

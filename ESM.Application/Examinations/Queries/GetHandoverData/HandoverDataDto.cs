@@ -1,6 +1,6 @@
 using ESM.Application.Common.Mappings;
-using ESM.Data.Enums;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Application.Examinations.Queries.GetHandoverData;

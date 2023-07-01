@@ -1,9 +1,9 @@
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Common.Core.Helpers;
-using ESM.Data.Enums;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
 using MediatR;
+using RoomHelper = ESM.Application.Common.Helpers.RoomHelper;
 
 namespace ESM.Application.Examinations.Queries.GetTemporaryData;
 

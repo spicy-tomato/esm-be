@@ -29,7 +29,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ESM.Application\ESM.Application.csproj" />
-      <ProjectReference Include="..\ESM.Data\ESM.Data.csproj" />
       <ProjectReference Include="..\ESM.Domain\ESM.Domain.csproj" />
       <ProjectReference Include="..\ESM.Infrastructure\ESM.Infrastructure.csproj" />
     </ItemGroup>

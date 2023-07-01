@@ -10,7 +10,7 @@ public class Faculty: BaseAuditableEntity
 
     public string Name { get; set; } = null!;
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
     public ICollection<Department> Departments { get; set; } = new List<Department>();
 
     public ICollection<FacultyShiftGroup> FacultyShiftGroups { get; set; } = new List<FacultyShiftGroup>();

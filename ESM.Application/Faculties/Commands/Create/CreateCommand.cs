@@ -2,7 +2,7 @@ using AutoMapper;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos.Faculty;
+using ESM.Domain.Dtos.Faculty;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 using MediatR;

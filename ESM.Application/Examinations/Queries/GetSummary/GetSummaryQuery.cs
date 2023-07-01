@@ -1,7 +1,7 @@
 using AutoMapper;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos.Examination;
+using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
 using MediatR;
 

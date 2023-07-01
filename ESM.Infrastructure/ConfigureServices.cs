@@ -1,9 +1,9 @@
 using System.Text;
 using ESM.Application.Common.Interfaces;
-using Infrastructure.Identity;
-using Infrastructure.Persistence;
-using Infrastructure.Persistence.Interceptors;
-using Infrastructure.Services;
+using ESM.Domain.Identity;
+using ESM.Infrastructure.Persistence;
+using ESM.Infrastructure.Persistence.Interceptors;
+using ESM.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure;
+namespace ESM.Infrastructure;
 
 public static class ConfigureServices
 {
@@ -32,7 +32,7 @@ public static class ConfigureServices
 
         services.AddScoped<ApplicationDbContextInitializer>();
 
-        services.AddIdentityCore<IApplicationUser>(options =>
+        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.User.RequireUniqueEmail = false;
@@ -42,9 +42,9 @@ public static class ConfigureServices
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             })
-           .AddRoles<IApplicationRole>()
+           .AddRoles<ApplicationRole>()
            .AddEntityFrameworkStores<ApplicationDbContext>()
-           .AddTokenProvider<DataProtectorTokenProvider<IApplicationUser>>(TokenOptions.DefaultProvider);
+           .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();

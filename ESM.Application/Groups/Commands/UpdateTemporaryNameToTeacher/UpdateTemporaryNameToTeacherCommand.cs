@@ -1,7 +1,7 @@
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Domain.Entities;
+using ESM.Domain.Identity;
 using JetBrains.Annotations;
 using MediatR;
 
@@ -30,7 +30,7 @@ public class UpdateTemporaryNameToTeacherCommandHandler
     {
         if (!_userService.UserExist(request.UserId))
         {
-            throw new NotFoundException(nameof(User), request.UserId);
+            throw new NotFoundException(nameof(ApplicationUser), request.UserId);
         }
 
         var userGuid = Guid.Parse(request.UserId);

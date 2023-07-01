@@ -17,8 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ESM.Common.Core\ESM.Common.Core.csproj" />
-      <ProjectReference Include="..\ESM.Data\ESM.Data.csproj" />
       <ProjectReference Include="..\ESM.Domain\ESM.Domain.csproj" />
     </ItemGroup>
 </Project>

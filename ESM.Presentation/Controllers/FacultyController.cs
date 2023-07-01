@@ -4,8 +4,8 @@ using ESM.Application.Faculties.Commands.Create;
 using ESM.Application.Faculties.Commands.Update;
 using ESM.Application.Faculties.Queries.GetAll;
 using ESM.Application.Faculties.Queries.GetTeachers;
-using ESM.Data.Dtos.Faculty;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos.Faculty;
+using ESM.Domain.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

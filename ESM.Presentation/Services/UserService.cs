@@ -1,5 +1,6 @@
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
+using ESM.Domain.Identity;
 
 namespace ESM.Presentation.Services;
 
@@ -18,12 +19,12 @@ public class UserService : IUserService
 
     public bool UserExist(string id) => Guid.TryParse(id, out var guid) && UserExist(guid);
 
-    public async Task<IApplicationUser> CheckIfExistAndReturnEntity(string id)
+    public async Task<ApplicationUser> CheckIfExistAndReturnEntity(string id)
     {
         var user = await _identityService.FindUserByIdAsync(id);
         if (user is null)
         {
-            throw new NotFoundException(nameof(IApplicationUser), id);
+            throw new NotFoundException(nameof(ApplicationUser), id);
         }
 
         return user;

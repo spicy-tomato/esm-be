@@ -2,10 +2,10 @@ using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
-using ESM.Data.Dtos.Examination;
-using ESM.Data.Enums;
-using ESM.Data.Interfaces;
+using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
+using ESM.Domain.Interfaces;
 
 namespace ESM.Presentation.Services;
 

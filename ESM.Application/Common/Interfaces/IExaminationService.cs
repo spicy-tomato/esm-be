@@ -1,6 +1,6 @@
-using ESM.Data.Enums;
-using ESM.Data.Interfaces;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
+using ESM.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace ESM.Application.Common.Interfaces;

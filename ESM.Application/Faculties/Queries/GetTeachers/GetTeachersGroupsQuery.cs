@@ -2,7 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos.User;
 using MediatR;
 
 namespace ESM.Application.Faculties.Queries.GetTeachers;

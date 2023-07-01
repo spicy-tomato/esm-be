@@ -3,7 +3,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ESM.Application.Common.Interfaces;
-using ESM.Data.Dtos;
+using ESM.Domain.Dtos;
+using ESM.Domain.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ESM.Presentation.Services;
@@ -18,7 +19,7 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
-    public GeneratedToken CreateToken(IApplicationUser user)
+    public GeneratedToken CreateToken(ApplicationUser user)
     {
         var expiration = DateTime.UtcNow.AddMinutes(ExpirationMinutes);
         var token = CreateJwtToken(CreateClaims(user), CreateSigningCredentials(), expiration);
@@ -41,7 +42,7 @@ public class JwtService : IJwtService
             expires: expiration,
             signingCredentials: credentials);
 
-    private static IEnumerable<Claim> CreateClaims(IApplicationUser user) => new[]
+    private static IEnumerable<Claim> CreateClaims(ApplicationUser user) => new[]
     {
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),

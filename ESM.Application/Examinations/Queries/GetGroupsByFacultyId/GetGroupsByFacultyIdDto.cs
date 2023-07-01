@@ -1,5 +1,5 @@
 using ESM.Application.Common.Mappings;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos.User;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 

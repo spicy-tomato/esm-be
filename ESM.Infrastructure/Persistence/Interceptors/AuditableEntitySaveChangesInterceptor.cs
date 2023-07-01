@@ -1,12 +1,12 @@
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Domain.Common;
-using Infrastructure.Identity;
+using ESM.Domain.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Infrastructure.Persistence.Interceptors;
+namespace ESM.Infrastructure.Persistence.Interceptors;
 
 public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
 {

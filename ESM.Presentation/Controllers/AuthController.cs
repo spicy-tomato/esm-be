@@ -4,8 +4,8 @@ using ESM.Application.Auth.Commands.ResetPassword;
 using ESM.Application.Auth.Queries.MySummaryInfo;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos;
+using ESM.Domain.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-using ESM.Data.Enums;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Application.Examinations.Commands.ChangeStatus;

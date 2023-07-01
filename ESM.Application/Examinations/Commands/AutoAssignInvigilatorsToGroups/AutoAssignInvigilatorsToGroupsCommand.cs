@@ -2,7 +2,7 @@ using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Enums;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

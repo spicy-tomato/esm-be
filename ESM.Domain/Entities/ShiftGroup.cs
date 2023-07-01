@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ESM.Data.Enums;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 
 namespace ESM.Domain.Entities;

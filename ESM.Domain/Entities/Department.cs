@@ -13,7 +13,7 @@ public class Department : BaseAuditableEntity
     public Guid? FacultyId { get; set; }
     public Faculty? Faculty { get; set; }
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
 
     public ICollection<DepartmentShiftGroup> DepartmentShiftGroups { get; set; } = new List<DepartmentShiftGroup>();
 }

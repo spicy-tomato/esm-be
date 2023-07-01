@@ -1,8 +1,8 @@
 ﻿using ESM.Application.Common.Mappings;
-using ESM.Data.Dtos.Examination;
-using ESM.Data.Enums;
-using ESM.Data.Interfaces;
+using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
+using ESM.Domain.Interfaces;
 using JetBrains.Annotations;
 
 namespace ESM.Application.Groups.Commands.AssignInvigilatorsNumberToFaculty;

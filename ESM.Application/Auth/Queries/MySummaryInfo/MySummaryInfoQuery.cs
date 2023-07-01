@@ -2,7 +2,7 @@ using AutoMapper;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Data.Dtos.User;
+using ESM.Domain.Dtos.User;
 using MediatR;
 
 namespace ESM.Application.Auth.Queries.MySummaryInfo;

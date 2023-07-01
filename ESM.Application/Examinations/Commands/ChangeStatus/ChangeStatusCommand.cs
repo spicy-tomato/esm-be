@@ -3,13 +3,13 @@ using System.Net;
 using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Common.Core.Helpers;
-using ESM.Data.Enums;
 using ESM.Domain.Entities;
+using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RoomHelper = ESM.Application.Common.Helpers.RoomHelper;
 
 namespace ESM.Application.Examinations.Commands.ChangeStatus;
 

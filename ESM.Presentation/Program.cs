@@ -1,8 +1,8 @@
 using ESM.Application;
+using ESM.Infrastructure;
+using ESM.Infrastructure.Persistence;
 using ESM.Presentation;
 using ESM.Presentation.Filters;
-using Infrastructure;
-using Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPresentationServices();
 
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
