@@ -1,7 +1,7 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Domain.Identity;
+using ESM.Application.Groups.Exceptions;
+using ESM.Application.Users.Exceptions;
 using JetBrains.Annotations;
 using MediatR;
 
@@ -14,23 +14,24 @@ public class UpdateTemporaryNameToTeacherCommandHandler
     : IRequestHandler<UpdateTemporaryNameToTeacherCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IIdentityService _identityService;
     private readonly IGroupService _groupService;
-    private readonly IUserService _userService;
 
-    public UpdateTemporaryNameToTeacherCommandHandler(IApplicationDbContext context, IGroupService groupService,
-        IUserService userService)
+    public UpdateTemporaryNameToTeacherCommandHandler(IApplicationDbContext context,
+        IGroupService groupService,
+        IIdentityService identityService)
     {
         _context = context;
         _groupService = groupService;
-        _userService = userService;
+        _identityService = identityService;
     }
 
     public async Task<Result<bool>> Handle(UpdateTemporaryNameToTeacherCommand request,
         CancellationToken cancellationToken)
     {
-        if (!_userService.UserExist(request.UserId))
+        if (await _identityService.FindUserByIdAsync(request.UserId) is null)
         {
-            throw new NotFoundException(nameof(ApplicationUser), request.UserId);
+            throw new UserNotFoundException(request.UserId);
         }
 
         var userGuid = Guid.Parse(request.UserId);
@@ -41,7 +42,7 @@ public class UpdateTemporaryNameToTeacherCommandHandler
 
         if (departmentShiftGroup is null)
         {
-            throw new BadRequestException("Data is invalid");
+            throw new ShiftGroupNotFoundException(groupGuid);
         }
 
         departmentShiftGroup.UserId = userGuid;

@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
+using ESM.Application.Common.Exceptions.Document;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Domain.Entities;
@@ -53,7 +54,7 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
         var ws = wb.Worksheets.FirstOrDefault();
         if (ws is null)
         {
-            throw new BadRequestException("Worksheet is empty!");
+            throw new EmptyFileException();
         }
 
         var currRow = 0;

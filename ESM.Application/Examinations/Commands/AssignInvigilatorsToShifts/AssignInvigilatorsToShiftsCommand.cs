@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Users.Exceptions;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
@@ -35,33 +35,37 @@ public class AssignInvigilatorsToShiftsCommandHandler : IRequestHandler<AssignIn
             _examinationService.CheckIfExaminationExistAndReturnEntity(request.Id, ExaminationStatus.AssignInvigilator);
 
         await _context.Entry(entity)
-           .Collection(e => e.ShiftGroups)
-           .Query()
-           .Include(eg => eg.Shifts)
-           .ThenInclude(fg => fg.InvigilatorShift)
-           .AsSplitQuery()
-           .LoadAsync(cancellationToken);
+            .Collection(e => e.ShiftGroups)
+            .Query()
+            .Include(eg => eg.Shifts)
+            .ThenInclude(fg => fg.InvigilatorShift)
+            .AsSplitQuery()
+            .LoadAsync(cancellationToken);
 
         foreach (var shiftGroup in entity.ShiftGroups)
-            foreach (var shift in shiftGroup.Shifts)
-                foreach (var invigilatorShift in shift.InvigilatorShift)
-                {
-                    if (!request.Request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
-                        continue;
+        foreach (var shift in shiftGroup.Shifts)
+        foreach (var invigilatorShift in shift.InvigilatorShift)
+        {
+            if (!request.Request.TryGetValue(invigilatorShift.Id.ToString(), out var invigilatorId))
+            {
+                continue;
+            }
 
-                    if (invigilatorId == null)
-                    {
-                        invigilatorShift.InvigilatorId = null;
-                        request.Request.Remove(invigilatorShift.Id.ToString());
-                        continue;
-                    }
+            if (invigilatorId == null)
+            {
+                invigilatorShift.InvigilatorId = null;
+                request.Request.Remove(invigilatorShift.Id.ToString());
+                continue;
+            }
 
-                    if (!Guid.TryParse(invigilatorId, out var invigilatorGuid))
-                        throw new BadRequestException($"Cannot parse invigilator ID to Guid: {invigilatorId}");
+            if (!Guid.TryParse(invigilatorId, out var invigilatorGuid))
+            {
+                throw new UserNotFoundException(invigilatorId);
+            }
 
-                    invigilatorShift.InvigilatorId = invigilatorGuid;
-                    request.Request.Remove(invigilatorShift.Id.ToString());
-                }
+            invigilatorShift.InvigilatorId = invigilatorGuid;
+            request.Request.Remove(invigilatorShift.Id.ToString());
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 

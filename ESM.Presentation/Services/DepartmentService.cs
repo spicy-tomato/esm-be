@@ -1,8 +1,9 @@
 using System.Globalization;
 using ClosedXML.Excel;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Document;
 using ESM.Application.Common.Interfaces;
-using ESM.Domain.Entities;
+using ESM.Application.Departments.Exceptions;
+using ESM.Application.Faculties.Exceptions;
 
 namespace ESM.Presentation.Services;
 
@@ -28,7 +29,9 @@ public class DepartmentService : IDepartmentService
 
         var ws = wb.Worksheets.Worksheet("KHOA");
         if (ws == null)
-            throw new BadRequestException("Worksheet is empty!");
+        {
+            throw new EmptyFileException();
+        }
 
         var currCol = 0;
         int currRow;
@@ -73,11 +76,15 @@ public class DepartmentService : IDepartmentService
 
             var facultyNameInDict = result.Keys.FirstOrDefault(k => k.Contains(facultyName));
             if (facultyNameInDict == null)
-                throw new BadRequestException($"Faculty does not exist: {facultyName}");
+            {
+                throw new FacultyNotFoundException(facultyName);
+            }
 
             var departments = result[facultyNameInDict];
             if (!departments.TryGetValue(departmentName, out var teachers))
-                throw new BadRequestException($"Department does not exist: {departmentName}");
+            {
+                throw new DepartmentNotFoundException(departmentName);
+            }
 
             teachers.Add(new KeyValuePair<string, string>(teacherId, teacherName));
         }
@@ -89,7 +96,7 @@ public class DepartmentService : IDepartmentService
     {
         if (!Guid.TryParse(id, out var guid))
         {
-            throw new NotFoundException(nameof(Department), id);
+            throw new DepartmentNotFoundException(id);
         }
 
         var entity = _context.Faculties
@@ -97,7 +104,7 @@ public class DepartmentService : IDepartmentService
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Faculty), guid);
+            throw new FacultyNotFoundException(guid);
         }
 
         return guid;

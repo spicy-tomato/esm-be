@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Modules.Exceptions;
 using ESM.Domain.Entities;
 using MediatR;
 
@@ -47,7 +47,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Guid>>
         if (existedModule is not null)
         {
             var conflictProperty = existedModule.Name == module.Name ? "name" : "id";
-            throw new ConflictException($"This module {conflictProperty} has been taken");
+            throw new ConflictModuleDataException(conflictProperty);
         }
 
         _context.Modules.Add(module);

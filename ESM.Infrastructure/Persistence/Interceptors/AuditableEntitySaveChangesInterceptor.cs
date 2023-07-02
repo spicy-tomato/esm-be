@@ -1,7 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Users.Exceptions;
 using ESM.Domain.Common;
-using ESM.Domain.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -45,7 +44,7 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
         {
             if (!Guid.TryParse(_currentUserService.UserId, out var userId))
             {
-                throw new NotFoundException(nameof(ApplicationUser), _currentUserService.UserId ?? "");
+                throw new UserNotFoundException(_currentUserService.UserId ?? "");
             }
 
             if (entry.State != EntityState.Added &&

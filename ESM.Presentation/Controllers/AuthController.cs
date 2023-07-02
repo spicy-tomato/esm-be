@@ -3,9 +3,9 @@ using ESM.Application.Auth.Commands.Login;
 using ESM.Application.Auth.Commands.ResetPassword;
 using ESM.Application.Auth.Queries.MySummaryInfo;
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Domain.Dtos;
-using ESM.Domain.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +42,19 @@ public class AuthController : ApiControllerBase
     }
 
     /// <summary>
+    /// Get user summary
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="UnauthorizedException"></exception>
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<Result<MySummaryInfoDto>> GetMySummaryInfo()
+    {
+        var command = new MySummaryInfoQuery();
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
     /// Reset password
     /// </summary>
     /// <param name="userId"></param>
@@ -51,19 +64,6 @@ public class AuthController : ApiControllerBase
     public async Task<Result<bool>> ResetPassword([FromQuery] string userId)
     {
         var command = new ResetPasswordCommand(userId);
-        return await Mediator.Send(command);
-    }
-
-    /// <summary>
-    /// Get user summary
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="UnauthorizedException"></exception>
-    [HttpGet("me")]
-    [Authorize]
-    public async Task<Result<UserSummary>> GetMySummaryInfo()
-    {
-        var command = new MySummaryInfoQuery();
         return await Mediator.Send(command);
     }
 

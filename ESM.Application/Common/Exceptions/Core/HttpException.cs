@@ -2,7 +2,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using ESM.Application.Common.Models;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 public class HttpException : Exception

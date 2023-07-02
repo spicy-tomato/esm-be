@@ -1,8 +1,9 @@
 using System.Net;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Domain.Entities;
+using ESM.Application.Departments.Exceptions;
+using ESM.Application.Users.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +11,7 @@ namespace ESM.Application.Departments.Commands.CreateUserInDepartment;
 
 public record CreateUserInDepartmentCommand : IRequest<Result<Guid>>
 {
-    [FromRoute]
-    public string DepartmentId { get; set; } = null!;
+    [FromRoute] public string DepartmentId { get; set; } = null!;
 
     public string Email { get; set; } = null!;
     public string? TeacherId { get; set; }
@@ -38,7 +38,7 @@ public class CreateUserInDepartmentCommandHandler : IRequestHandler<CreateUserIn
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Department), guid);
+            throw new DepartmentNotFoundException(guid);
         }
 
         ValidateDuplicatedData(guid, request);
@@ -46,7 +46,7 @@ public class CreateUserInDepartmentCommandHandler : IRequestHandler<CreateUserIn
         var result = await _identityService.CreateUserAsync(request.Email, request.Email);
         if (!result.Result.Success)
         {
-            throw new InternalServerErrorException("Cannot create account");
+            throw new UserCreationException();
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -72,6 +72,8 @@ public class CreateUserInDepartmentCommandHandler : IRequestHandler<CreateUserIn
         }
 
         if (errorList.Count > 0)
+        {
             throw new HttpException(HttpStatusCode.Conflict, errorList);
+        }
     }
 }

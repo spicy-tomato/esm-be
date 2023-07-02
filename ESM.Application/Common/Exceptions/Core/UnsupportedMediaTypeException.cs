@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using ESM.Application.Common.Models;
 using JetBrains.Annotations;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 [UsedImplicitly]

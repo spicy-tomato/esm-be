@@ -1,5 +1,5 @@
 using AutoMapper;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Domain.Dtos.Faculty;
@@ -29,7 +29,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Facult
     {
         if (!Guid.TryParse(_currentUserService.UserId ?? "", out var currentUserId))
         {
-            throw new BadRequestException("Cannot get current user");
+            throw new UnauthorizedException();
         }
 
         var entity = new Faculty

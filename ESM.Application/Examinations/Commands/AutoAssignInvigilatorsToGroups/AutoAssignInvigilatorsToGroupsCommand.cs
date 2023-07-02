@@ -1,4 +1,3 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
@@ -33,9 +32,6 @@ public class AutoAssignInvigilatorsToGroupsCommandHandler
         var examinationGuid =
             _examinationService.CheckIfExaminationExistAndReturnGuid(request.Id, ExaminationStatus.AssignInvigilator);
         var facultyGuid = _facultyService.CheckIfExistAndReturnGuid(request.FacultyId);
-
-        if (_context.Faculties.FirstOrDefault(f => f.Id == facultyGuid) == null)
-            throw new NotFoundException("Faculty ID does not exist!");
 
         var allTeachersInFaculty = _context.Teachers
             .Where(u => u.Department != null && u.Department.FacultyId == facultyGuid)

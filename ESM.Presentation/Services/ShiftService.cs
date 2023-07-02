@@ -1,5 +1,7 @@
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Shifts.Exceptions;
 using ESM.Domain.Entities;
 
 namespace ESM.Presentation.Services;
@@ -42,6 +44,6 @@ public class ShiftService : IShiftService
 
     private static NotFoundException CreateNotFoundException(string id)
     {
-        return new NotFoundException(nameof(Shift), id);
+        return new ShiftNotFoundException(id);
     }
 }

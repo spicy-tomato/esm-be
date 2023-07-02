@@ -3,16 +3,16 @@ using System.Runtime.Serialization;
 using ESM.Application.Common.Models;
 using JetBrains.Annotations;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 [UsedImplicitly]
-public class InternalServerErrorException : InnerException
+public abstract class InternalServerErrorException : InnerException
 {
     private const HttpStatusCode Code = HttpStatusCode.InternalServerError;
 
-    public InternalServerErrorException(string? message, Exception? innerException = null) : base(message,
-        innerException) { }
+    protected InternalServerErrorException(string? message, Exception? innerException = null)
+        : base(message, innerException) { }
 
     protected InternalServerErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 

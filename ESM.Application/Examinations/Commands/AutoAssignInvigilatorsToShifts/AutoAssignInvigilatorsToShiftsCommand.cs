@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Groups.Exceptions;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
@@ -78,8 +78,7 @@ public class
 
             if (!departmentShiftGroupsDict.TryGetValue(shiftGroupId, out var invigilatorsBucket))
             {
-                throw new BadRequestException(
-                    $"Shift group ID does not exist: {shiftGroupId} (in invigilatorShift ID: {ivs.Id}");
+                throw new ShiftGroupNotFoundInInvigilatorShiftException(shiftGroupId, ivs.Id);
             }
 
             var isPrioritySlot = ivs.OrderIndex == 1;

@@ -1,6 +1,6 @@
 using FluentValidation;
 using MediatR;
-using ValidationException = ESM.Application.Common.Exceptions.ValidationException;
+using ValidationException = ESM.Application.Common.Exceptions.Core.ValidationException;
 
 namespace ESM.Application.Common.Behaviours;
 

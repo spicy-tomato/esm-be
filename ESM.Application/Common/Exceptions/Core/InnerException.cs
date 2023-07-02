@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 public abstract class InnerException : Exception

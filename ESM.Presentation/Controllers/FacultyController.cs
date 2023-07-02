@@ -1,4 +1,5 @@
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Faculties.Commands.Create;
 using ESM.Application.Faculties.Commands.Update;

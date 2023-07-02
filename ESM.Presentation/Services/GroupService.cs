@@ -1,5 +1,5 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Shifts.Exceptions;
 using ESM.Domain.Entities;
 
 namespace ESM.Presentation.Services;
@@ -21,12 +21,12 @@ public class GroupService : IGroupService
     {
         if (!Guid.TryParse(groupId, out var groupGuid))
         {
-            throw new NotFoundException(nameof(ShiftGroup), groupId);
+            throw new ShiftNotFoundException(groupId);
         }
 
         if (_context.ShiftGroups.FirstOrDefault(g => g.Id == groupGuid) == null)
         {
-            throw new NotFoundException(nameof(ShiftGroup), groupId);
+            throw new ShiftNotFoundException(groupId);
         }
 
         return groupGuid;
@@ -36,13 +36,13 @@ public class GroupService : IGroupService
     {
         if (!Guid.TryParse(groupId, out var groupGuid))
         {
-            throw new NotFoundException(nameof(ShiftGroup), groupId);
+            throw new ShiftNotFoundException(groupId);
         }
 
         var group = _context.ShiftGroups.FirstOrDefault(g => g.Id == groupGuid);
         if (group == null)
         {
-            throw new NotFoundException(nameof(ShiftGroup), groupId);
+            throw new ShiftNotFoundException(groupId);
         }
 
         return group;

@@ -1,8 +1,10 @@
 using System.Dynamic;
 using ClosedXML.Excel;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
+using ESM.Application.Common.Exceptions.Document;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Faculties.Exceptions;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 using MediatR;
@@ -47,7 +49,7 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
         {
             var faculty = faculties.FirstOrDefault(f => f.Name == row.facultyName);
             if (faculty == null)
-                throw new NotFoundException($"Faculty name does not exists: {row.facultyName}");
+                throw new FacultyNotFoundException(row.facultyName, "name");
 
             Department? department = null;
             if (!string.IsNullOrEmpty(row.departmentName))
@@ -79,7 +81,9 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
 
         var ws = wb.Worksheets.FirstOrDefault();
         if (ws == null)
-            throw new BadRequestException("Worksheet is empty!");
+        {
+            throw new EmptyFileException();
+        }
 
         var currRow = 1;
         while (!ws.Cell(currRow + 1, 1).Value.IsBlank)

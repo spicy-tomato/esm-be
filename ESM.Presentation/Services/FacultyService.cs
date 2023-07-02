@@ -1,5 +1,5 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Faculties.Exceptions;
 using ESM.Domain.Entities;
 
 namespace ESM.Presentation.Services;
@@ -16,7 +16,7 @@ public class FacultyService : IFacultyService
     {
         _context = context;
     }
-    
+
     #region Public methods
 
     public Guid CheckIfExistAndReturnGuid(string examinationId)
@@ -28,7 +28,7 @@ public class FacultyService : IFacultyService
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Faculty), guid);
+            throw new FacultyNotFoundException(guid);
         }
 
         return guid;
@@ -43,7 +43,7 @@ public class FacultyService : IFacultyService
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Faculty), guid);
+            throw new FacultyNotFoundException(guid);
         }
 
         return entity;
@@ -53,7 +53,7 @@ public class FacultyService : IFacultyService
     {
         if (!Guid.TryParse(id, out var guid))
         {
-            throw new NotFoundException(nameof(Faculty), id);
+            throw new FacultyNotFoundException(id);
         }
 
         return guid;

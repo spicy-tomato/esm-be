@@ -72,7 +72,7 @@ public class ApplicationDbContextInitializer
 
         var examinationDepartmentHead = new ApplicationUser { UserName = "admin" };
 
-        if (_userManager.FindByNameAsync(examinationDepartmentHead.UserName) == null)
+        if (await _userManager.FindByNameAsync(examinationDepartmentHead.UserName) == null)
         {
             var result = await _userManager.CreateAsync(examinationDepartmentHead, "e10adc3949ba59abbe56e057f20f883e");
             if (result == IdentityResult.Success)

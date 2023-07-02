@@ -1,7 +1,7 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Domain.Entities;
+using ESM.Application.Departments.Exceptions;
+using ESM.Application.Faculties.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,8 +9,7 @@ namespace ESM.Application.Departments.Commands.UpdateDepartment;
 
 public class UpdateDepartmentCommand : IRequest<Result<bool>>
 {
-    [FromRoute]
-    public string DepartmentId { get; set; } = null!;
+    [FromRoute] public string DepartmentId { get; set; } = null!;
 
     public string DisplayId { get; set; } = null!;
     public string Name { get; set; } = null!;
@@ -33,12 +32,13 @@ public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCo
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Department), guid);
+            throw new DepartmentNotFoundException(guid);
         }
 
-        if (!Guid.TryParse(request.FacultyId, out var facultyGuid))
+        if (!Guid.TryParse(request.FacultyId, out var facultyGuid) ||
+            _context.Faculties.FirstOrDefault(f => f.Id == facultyGuid) is null)
         {
-            throw new BadRequestException($"Faculty ID {request.FacultyId} is invalid");
+            throw new FacultyNotFoundException(request.FacultyId);
         }
 
         entity.DisplayId = request.DisplayId;

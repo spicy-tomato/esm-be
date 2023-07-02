@@ -1,7 +1,7 @@
-using System.Net;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Teachers.Exceptions;
+using ESM.Application.Users.Exceptions;
 using JetBrains.Annotations;
 using MediatR;
 
@@ -15,27 +15,28 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly IDepartmentService _departmentService;
-    private readonly IUserService _userService;
 
     public UpdateCommandHandler(IApplicationDbContext context,
-        IUserService userService,
         IIdentityService identityService,
         IDepartmentService departmentService)
     {
         _context = context;
-        _userService = userService;
         _identityService = identityService;
         _departmentService = departmentService;
     }
 
     public async Task<Result<bool>> Handle(UpdateCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userService.CheckIfExistAndReturnEntity(request.Id);
+        var user = await _identityService.FindUserByIdAsync(request.Id);
+        if (user is null)
+        {
+            throw new UserNotFoundException(request.Id);
+        }
 
         var teacher = _context.Teachers.FirstOrDefault(t => t.Id == user.Id);
         if (teacher is null)
         {
-            throw new BadRequestException("This user has not reference teacher");
+            throw new UserHaveNoReferenceTeacherException();
         }
 
         Guid? departmentId = request.Request.DepartmentId != null
@@ -77,7 +78,7 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>
 
         if (errorList.Count > 0)
         {
-            throw new HttpException(HttpStatusCode.Conflict, errorList);
+            throw new ConflictTeacherDataException(errorList);
         }
     }
 

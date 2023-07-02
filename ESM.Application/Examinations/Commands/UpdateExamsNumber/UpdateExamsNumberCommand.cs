@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Shifts.Exceptions;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
@@ -30,8 +30,6 @@ public class UpdateExamsNumberCommandHandler : IRequestHandler<UpdateExamsNumber
         var entity =
             _examinationService.CheckIfExaminationExistAndReturnEntity(request.Id, ExaminationStatus.AssignFaculty);
 
-        const string notFoundMessage = "Shift ID does not exists: ";
-
         await _context.Entry(entity)
             .Collection(e => e.ShiftGroups)
             .Query()
@@ -41,7 +39,7 @@ public class UpdateExamsNumberCommandHandler : IRequestHandler<UpdateExamsNumber
         foreach (var (shiftId, examsCount) in request.Request)
         {
             if (!Guid.TryParse(shiftId, out var shiftGuid))
-                throw new NotFoundException(notFoundMessage + shiftId);
+                throw new ShiftNotFoundException(shiftId);
 
             var found = false;
             foreach (var shiftGroup in entity.ShiftGroups)
@@ -60,7 +58,7 @@ public class UpdateExamsNumberCommandHandler : IRequestHandler<UpdateExamsNumber
             }
 
             if (!found)
-                throw new NotFoundException(notFoundMessage + shiftId);
+                throw new ShiftNotFoundException(shiftId);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

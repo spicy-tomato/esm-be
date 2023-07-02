@@ -1,6 +1,7 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Roles.Exceptions;
+using ESM.Application.Users.Exceptions;
 using ESM.Domain.Identity;
 using ESM.Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
@@ -55,18 +56,23 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
-            throw new NotFoundException(nameof(ApplicationUser), userId);
+            throw new UserNotFoundException(userId);
         }
 
         var role = await _roleManager.FindByNameAsync(roleName);
         if (role == null)
         {
-            throw new NotFoundException($"Cannot find role with name {roleName}");
+            throw new RoleNotFoundException(roleName);
         }
 
         var result = await _userManager.AddToRoleAsync(user, roleName);
 
         return result.ToApplicationResult();
+    }
+
+    public Task<IList<string>> GetRolesAsync(ApplicationUser user)
+    {
+        return _userManager.GetRolesAsync(user);
     }
 
     public async Task<Result<bool>> SetEmailAsync(ApplicationUser user, string email) =>
@@ -81,7 +87,7 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
-            throw new NotFoundException(nameof(ApplicationUser), userId);
+            throw new UserNotFoundException(userId);
         }
 
         var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);

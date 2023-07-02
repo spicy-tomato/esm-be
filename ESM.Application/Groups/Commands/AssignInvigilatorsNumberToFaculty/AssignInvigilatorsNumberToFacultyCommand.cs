@@ -1,8 +1,8 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Examinations.Exceptions;
 using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
 using ESM.Domain.Interfaces;
@@ -39,7 +39,7 @@ public class AssignInvigilatorsNumberToFacultyCommandHandler
     {
         if (request.NumberOfInvigilators < 0)
         {
-            throw new BadRequestException("Number cannot be negative!");
+            throw new NegativeInvigilatorNumberException();
         }
 
         var group = _groupService.CheckIfGroupExistAndReturnEntity(request.Id);

@@ -1,6 +1,7 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Shifts.Exceptions;
+using ESM.Application.Users.Exceptions;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 using MediatR;
@@ -14,20 +15,22 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IShiftService _shiftService;
-    private readonly IUserService _userService;
+    private readonly IIdentityService _identityService;
 
-    public UpdateCommandHandler(IApplicationDbContext context, IShiftService shiftService, IUserService userService)
+    public UpdateCommandHandler(IApplicationDbContext context,
+        IShiftService shiftService,
+        IIdentityService identityService)
     {
         _context = context;
         _shiftService = shiftService;
-        _userService = userService;
+        _identityService = identityService;
     }
 
     public async Task<Result<bool>> Handle(UpdateCommand request, CancellationToken cancellationToken)
     {
         var shift = _shiftService.CheckIfShiftExistAndReturnEntity(request.Id);
 
-        UpdateHandoverTeacher(shift, request.Request.HandoverTeacherId);
+        await UpdateHandoverTeacher(shift, request.Request.HandoverTeacherId);
         UpdateReport(shift, request.Request.Report);
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -35,16 +38,16 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>
         return Result<bool>.Get(true);
     }
 
-    private void UpdateHandoverTeacher(Shift shift, string? handoverTeacherId)
+    private async Task UpdateHandoverTeacher(Shift shift, string? handoverTeacherId)
     {
         if (handoverTeacherId == null)
         {
             return;
         }
 
-        if (!_userService.UserExist(handoverTeacherId))
+        if (await _identityService.FindUserByIdAsync(handoverTeacherId) is null)
         {
-            throw new NotFoundException(nameof(Teacher), handoverTeacherId);
+            throw new UserNotFoundException(handoverTeacherId);
         }
 
         var teacherGuid = Guid.Parse(handoverTeacherId);
@@ -52,7 +55,7 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>
         var teacherIdIsValid = shift.InvigilatorShift.Any(ivs => ivs.InvigilatorId == teacherGuid);
         if (!teacherIdIsValid)
         {
-            throw new BadRequestException("User ID is not assigned in this shift");
+            throw new UserNotAssignToShiftException();
         }
 
         shift.HandedOverUserId = teacherGuid;

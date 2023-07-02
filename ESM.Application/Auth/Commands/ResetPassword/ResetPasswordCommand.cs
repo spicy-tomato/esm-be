@@ -1,6 +1,8 @@
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Users.Exceptions;
 using MediatR;
 
 namespace ESM.Application.Auth.Commands.ResetPassword;
@@ -35,7 +37,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         var user = await _identityService.FindUserByIdAsync(request.UserId);
         if (user is null)
         {
-            throw new NotFoundException(nameof(IUserService), request.UserId);
+            throw new UserNotFoundException(request.UserId);
         }
 
         var token = await _identityService.GeneratePasswordResetTokenAsync(user);

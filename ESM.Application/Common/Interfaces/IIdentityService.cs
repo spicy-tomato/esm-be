@@ -18,6 +18,8 @@ public interface IIdentityService
         string password = "e10adc3949ba59abbe56e057f20f883e");
 
     Task<Result<bool>> AddUserToRoleAsync(Guid userId, string roleName);
+    
+    Task<IList<string>> GetRolesAsync(ApplicationUser user);
 
     Task<Result<bool>> SetEmailAsync(ApplicationUser user, string email);
 

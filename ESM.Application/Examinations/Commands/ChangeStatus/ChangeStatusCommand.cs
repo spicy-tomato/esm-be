@@ -1,15 +1,16 @@
 using System.Diagnostics;
 using System.Net;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
+using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Examinations.Exceptions;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using RoomHelper = ESM.Application.Common.Helpers.RoomHelper;
 
 namespace ESM.Application.Examinations.Commands.ChangeStatus;
 
@@ -48,7 +49,7 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
                 FinishExamination(entity);
                 break;
             default:
-                throw new BadRequestException($"Unexpected condition (current: {entity.Status}, new: {newStatus})");
+                throw new ChangedInvalidExaminationStatusException(entity.Status, newStatus);
         }
 
         _context.ExaminationEvents.Add(new ExaminationEvent
@@ -66,7 +67,7 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
     {
         if (!Enum.IsDefined(typeof(ExaminationStatus), newStatus))
         {
-            throw new BadRequestException("New status is invalid");
+            throw new UndefinedExaminationStatusException();
         }
 
         // Key  : Valid current status
@@ -93,13 +94,10 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
 
         if (expectedCurrentStatusSatisfiesNewStatus.IsNullOrEmpty())
         {
-            throw new BadRequestException($"Cannot change status to {newStatus} (current: {currentStatus})");
+            throw new ChangedInvalidExaminationStatusException(newStatus, currentStatus);
         }
 
-        var expectedCurrentStatusSatisfiesNewStatusStr =
-            string.Join(", ", expectedCurrentStatusSatisfiesNewStatus.Select(s => s.Key));
-
-        throw new BadRequestException($"Examination status should be {expectedCurrentStatusSatisfiesNewStatusStr}");
+        throw new ChangedInvalidExaminationStatusException(expectedCurrentStatusSatisfiesNewStatus.Select(s => s.Key));
     }
 
     private void FinishSetup(Examination entity)
@@ -159,7 +157,9 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
                 var room = roomsInShift[i];
                 var candidatesNumberInShift = minCandidatesNumberInShift;
                 if (0 < remainder && remainder <= i + 1)
+                {
                     candidatesNumberInShift++;
+                }
 
                 var invigilatorsCount = CalculateInvigilatorNumber(candidatesNumberInShift);
                 var invigilatorShift = new List<InvigilatorShift>();
@@ -187,7 +187,9 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
 
         // +1 invigilator for each shift
         foreach (var shiftGroup in shiftGroupsDictionary)
+        {
             shiftGroup.Value.InvigilatorsCount++;
+        }
 
         _context.Shifts.AddRange(shifts);
 
@@ -197,7 +199,9 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
     private static int CalculateExamsNumber(ExamMethod? method, int candidatesNumberInShift)
     {
         if (method != ExamMethod.Write)
+        {
             return 0;
+        }
 
         var shouldRoundUp = candidatesNumberInShift % 5 != 0;
         return (candidatesNumberInShift / 5 + (shouldRoundUp ? 1 : 0)) * 5;
@@ -218,8 +222,9 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
             var expected = group.InvigilatorsCount;
             var actual = group.FacultyShiftGroups.Sum(feg => feg.InvigilatorsCount);
             if (actual != expected)
-                throw new BadRequestException(
-                    $"Actual assigned invigilators number is not match (met {actual}, need {expected}) in group {group.Id} ({group.Module.Name})");
+            {
+                throw new ActualAssignedInvigilatorsNumberNotMatchException(actual, expected, group);
+            }
         }
 
         var oldDepartmentShiftGroups =
@@ -315,7 +320,9 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
     private static void ValidateModuleId(ExaminationData row, IReadOnlyDictionary<string, bool> existedModules)
     {
         if (row.ModuleId != null && !existedModules.ContainsKey(row.ModuleId))
+        {
             row.Errors.Add("moduleId", new ExaminationDataError("Mã học phần này không tồn tại"));
+        }
     }
 
     /// <summary>
@@ -332,7 +339,8 @@ public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, R
             return;
         }
 
-        var notExistedRooms = rooms.Where(room => !existedRooms.ContainsKey(room))
+        var notExistedRooms = rooms
+            .Where(room => !existedRooms.ContainsKey(room))
             .ToList();
 
         if (notExistedRooms.Count > 0)

@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Examinations.Exceptions;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
 using MediatR;
@@ -20,7 +20,8 @@ public class UpdateTeacherAssignmentCommandHandler :
     private readonly IFacultyService _facultyService;
 
     public UpdateTeacherAssignmentCommandHandler(IApplicationDbContext context,
-        IExaminationService examinationService, IFacultyService facultyService)
+        IExaminationService examinationService,
+        IFacultyService facultyService)
     {
         _context = context;
         _examinationService = examinationService;
@@ -44,13 +45,14 @@ public class UpdateTeacherAssignmentCommandHandler :
                 .ThenInclude(fg => fg.ShiftGroup)
             .AsEnumerable()
             .ToDictionary(fg => fg.Id.ToString(), fg => fg);
-        // @formatter:off
+        // @formatter:on
 
         foreach (var (departmentShiftGroupId, rowData) in request.Request)
         {
             if (!facultyShiftGroups.TryGetValue(departmentShiftGroupId, out var departmentShiftGroup))
-                throw new BadRequestException(
-                    $"Department group ID {departmentShiftGroupId} is not exist in faculty group ID {request.FacultyId}");
+            {
+                throw new DepartmentGroupNotFoundInFacultyGroupException(departmentShiftGroupId, request.FacultyId);
+            }
 
             if (rowData.DepartmentId != null)
                 departmentShiftGroup.DepartmentId = new Guid(rowData.DepartmentId);
@@ -72,11 +74,14 @@ public class UpdateTeacherAssignmentCommandHandler :
             foreach (var userId in facultyShiftGroup.DepartmentShiftGroups.Select(dg => dg.UserId))
             {
                 if (userId == null)
+                {
                     continue;
+                }
 
                 if (selectedTeachers.ContainsKey(userId.Value))
-                    throw new BadRequestException(
-                        $"User ID {userId} is selected more than one time in faculty group ID {facultyShiftGroup.Id}");
+                {
+                    throw new MultipleSelectionTeacherInFacultyGroup(userId.Value, facultyShiftGroup.Id);
+                }
 
                 selectedTeachers.Add(userId.Value, true);
             }

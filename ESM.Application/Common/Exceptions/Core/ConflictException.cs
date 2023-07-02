@@ -3,15 +3,15 @@ using System.Runtime.Serialization;
 using ESM.Application.Common.Models;
 using JetBrains.Annotations;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 [UsedImplicitly]
-public class ConflictException : InnerException
+public abstract class ConflictException : InnerException
 {
     private const HttpStatusCode Code = HttpStatusCode.Conflict;
 
-    public ConflictException(string? message, Exception? innerException = null) : base(message, innerException) { }
+    protected ConflictException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
     protected ConflictException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 

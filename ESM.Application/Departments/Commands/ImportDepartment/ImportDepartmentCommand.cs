@@ -1,4 +1,5 @@
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;

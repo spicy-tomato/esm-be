@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 using ClosedXML.Excel;
-using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
+using ESM.Application.Common.Exceptions.Document;
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Examinations.Exceptions;
 using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
@@ -96,12 +98,12 @@ public class ExaminationService : IExaminationService
 
         if (status == null)
         {
-            throw new NotFoundException(nameof(Examination), guid);
+            throw new ExaminationNotFoundException(guid);
         }
 
         if (acceptStatus != null && (acceptStatus.Value & status) == 0)
         {
-            throw new BadRequestException($"Examination status should be {acceptStatus.ToString()}");
+            throw new ChangedInvalidExaminationStatusException(acceptStatus.Value);
         }
 
         return guid;
@@ -115,18 +117,19 @@ public class ExaminationService : IExaminationService
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Examination), guid);
+            throw new ExaminationNotFoundException(guid);
         }
 
         if (acceptStatus != null && (acceptStatus.Value & entity.Status) == 0)
         {
-            throw new BadRequestException($"Examination status should be {acceptStatus.ToString()}");
+            throw new ChangedInvalidExaminationStatusException(acceptStatus.Value);
         }
 
         return entity;
     }
 
-    public void CalculateInvigilatorsNumberInShift<T>(T group, ICollection<FacultyShiftGroup> facultyShiftGroup,
+    public void CalculateInvigilatorsNumberInShift<T>(T group,
+        ICollection<FacultyShiftGroup> facultyShiftGroup,
         IReadOnlyDictionary<Guid, int> invigilatorsNumberInFaculties) where T : IShiftGroup
     {
         group.AssignNumerate = facultyShiftGroup
@@ -157,7 +160,9 @@ public class ExaminationService : IExaminationService
     {
         var ws = wb.Worksheets.FirstOrDefault();
         if (ws == null)
-            throw new BadRequestException("Worksheet is empty!");
+        {
+            throw new EmptyFileException();
+        }
 
         return ws;
     }
@@ -236,10 +241,14 @@ public class ExaminationService : IExaminationService
     private static bool TrySetIntField(IXLRow row, int columnIndex, ExaminationData examinationData)
     {
         if (!ExaminationDataIntMapping.TryGetValue(columnIndex, out var field))
+        {
             return false;
+        }
 
         if (row.Cell(columnIndex).IsEmpty())
+        {
             return true;
+        }
 
         var cellValue = Convert.ToInt32(row.Cell(columnIndex).GetDouble());
         typeof(ExaminationData).GetProperty(field)?.SetValue(examinationData, cellValue);
@@ -250,7 +259,7 @@ public class ExaminationService : IExaminationService
     {
         if (!Guid.TryParse(id, out var guid))
         {
-            throw new NotFoundException(nameof(Examination), id);
+            throw new ExaminationNotFoundException(id);
         }
 
         return guid;

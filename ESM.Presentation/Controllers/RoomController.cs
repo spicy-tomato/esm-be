@@ -1,4 +1,5 @@
 using ESM.Application.Common.Exceptions;
+using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Rooms.Commands.Create;
 using ESM.Application.Rooms.Commands.Import;

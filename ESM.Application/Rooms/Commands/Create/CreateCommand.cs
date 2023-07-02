@@ -1,6 +1,6 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
+using ESM.Application.Rooms.Exceptions;
 using ESM.Domain.Entities;
 using JetBrains.Annotations;
 using MediatR;
@@ -30,7 +30,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Guid>>
         var existedRoom = _context.Rooms.FirstOrDefault(r => r.DisplayId == room.DisplayId);
         if (existedRoom is not null)
         {
-            throw new ConflictException("This room has been existed!");
+            throw new ExistedRootException();
         }
 
         _context.Rooms.Add(room);

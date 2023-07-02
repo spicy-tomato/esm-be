@@ -3,15 +3,15 @@ using System.Runtime.Serialization;
 using ESM.Application.Common.Models;
 using JetBrains.Annotations;
 
-namespace ESM.Application.Common.Exceptions;
+namespace ESM.Application.Common.Exceptions.Core;
 
 [Serializable]
 [UsedImplicitly]
-public class BadRequestException : InnerException
+public abstract class BadRequestException : InnerException
 {
     private const HttpStatusCode Code = HttpStatusCode.BadRequest;
 
-    public BadRequestException(string? message, Exception? innerException = null) : base(message, innerException) { }
+    protected BadRequestException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
     protected BadRequestException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
