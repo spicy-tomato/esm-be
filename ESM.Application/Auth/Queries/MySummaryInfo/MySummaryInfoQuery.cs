@@ -1,9 +1,7 @@
 using AutoMapper;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Application.Users.Exceptions;
 using ESM.Domain.Entities;
 using ESM.Domain.Identity;
 using MediatR;
@@ -58,26 +56,26 @@ public class MySummaryInfoQueryHandler : IRequestHandler<MySummaryInfoQuery, Res
         return user;
     }
 
-    private Teacher GetTeacher(Guid userId)
-    {
-        var teacher = _context.Teachers.FirstOrDefault(t => t.Id == userId);
+    private Teacher? GetTeacher(Guid userId) => _context.Teachers.FirstOrDefault(t => t.Id == userId);
 
+    private MySummaryInfoDto BindData(ApplicationUser user, Teacher? teacher, IList<string> roles)
+    {
         if (teacher is null)
         {
-            throw new UserHaveNoReferenceTeacherException();
+            return new MySummaryInfoDto
+            {
+                Id = user.Id,
+                Roles = roles,
+                PhoneNumber = user.PhoneNumber
+            };
         }
 
-        return teacher;
-    }
+        var result = _mapper.Map<MySummaryInfoDto>(teacher);
 
-    private MySummaryInfoDto BindData(ApplicationUser user, Teacher teacher, IList<string> roles)
-    {
-        return _mapper.Map<MySummaryInfoDto>(teacher) with
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Roles = roles,
-            PhoneNumber = user.PhoneNumber,
-        };
+        result.Id = user.Id;
+        result.Roles = roles;
+        result.PhoneNumber = user.PhoneNumber;
+
+        return result;
     }
 }

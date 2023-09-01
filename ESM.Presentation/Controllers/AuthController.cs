@@ -2,7 +2,6 @@ using ESM.Application.Auth.Commands.ChangePassword;
 using ESM.Application.Auth.Commands.Login;
 using ESM.Application.Auth.Commands.ResetPassword;
 using ESM.Application.Auth.Queries.MySummaryInfo;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Domain.Dtos;

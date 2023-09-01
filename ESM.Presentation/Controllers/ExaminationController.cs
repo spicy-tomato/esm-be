@@ -1,4 +1,3 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Examinations.Commands.AssignInvigilatorsToShifts;
@@ -51,7 +50,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("related")]
-    public async Task<Result<List<RelatedExaminationDto>>> GetRelated(GetRelatedExaminationsQuery query)
+    public async Task<Result<List<RelatedExaminationDto>>> GetRelated([FromQuery] GetRelatedExaminationsQuery query)
     {
         return await Mediator.Send(query);
     }
@@ -216,7 +215,8 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/faculty/{facultyId}/group")]
-    public async Task<Result<bool>> UpdateTeacherAssignment(string examinationId, string facultyId,
+    public async Task<Result<bool>> UpdateTeacherAssignment(string examinationId,
+        string facultyId,
         [FromBody] UpdateTeacherAssignmentRequest data)
     {
         var command = new UpdateTeacherAssignmentCommand(examinationId, facultyId, data);
