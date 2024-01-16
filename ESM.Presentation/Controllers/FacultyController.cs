@@ -1,4 +1,3 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Faculties.Commands.Create;
@@ -23,7 +22,7 @@ public class FacultyController : ApiControllerBase
     /// Get all faculties
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet(Name = "GetAllFaculty")]
     public async Task<Result<List<GetAllDto>>> GetAll()
     {
         var query = new GetAllQuery();
@@ -35,7 +34,7 @@ public class FacultyController : ApiControllerBase
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
-    [HttpPost]
+    [HttpPost(Name = "CreateFaculty")]
     public async Task<Result<FacultySummary?>> Create(CreateCommand command)
     {
         return await Mediator.Send(command);
@@ -48,7 +47,7 @@ public class FacultyController : ApiControllerBase
     /// <param name="facultyId"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPut("{facultyId}")]
+    [HttpPut("{facultyId}", Name = "UpdateFaculty")]
     public async Task<Result<bool>> Update(string facultyId, [FromBody] UpdateRequest request)
     {
         var query = new UpdateCommand(facultyId, request);
@@ -60,7 +59,7 @@ public class FacultyController : ApiControllerBase
     /// </summary>
     /// <param name="facultyId"></param>
     /// <returns></returns>
-    [HttpGet("{facultyId}/users")]
+    [HttpGet("{facultyId}/users", Name = nameof(GetUser))]
     public async Task<Result<List<UserSummary>>> GetUser(string facultyId)
     {
         var query = new GetTeachersQuery(facultyId);
@@ -72,7 +71,7 @@ public class FacultyController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPost("{facultyId}/module")]
+    [HttpPost("{facultyId}/module", Name = "CreateModuleFaculty")]
     public Result<bool> CreateModule(string facultyId)
     {
         // Moved to /module

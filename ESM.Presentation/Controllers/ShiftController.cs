@@ -18,7 +18,7 @@ public class ShiftController : ApiControllerBase
     /// <param name="shiftId"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPatch("{shiftId}")]
+    [HttpPatch("{shiftId}", Name = nameof(UpdateShift))]
     public async Task<Result<bool>> UpdateShift(string shiftId, [FromBody] UpdateRequest request)
     {
         var command = new UpdateCommand(shiftId, request);

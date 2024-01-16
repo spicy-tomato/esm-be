@@ -39,7 +39,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns> 
-    [HttpPost]
+    [HttpPost(Name = "CreateExamination")]
     public async Task<Result<Guid>> Create(CreateCommand command)
     {
         return await Mediator.Send(command);
@@ -49,7 +49,7 @@ public class ExaminationController : ApiControllerBase
     /// Get related examinations of current user
     /// </summary>
     /// <returns></returns>
-    [HttpGet("related")]
+    [HttpGet("related", Name = nameof(GetRelated))]
     public async Task<Result<List<RelatedExaminationDto>>> GetRelated([FromQuery] GetRelatedExaminationsQuery query)
     {
         return await Mediator.Send(query);
@@ -60,7 +60,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}")]
+    [HttpGet("{examinationId}", Name = nameof(GetAllShifts))]
     public async Task<Result<List<GetAllShiftDto>>> GetAllShifts(string examinationId)
     {
         var query = new GetAllShiftsQuery(examinationId);
@@ -73,7 +73,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
-    [HttpPost("{examinationId}")]
+    [HttpPost("{examinationId}", Name = "ImportExamination")]
     public async Task<Result<bool>> Import([FromForm] ImportCommand command)
     {
         return await Mediator.Send(command);
@@ -85,7 +85,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
-    [HttpPatch("{examinationId}")]
+    [HttpPatch("{examinationId}", Name = "UpdateExamination")]
     public async Task<Result<bool>> Update(UpdateCommand command)
     {
         return await Mediator.Send(command);
@@ -96,7 +96,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/events")]
+    [HttpGet("{examinationId}/events", Name = nameof(GetEvents))]
     public async Task<Result<List<ExaminationEvent>>> GetEvents(string examinationId)
     {
         var query = new GetEventsQuery(examinationId);
@@ -108,7 +108,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/handover")]
+    [HttpGet("{examinationId}/handover", Name = nameof(GetHandoverData))]
     public async Task<Result<List<HandoverDataDto>>> GetHandoverData(string examinationId)
     {
         var query = new GetHandoverDataQuery(examinationId);
@@ -120,7 +120,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/shift")]
+    [HttpGet("{examinationId}/shift", Name = nameof(GetShifts))]
     public async Task<Result<List<ShiftDetailsDto>>> GetShifts(string examinationId)
     {
         var query = new GetAllShiftsDetailsQuery(examinationId);
@@ -133,7 +133,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPatch("{examinationId}/shift")]
+    [HttpPatch("{examinationId}/shift", Name = nameof(AssignInvigilatorsToShifts))]
     public async Task<Result<bool>> AssignInvigilatorsToShifts(string examinationId,
         [FromBody] AssignInvigilatorsToShiftsRequest request)
     {
@@ -145,10 +145,10 @@ public class ExaminationController : ApiControllerBase
     /// Update shift data (handover report, handover person)
     /// </summary>
     /// <returns></returns>
-    [HttpPatch("{examinationId}/shift/{shiftId}")]
+    [HttpPatch("{examinationId}/shift/{shiftId}", Name = "UpdateShiftExamination")]
     public Result<bool> UpdateShift()
     {
-        // Moved to /shift/{shiftId} 
+        // Moved to /shift/{shiftId}
 
         return Result<bool>.Get(true);
     }
@@ -159,7 +159,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
-    [HttpPost("{examinationId}/shift/calculate")]
+    [HttpPost("{examinationId}/shift/calculate", Name = nameof(AutoAssignTeachersToShift))]
     public async Task<Result<bool>> AutoAssignTeachersToShift(string examinationId)
     {
         var command = new AutoAssignInvigilatorsToShiftsCommand(examinationId);
@@ -172,7 +172,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("{examinationId}/status")]
+    [HttpPost("{examinationId}/status", Name = nameof(ChangeStatus))]
     public async Task<Result<bool>> ChangeStatus(string examinationId, [FromBody] ChangeStatusRequest request)
     {
         var command = new ChangeStatusCommand(examinationId, request);
@@ -185,7 +185,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="request"></param>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpPatch("{examinationId}/exams-number")]
+    [HttpPatch("{examinationId}/exams-number", Name = nameof(UpdateExamsCount))]
     public async Task<Result<bool>> UpdateExamsCount(string examinationId, [FromBody] UpdateExamsNumberRequest request)
     {
         var command = new UpdateExamsNumberCommand(examinationId, request);
@@ -198,7 +198,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <param name="facultyId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/faculty/{facultyId}/group")]
+    [HttpGet("{examinationId}/faculty/{facultyId}/group", Name = nameof(GetGroupsByFacultyId))]
     public async Task<Result<List<GetGroupsByFacultyIdDto>>> GetGroupsByFacultyId(string examinationId,
         string facultyId)
     {
@@ -214,7 +214,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="data"></param>
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
-    [HttpPost("{examinationId}/faculty/{facultyId}/group")]
+    [HttpPost("{examinationId}/faculty/{facultyId}/group", Name = nameof(UpdateTeacherAssignment))]
     public async Task<Result<bool>> UpdateTeacherAssignment(string examinationId,
         string facultyId,
         [FromBody] UpdateTeacherAssignmentRequest data)
@@ -229,7 +229,7 @@ public class ExaminationController : ApiControllerBase
     /// <param name="examinationId"></param>
     /// <param name="facultyId"></param>
     /// <returns></returns>
-    [HttpPost("{examinationId}/faculty/{facultyId}/group/calculate")]
+    [HttpPost("{examinationId}/faculty/{facultyId}/group/calculate", Name = nameof(AutoAssignTeachersToGroups))]
     public async Task<Result<bool>> AutoAssignTeachersToGroups(string examinationId, string facultyId)
     {
         var command = new AutoAssignInvigilatorsToGroupsCommand(examinationId, facultyId);
@@ -241,7 +241,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/group")]
+    [HttpGet("{examinationId}/group", Name = nameof(GetAllGroups))]
     public async Task<Result<List<GetAllGroupsDto>>> GetAllGroups(string examinationId)
     {
         var command = new GetAllGroupsQuery(examinationId);
@@ -255,14 +255,15 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
-    [HttpPost("{examinationId}/group/calculate")]
+    [HttpPost("{examinationId}/group/calculate", Name = nameof(CalculateInvigilatorNumerateOfShiftForEachFaculty))]
     public async Task<Result<bool>> CalculateInvigilatorNumerateOfShiftForEachFaculty(string examinationId)
     {
         var command = new AutoAssignInvigilatorsNumberForFacultiesCommand(examinationId);
         return await Mediator.Send(command);
     }
 
-    [HttpPost("{examinationId}/group/{groupId}/department/{departmentId}")]
+    [HttpPost("{examinationId}/group/{groupId}/department/{departmentId}",
+        Name = nameof(UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup))]
     public Result<bool> UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup()
     {
         // Moved to /group/{groupId}
@@ -276,7 +277,7 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
-    [HttpPost("{examinationId}/group/{groupId}/{facultyId}")]
+    [HttpPost("{examinationId}/group/{groupId}/{facultyId}", Name = nameof(AssignInvigilatorNumerateOfShiftToFaculty))]
     public Result<bool> AssignInvigilatorNumerateOfShiftToFaculty()
     {
         // Moved to /group/{groupId}/{facultyId}
@@ -291,7 +292,7 @@ public class ExaminationController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
-    [HttpGet("{examinationId}/invigilator")]
+    [HttpGet("{examinationId}/invigilator", Name = nameof(GetAvailableInvigilatorsInShiftGroup))]
     public async Task<Result<GetAvailableInvigilatorsInGroupsDto>> GetAvailableInvigilatorsInShiftGroup(
         string examinationId)
     {
@@ -304,7 +305,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns> 
-    [HttpGet("{examinationId}/summary")]
+    [HttpGet("{examinationId}/summary", Name = nameof(GetSummary))]
     public async Task<Result<ExaminationSummary>> GetSummary(string examinationId)
     {
         var command = new GetSummaryQuery(examinationId);
@@ -316,7 +317,7 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <param name="examinationId"></param>
     /// <returns></returns>
-    [HttpGet("{examinationId}/temporary")]
+    [HttpGet("{examinationId}/temporary", Name = nameof(GetTemporaryData))]
     public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
     {
         var command = new GetTemporaryDataQuery(examinationId);

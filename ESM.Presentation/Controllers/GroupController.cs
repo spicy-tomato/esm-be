@@ -13,7 +13,7 @@ public class GroupController : ApiControllerBase
 {
     #region Public Methods
 
-    [HttpPatch("{groupId}")]
+    [HttpPatch("{groupId}", Name = nameof(UpdateTemporaryNameToTeacher))]
     public async Task<Result<bool>> UpdateTemporaryNameToTeacher(
         string groupId,
         [FromBody] UpdateTemporaryNameToTeacherRequest request)
@@ -29,7 +29,7 @@ public class GroupController : ApiControllerBase
     /// <param name="groupId"></param>
     /// <param name="facultyId"></param>
     /// <returns></returns>
-    [HttpPatch("{groupId}/{facultyId}")]
+    [HttpPatch("{groupId}/{facultyId}", Name = nameof(AssignInvigilatorsNumberToFaculty))]
     public async Task<Result<AssignInvigilatorsNumberToFacultyDto?>> AssignInvigilatorsNumberToFaculty(
         string groupId,
         string facultyId,

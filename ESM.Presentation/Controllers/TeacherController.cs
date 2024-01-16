@@ -14,7 +14,7 @@ public class TeacherController : ApiControllerBase
 {
     #region Public Methods
 
-    [HttpGet]
+    [HttpGet(Name = "GetAllTeacher")]
     [Authorize]
     public async Task<Result<IEnumerable<GetDto>>> GetAll([FromQuery] GetQuery query)
     {
@@ -26,14 +26,14 @@ public class TeacherController : ApiControllerBase
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
-    [HttpGet("search")]
+    [HttpGet("search", Name = nameof(Search))]
     [Authorize]
     public async Task<Result<IEnumerable<UserSummary>>> Search([FromQuery] SearchQuery query)
     {
         return await Mediator.Send(query);
     }
 
-    [HttpPut("{teacherId}")]
+    [HttpPut("{teacherId}", Name = nameof(UpdateInfo))]
     [Authorize]
     public async Task<Result<bool>> UpdateInfo(string teacherId, [FromBody] UpdateRequest request)
     {

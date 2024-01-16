@@ -18,7 +18,7 @@ public class ModuleController : ApiControllerBase
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
-    [HttpPost]
+    [HttpPost(Name = nameof(CreateModule))]
     public async Task<Result<Guid>> CreateModule([FromBody] CreateCommand command)
     {
         return await Mediator.Send(command);
@@ -28,7 +28,7 @@ public class ModuleController : ApiControllerBase
     /// Import modules
     /// </summary>
     /// <returns></returns>
-    [HttpPost("import")]
+    [HttpPost("import", Name = "ImportExaminationModule")]
     public async Task<Result<bool>> Import(ImportCommand command)
     {
         return await Mediator.Send(command);

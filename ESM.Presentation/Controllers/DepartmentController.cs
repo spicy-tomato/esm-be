@@ -1,4 +1,3 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Departments.Commands.CreateDepartment;
@@ -21,7 +20,7 @@ public class DepartmentController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="ConflictException"></exception>
-    [HttpPost]
+    [HttpPost(Name = "CreateDepartment")]
     public async Task<Result<Guid>> Create(CreateDepartmentCommand command)
     {
         return await Mediator.Send(command);
@@ -32,7 +31,7 @@ public class DepartmentController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
-    [HttpPost("import")]
+    [HttpPost("import", Name = "ImportDepartment")]
     public async Task<Result<bool>> Import(ImportDepartmentCommand command)
     {
         return await Mediator.Send(command);
@@ -44,7 +43,7 @@ public class DepartmentController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPut("{departmentId}")]
+    [HttpPut("{departmentId}", Name = "UpdateDepartment")]
     public async Task<Result<bool>> Update(UpdateDepartmentCommand command)
     {
         return await Mediator.Send(command);
@@ -57,8 +56,8 @@ public class DepartmentController : ApiControllerBase
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="ConflictException"></exception>
     /// <exception cref="InternalServerErrorException"></exception>
-    [HttpPost("{departmentId}/user")]
-    public async Task<Result<Guid>> CreateUser(CreateUserInDepartmentCommand command, string departmentId)
+    [HttpPost("{departmentId}/user", Name = nameof(CreateUser))]
+    public async Task<Result<Guid>> CreateUser(CreateUserInDepartmentCommand command)
     {
         return await Mediator.Send(command);
     }

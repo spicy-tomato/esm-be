@@ -1,4 +1,3 @@
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using ESM.Application.Rooms.Commands.Create;
@@ -21,7 +20,7 @@ public class RoomController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="ConflictException"></exception>
-    [HttpPost]
+    [HttpPost(Name = "CreateRoom")]
     public async Task<Result<Guid>> Create(CreateCommand command)
     {
         return await Mediator.Send(command);
@@ -33,7 +32,7 @@ public class RoomController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     /// <exception cref="NotFoundException"></exception>
-    [HttpPost("import")]
+    [HttpPost("import", Name = "ImportRoom")]
     public async Task<Result<bool>> Import([FromForm] ImportCommand command)
     {
         return await Mediator.Send(command);

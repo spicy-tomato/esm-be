@@ -21,7 +21,7 @@ public class AuthController : ApiControllerBase
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
-    [HttpPatch("change-password")]
+    [HttpPatch("change-password", Name = nameof(ChangePassword))]
     [Authorize]
     public async Task<Result<bool>> ChangePassword(ChangePasswordCommand command)
     {
@@ -34,7 +34,7 @@ public class AuthController : ApiControllerBase
     /// <param name="command"></param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException"></exception>
-    [HttpPost("login")]
+    [HttpPost("login", Name = nameof(Login))]
     public async Task<Result<GeneratedToken>> Login(LoginCommand command)
     {
         return await Mediator.Send(command);
@@ -45,7 +45,7 @@ public class AuthController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException"></exception>
-    [HttpGet("me")]
+    [HttpGet("me", Name = nameof(GetMySummaryInfo))]
     [Authorize]
     public async Task<Result<MySummaryInfoDto>> GetMySummaryInfo()
     {
@@ -58,7 +58,7 @@ public class AuthController : ApiControllerBase
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    [HttpPatch("reset-password")]
+    [HttpPatch("reset-password", Name = nameof(ResetPassword))]
     [Authorize]
     public async Task<Result<bool>> ResetPassword([FromQuery] string userId)
     {
