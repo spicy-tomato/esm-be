@@ -146,7 +146,8 @@ public class ExaminationController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPatch("{examinationId}/shift/{shiftId}", Name = "UpdateShiftExamination")]
-    public Result<bool> UpdateShift()
+    [Obsolete]
+    public Result<bool> UpdateShift(object key)
     {
         // Moved to /shift/{shiftId}
 
@@ -264,7 +265,8 @@ public class ExaminationController : ApiControllerBase
 
     [HttpPost("{examinationId}/group/{groupId}/department/{departmentId}",
         Name = nameof(UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup))]
-    public Result<bool> UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup()
+    [Obsolete]
+    public Result<bool> UpdateTemporaryTeacherToUserIdInDepartmentShiftGroup(object key)
     {
         // Moved to /group/{groupId}
 
@@ -278,7 +280,8 @@ public class ExaminationController : ApiControllerBase
     /// <exception cref="NotFoundException"></exception>
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/group/{groupId}/{facultyId}", Name = nameof(AssignInvigilatorNumerateOfShiftToFaculty))]
-    public Result<bool> AssignInvigilatorNumerateOfShiftToFaculty()
+    [Obsolete]
+    public Result<bool> AssignInvigilatorNumerateOfShiftToFaculty(object key)
     {
         // Moved to /group/{groupId}/{facultyId}
 

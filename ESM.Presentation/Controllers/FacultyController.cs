@@ -72,7 +72,8 @@ public class FacultyController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     [HttpPost("{facultyId}/module", Name = "CreateModuleFaculty")]
-    public Result<bool> CreateModule(string facultyId)
+    [Obsolete]
+    public Result<bool> CreateModule(string facultyId, object key)
     {
         // Moved to /module
 
