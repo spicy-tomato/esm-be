@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;

@@ -19,6 +19,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.CustomSchemaIds(i => i.FriendlyId(true));
     options.SupportNonNullableReferenceTypes();
+    // options.UseAllOfToExtendReferenceSchemas();
+    options.UseAllOfForInheritance();
+    options.SchemaFilter<SwaggerRequiredSchemaFilter>();
     options.AddEnumsWithValuesFixFilters(opt =>
     {
         opt.ApplySchemaFilter = true;
