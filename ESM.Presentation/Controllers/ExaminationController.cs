@@ -18,8 +18,10 @@ using ESM.Application.Examinations.Queries.GetEvents;
 using ESM.Application.Examinations.Queries.GetGroupsByFacultyId;
 using ESM.Application.Examinations.Queries.GetHandoverData;
 using ESM.Application.Examinations.Queries.GetRelatedExaminations;
+using ESM.Application.Examinations.Queries.GetStatistic;
 using ESM.Application.Examinations.Queries.GetSummary;
 using ESM.Application.Examinations.Queries.GetTemporaryData;
+using ESM.Application.Groups.Commands.AssignInvigilatorsNumberToFaculty;
 using ESM.Domain.Dtos.Examination;
 using ESM.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -70,24 +72,28 @@ public class ExaminationController : ApiControllerBase
     /// <summary>
     /// Import data
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="params"></param>
+    /// <param name="examinationId"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("{examinationId}", Name = "ImportExamination")]
-    public async Task<Result<bool>> Import([FromForm] ImportCommand command)
+    public async Task<Result<bool>> Import([FromForm] ImportParams @params, string examinationId)
     {
+        var command = new ImportCommand(@params, examinationId);
         return await Mediator.Send(command);
     }
 
     /// <summary>
     /// Import data
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="params"></param>
+    /// <param name="examinationId"></param>
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPatch("{examinationId}", Name = "UpdateExamination")]
-    public async Task<Result<bool>> Update(UpdateCommand command)
+    public async Task<Result<bool>> Update(UpdateParams @params, string examinationId)
     {
+        var command = new UpdateCommand(@params, examinationId);
         return await Mediator.Send(command);
     }
 
@@ -281,11 +287,12 @@ public class ExaminationController : ApiControllerBase
     /// <exception cref="BadRequestException"></exception>
     [HttpPost("{examinationId}/group/{groupId}/{facultyId}", Name = nameof(AssignInvigilatorNumerateOfShiftToFaculty))]
     [Obsolete]
-    public Result<bool> AssignInvigilatorNumerateOfShiftToFaculty(object key)
+    public async Task<Result<AssignInvigilatorsNumberToFacultyDto?>> AssignInvigilatorNumerateOfShiftToFaculty(
+        string examinationId, string groupId, string facultyId,
+        [FromBody] int numberOfInvigilator)
     {
-        // Moved to /group/{groupId}/{facultyId}
-
-        return Result<bool>.Get(true);
+        var command = new AssignInvigilatorsNumberToFacultyCommand(groupId, facultyId, numberOfInvigilator);
+        return await Mediator.Send(command);
     }
 
     /// <summary>
@@ -300,6 +307,20 @@ public class ExaminationController : ApiControllerBase
         string examinationId)
     {
         var command = new GetAvailableInvigilatorsInGroupsQuery(examinationId);
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// Get invigilators for each shift group
+    /// </summary>
+    /// <param name="examinationId"></param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException"></exception>
+    /// <exception cref="BadRequestException"></exception>
+    [HttpGet("{examinationId}/statistic", Name = nameof(GetStatistic))]
+    public async Task<Result<GetStatisticDto>> GetStatistic(string examinationId)
+    {
+        var command = new GetStatisticQuery(examinationId);
         return await Mediator.Send(command);
     }
 
