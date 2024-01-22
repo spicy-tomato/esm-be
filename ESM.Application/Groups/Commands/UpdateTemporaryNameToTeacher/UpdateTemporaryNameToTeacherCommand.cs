@@ -2,12 +2,10 @@ using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Groups.Exceptions;
 using ESM.Application.Users.Exceptions;
-using JetBrains.Annotations;
 using MediatR;
 
 namespace ESM.Application.Groups.Commands.UpdateTemporaryNameToTeacher;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record UpdateTemporaryNameToTeacherCommand(string Id, string UserId) : IRequest<Result<bool>>;
 
 public class UpdateTemporaryNameToTeacherCommandHandler

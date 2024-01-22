@@ -78,12 +78,10 @@ public class UpdateTeacherAssignmentCommandHandler :
                     continue;
                 }
 
-                if (selectedTeachers.ContainsKey(userId.Value))
+                if (!selectedTeachers.TryAdd(userId.Value, true))
                 {
                     throw new MultipleSelectionTeacherInFacultyGroup(userId.Value, facultyShiftGroup.Id);
                 }
-
-                selectedTeachers.Add(userId.Value, true);
             }
         }
 

@@ -13,6 +13,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPresentationServices();
 
 builder.Services.AddScoped<HttpResponseExceptionFilter>();
+builder.Services.AddScoped<SwaggerRequiredSchemaFilter>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -40,12 +41,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     // Initialise and seed database
-    using (var scope = app.Services.CreateScope())
-    {
-        var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
-        await initializer.InitializeAsync();
-        await initializer.SeedAsync();
-    }
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+    await initializer.InitializeAsync();
+    await initializer.SeedAsync();
 }
 
 app.UseAuthentication();

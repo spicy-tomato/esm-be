@@ -1,3 +1,4 @@
+using AutoMapper;
 using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
@@ -6,7 +7,7 @@ using JetBrains.Annotations;
 namespace ESM.Application.Examinations.Queries.GetAllShifts;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetAllShiftDto : IMapFrom<Shift>
+public record GetAllShiftDto
 {
     public Guid Id { get; set; }
     public int ExamsCount { get; set; }
@@ -16,13 +17,13 @@ public class GetAllShiftDto : IMapFrom<Shift>
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalRoom : IMapFrom<Room>
+    public record InternalRoom : IMapFrom<Room>
     {
         public string DisplayId { get; set; } = null!;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup : IMapFrom<ShiftGroup>
     {
         public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
@@ -33,10 +34,21 @@ public class GetAllShiftDto : IMapFrom<Shift>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalModule : IMapFrom<Module>
+    public record InternalModule : IMapFrom<Module>
     {
         public string DisplayId { get; set; } = null!;
         public string Name { get; set; } = null!;
         public int Credits { get; set; }
+    }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Shift, GetAllShiftDto>();
+            CreateMap<Room, InternalRoom>();
+            CreateMap<ShiftGroup, InternalShiftGroup>();
+            CreateMap<Module, InternalModule>();
+        }
     }
 }

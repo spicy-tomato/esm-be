@@ -92,13 +92,9 @@ public class AutoAssignInvigilatorsNumberForFacultiesCommandHandler
             }
 
             var facultyId = faculty.Id;
-            if (facultyTeachersCount.ContainsKey(facultyId))
+            if (!facultyTeachersCount.TryAdd(facultyId, 1))
             {
                 facultyTeachersCount[facultyId]++;
-            }
-            else
-            {
-                facultyTeachersCount.Add(facultyId, 1);
             }
         }
 

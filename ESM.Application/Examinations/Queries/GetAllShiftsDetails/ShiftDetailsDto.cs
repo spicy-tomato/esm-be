@@ -1,3 +1,4 @@
+using AutoMapper;
 using ESM.Application.Common.Mappings;
 using ESM.Domain.Dtos.Module;
 using ESM.Domain.Dtos.Room;
@@ -8,7 +9,7 @@ using JetBrains.Annotations;
 namespace ESM.Application.Examinations.Queries.GetAllShiftsDetails;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ShiftDetailsDto : IMapFrom<Examination>
+public record ShiftDetailsDto : IMapFrom<Examination>
 {
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
     public RoomSummary Room { get; set; } = null!;
@@ -17,7 +18,7 @@ public class ShiftDetailsDto : IMapFrom<Examination>
     public bool IsDuplicated { get; set; }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup : IMapFrom<ShiftGroup>
     {
         public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
@@ -28,7 +29,7 @@ public class ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalInvigilatorShift : IMapFrom<InvigilatorShift>
+    public record InternalInvigilatorShift : IMapFrom<InvigilatorShift>
     {
         public Guid Id { get; set; }
         public int OrderIndex { get; set; }
@@ -36,7 +37,7 @@ public class ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalTeacher : IMapFrom<Teacher>
+    public record InternalTeacher : IMapFrom<Teacher>
     {
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
@@ -45,7 +46,7 @@ public class ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment : IMapFrom<Department>
     {
         public string? DisplayId { get; set; }
         public string Name { get; set; } = null!;
@@ -53,9 +54,22 @@ public class ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalFaculty : IMapFrom<Faculty>
+    public record InternalFaculty : IMapFrom<Faculty>
     {
         public string? DisplayId { get; set; }
         public string Name { get; set; } = null!;
+    }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Examination, ShiftDetailsDto>();
+            CreateMap<ShiftGroup, InternalShiftGroup>();
+            CreateMap<InvigilatorShift, InternalInvigilatorShift>();
+            CreateMap<Teacher, InternalTeacher>();
+            CreateMap<Department, InternalDepartment>();
+            CreateMap<Faculty, InternalFaculty>();
+        }
     }
 }

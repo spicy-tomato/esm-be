@@ -1,22 +1,29 @@
+using AutoMapper;
 using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 
 namespace ESM.Application.Faculties.Queries.GetTeachers;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetTeachersDto : IMapFrom<Teacher>
+public record GetTeachersDto : IMapFrom<Teacher>
 {
-    public Guid Id { get; set; }
-    public string? DisplayId { get; set; }
-    public string Name { get; set; } = null!;
-    public ICollection<InternalDepartment> Departments { get; set; } = null!;
+    public Guid Id { get; init; }
+    public string? DisplayId { get; init; }
+    public string Name { get; init; } = null!;
+    public ICollection<InternalDepartment> Departments { get; init; } = null!;
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment
     {
-        public Guid Id { get; set; }
-        public string? DisplayId { get; set; }
-        public string Name { get; set; } = null!;
+        public Guid Id { get; init; }
+        public string? DisplayId { get; init; }
+        public string Name { get; init; } = null!;
+    }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Teacher, GetTeachersDto>();
+            CreateMap<Department, InternalDepartment>();
+        }
     }
 }

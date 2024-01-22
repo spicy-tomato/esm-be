@@ -5,16 +5,16 @@ using JetBrains.Annotations;
 namespace ESM.Application.Teachers.Queries.Get;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetDto
+public record GetDto
 {
-    public Guid Id { get; set; }
-    public string FullName { get; set; } = null!;
-    public string UserName { get; set; } = null!;
-    public string? Email { get; set; }
-    public bool IsMale { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public string? InvigilatorId { get; set; }
-    public DepartmentSummary? Department { get; set; }
-    public FacultySummary? Faculty { get; set; }
-    public string? PhoneNumber { get; set; }
+    public Guid Id { get; init; }
+    public string FullName { get; init; } = null!;
+    public string UserName { get; init; } = null!;
+    public string? Email { get; init; }
+    public bool IsMale { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public string? InvigilatorId { get; init; }
+    public DepartmentSummary? Department { get; init; }
+    public FacultySummary? Faculty { get; init; }
+    public string? PhoneNumber { get; init; }
 }

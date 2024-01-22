@@ -25,8 +25,7 @@ public class GetAvailableInvigilatorsInGroupsQueryHandler
         _examinationService = examinationService;
     }
 
-    public Task<Result<GetAvailableInvigilatorsInGroupsDto>> Handle(
-        GetAvailableInvigilatorsInGroupsQuery request,
+    public Task<Result<GetAvailableInvigilatorsInGroupsDto>> Handle(GetAvailableInvigilatorsInGroupsQuery request,
         CancellationToken cancellationToken)
     {
         var guid = _examinationService.CheckIfExaminationExistAndReturnGuid(request.Id);

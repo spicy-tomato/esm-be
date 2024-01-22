@@ -3,12 +3,10 @@ using ESM.Application.Common.Models;
 using ESM.Application.Shifts.Exceptions;
 using ESM.Application.Users.Exceptions;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 using MediatR;
 
 namespace ESM.Application.Shifts.Commands.Update;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record UpdateCommand(string Id, UpdateRequest Request) : IRequest<Result<bool>>;
 
 public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>

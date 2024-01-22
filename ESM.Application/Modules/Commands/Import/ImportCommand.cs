@@ -6,14 +6,12 @@ using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Faculties.Exceptions;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace ESM.Application.Modules.Commands.Import;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record ImportCommand : IRequest<Result<bool>>
 {
     public IEnumerable<IFormFile> Files { get; init; } = Array.Empty<IFormFile>();

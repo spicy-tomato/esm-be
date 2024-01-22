@@ -70,11 +70,12 @@ public class MySummaryInfoQueryHandler : IRequestHandler<MySummaryInfoQuery, Res
             };
         }
 
-        var result = _mapper.Map<MySummaryInfoDto>(teacher);
-
-        result.Id = user.Id;
-        result.Roles = roles;
-        result.PhoneNumber = user.PhoneNumber;
+        var result = _mapper.Map<MySummaryInfoDto>(teacher) with
+        {
+            Id = user.Id,
+            Roles = roles,
+            PhoneNumber = user.PhoneNumber
+        };
 
         return result;
     }

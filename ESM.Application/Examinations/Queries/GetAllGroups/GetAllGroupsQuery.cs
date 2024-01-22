@@ -56,15 +56,13 @@ public class GetAllGroupsQueryHandler : IRequestHandler<GetAllGroupsQuery, Resul
 
     private Dictionary<Guid, int> CountByFaculties()
     {
-        // @formatter:off
         var teachersInFaculty = _context.Teachers
             .Include(u => u.Department)
-                .ThenInclude(d => d!.Faculty)
+            .ThenInclude(d => d!.Faculty)
             .Where(u => u.Department != null && u.Department.Faculty != null)
             .GroupBy(u => u.Department!.Faculty!.Id)
             .Select(g => new { id = g.Key, count = g.Count() })
-            .ToDictionary(g => g.id, g => g.count);        
-        // @formatter:on
+            .ToDictionary(g => g.id, g => g.count);
 
         return teachersInFaculty;
     }

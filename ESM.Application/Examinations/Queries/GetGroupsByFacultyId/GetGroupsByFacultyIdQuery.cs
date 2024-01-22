@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ESM.Application.Examinations.Queries.GetGroupsByFacultyId;
 
-public record GetGroupsByFacultyIdQuery
-    (string Id, string FacultyId) : IRequest<Result<List<GetGroupsByFacultyIdDto>>>;
+public record GetGroupsByFacultyIdQuery(string Id, string FacultyId) : IRequest<Result<List<GetGroupsByFacultyIdDto>>>;
 
 public class GetGroupsByFacultyIdQueryHandler
     : IRequestHandler<GetGroupsByFacultyIdQuery, Result<List<GetGroupsByFacultyIdDto>>>

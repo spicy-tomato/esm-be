@@ -2,12 +2,10 @@ using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Teachers.Exceptions;
 using ESM.Application.Users.Exceptions;
-using JetBrains.Annotations;
 using MediatR;
 
 namespace ESM.Application.Teachers.Commands.Update;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record UpdateCommand(string Id, UpdateRequest Request) : IRequest<Result<bool>>;
 
 public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>

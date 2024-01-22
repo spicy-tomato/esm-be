@@ -5,19 +5,27 @@ using ESM.Application.Common.Models;
 using ESM.Application.Departments.Exceptions;
 using ESM.Application.Users.Exceptions;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.Application.Departments.Commands.CreateUserInDepartment;
 
-public record CreateUserInDepartmentCommand : IRequest<Result<Guid>>
-{
-    [FromRoute] public string DepartmentId { get; set; } = null!;
+public record CreateUserInDepartmentParams(
+    string Email,
+    string? TeacherId,
+    string FullName,
+    bool IsMale,
+    string? PhoneNumber
+) : IRequest<Result<Guid>>;
 
-    public string Email { get; set; } = null!;
-    public string? TeacherId { get; set; }
-    public string FullName { get; set; } = null!;
-    public bool IsMale { get; set; }
-    public string? PhoneNumber { get; set; }
+public record CreateUserInDepartmentCommand(
+    string Email,
+    string? TeacherId,
+    string FullName,
+    bool IsMale,
+    string? PhoneNumber,
+    string DepartmentId) : IRequest<Result<Guid>>
+{
+    public CreateUserInDepartmentCommand(CreateUserInDepartmentParams @params, string DepartmentId)
+        : this(@params.Email, @params.TeacherId, @params.FullName, @params.IsMale, @params.PhoneNumber, DepartmentId) { }
 }
 
 public class CreateUserInDepartmentCommandHandler : IRequestHandler<CreateUserInDepartmentCommand, Result<Guid>>

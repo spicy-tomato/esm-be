@@ -1,19 +1,18 @@
+using System.ComponentModel.DataAnnotations;
 using ClosedXML.Excel;
-using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Exceptions.Document;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace ESM.Application.Rooms.Commands.Import;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record ImportCommand : IRequest<Result<bool>>
 {
-    public IEnumerable<IFormFile> Files { get; init; } = Array.Empty<IFormFile>();
+    [Required]
+    public IFormFile File { get; init; } = null!;
 }
 
 public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
@@ -27,16 +26,7 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
 
     public async Task<Result<bool>> Handle(ImportCommand request, CancellationToken cancellationToken)
     {
-        IFormFile file;
-        try
-        {
-            file = request.Files.ToArray()[0];
-        }
-        catch (Exception)
-        {
-            throw new UnsupportedMediaTypeException();
-        }
-
+        var file = request.File;
         var rooms = Import(file);
 
         _context.Rooms.AddRange(rooms);

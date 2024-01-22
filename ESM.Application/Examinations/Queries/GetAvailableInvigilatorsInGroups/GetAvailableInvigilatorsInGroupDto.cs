@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
+using AutoMapper;
 using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 
 namespace ESM.Application.Examinations.Queries.GetAvailableInvigilatorsInGroups;
 
@@ -15,77 +15,78 @@ public class GetAvailableInvigilatorsInGroupsDto
         base(info, context) { }
 }
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetAvailableInvigilatorsInGroupsItem
+public record GetAvailableInvigilatorsInGroupsItem
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public ICollection<InternalFacultyShiftGroup> FacultyShiftGroups { get; set; } =
-        new List<InternalFacultyShiftGroup>();
+    public ICollection<InternalFacultyShiftGroup> FacultyShiftGroups { get; init; } = null!;
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalFacultyShiftGroup : IMapFrom<FacultyShiftGroup>
+    public record InternalFacultyShiftGroup : IMapFrom<FacultyShiftGroup>
     {
-        public Guid FacultyId { get; set; }
+        public Guid FacultyId { get; init; }
 
-        public ICollection<InternalDepartmentShiftGroup> DepartmentShiftGroups { get; set; } =
-            new List<InternalDepartmentShiftGroup>();
+        public ICollection<InternalDepartmentShiftGroup> DepartmentShiftGroups { get; init; } = null!;
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalDepartmentShiftGroup : IMapFrom<DepartmentShiftGroup>
+    public record InternalDepartmentShiftGroup : IMapFrom<DepartmentShiftGroup>
     {
-        public InternalUser? User { get; set; }
-        public string? TemporaryInvigilatorName { get; set; }
-        public Guid? DepartmentId { get; set; }
+        public InternalUser? User { get; init; }
+        public string? TemporaryInvigilatorName { get; init; }
+        public Guid? DepartmentId { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalUser : IMapFrom<Teacher>
+    public record InternalUser : IMapFrom<Teacher>
     {
-        public Guid Id { get; set; }
-        public string FullName { get; set; } = null!;
-        public string? InvigilatorId { get; set; }
-        public string? PhoneNumber { get; set; }
-        public InternalDepartment? Department { get; set; }
+        public Guid Id { get; init; }
+        public string FullName { get; init; } = null!;
+        public string? InvigilatorId { get; init; }
+        public string? PhoneNumber { get; init; }
+        public InternalDepartment? Department { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment : IMapFrom<Department>
     {
-        public InternalFaculty? Faculty { get; set; }
+        public InternalFaculty? Faculty { get; init; }
 
-        public string? Name { get; set; }
+        public string? Name { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class InternalFaculty : IMapFrom<Faculty>
+    public record InternalFaculty : IMapFrom<Faculty>
     {
-        public Guid Id { get; set; }
-        public string? Name { get; set; }
+        public Guid Id { get; init; }
+        public string? Name { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class ResponseItem
+    public abstract record ResponseItem
     {
-        public bool IsPriority { get; set; }
+        public bool IsPriority { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class VerifiedInvigilator : ResponseItem
+    public record VerifiedInvigilator : ResponseItem
     {
-        public Guid Id { get; set; }
-        public string FullName { get; set; } = null!;
-        public string? InvigilatorId { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? FacultyName { get; set; }
-        public string? DepartmentName { get; set; }
+        public Guid Id { get; init; }
+        public string FullName { get; init; } = null!;
+        public string? InvigilatorId { get; init; }
+        public string? PhoneNumber { get; init; }
+        public string? FacultyName { get; init; }
+        public string? DepartmentName { get; init; }
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public class TemporaryInvigilator : ResponseItem
+    public record TemporaryInvigilator : ResponseItem
     {
-        public string TemporaryName { get; set; } = null!;
-        public Guid? DepartmentId { get; set; }
+        public string TemporaryName { get; init; } = null!;
+        public Guid? DepartmentId { get; init; }
+    }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<FacultyShiftGroup, InternalFacultyShiftGroup>();
+            CreateMap<DepartmentShiftGroup, InternalDepartmentShiftGroup>();
+            CreateMap<Teacher, InternalUser>();
+            CreateMap<Department, InternalDepartment>();
+            CreateMap<Faculty, InternalFaculty>();
+        }
     }
 }

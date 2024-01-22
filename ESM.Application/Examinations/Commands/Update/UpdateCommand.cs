@@ -2,22 +2,37 @@ using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using JetBrains.Annotations;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.Application.Examinations.Commands.Update;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public record UpdateCommand : IRequest<Result<bool>>
-{
-    [FromRoute]
-    public string ExaminationId { get; set; } = null!;
+public record UpdateParams(
+    string? DisplayId,
+    string? Name,
+    string? Description,
+    DateTime? ExpectStartAt,
+    DateTime? ExpectEndAt,
+    DateTime? UpdatedAt);
 
-    public string? DisplayId { get; set; }
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public DateTime? ExpectStartAt { get; set; }
-    public DateTime? ExpectEndAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+public record UpdateCommand(
+    string? DisplayId,
+    string? Name,
+    string? Description,
+    DateTime? ExpectStartAt,
+    DateTime? ExpectEndAt,
+    DateTime? UpdatedAt,
+    string ExaminationId) : IRequest<Result<bool>>
+{
+    public UpdateCommand(UpdateParams @params, string ExaminationId) : this(
+        @params.DisplayId,
+        @params.Name,
+        @params.Description,
+        @params.ExpectStartAt,
+        @params.ExpectEndAt,
+        @params.UpdatedAt,
+        ExaminationId
+    ) { }
 }
 
 public class UpdateCommandHandler : IRequestHandler<UpdateCommand, Result<bool>>

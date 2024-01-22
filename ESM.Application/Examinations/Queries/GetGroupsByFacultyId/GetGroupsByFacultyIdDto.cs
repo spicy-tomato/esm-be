@@ -1,3 +1,4 @@
+using AutoMapper;
 using ESM.Application.Common.Mappings;
 using ESM.Domain.Dtos.User;
 using ESM.Domain.Entities;
@@ -6,7 +7,7 @@ using JetBrains.Annotations;
 namespace ESM.Application.Examinations.Queries.GetGroupsByFacultyId;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GetGroupsByFacultyIdDto : IMapFrom<Examination>
+public record GetGroupsByFacultyIdDto : IMapFrom<Examination>
 {
     public Guid Id { get; set; }
     public Guid? DepartmentId { get; set; }
@@ -14,22 +15,33 @@ public class GetGroupsByFacultyIdDto : IMapFrom<Examination>
     public string? TemporaryInvigilatorName { get; set; }
     public InternalFacultyShiftGroup FacultyShiftGroup { get; set; } = null!;
 
-    public class InternalFacultyShiftGroup : IMapFrom<FacultyShiftGroup>
+    public record InternalFacultyShiftGroup : IMapFrom<FacultyShiftGroup>
     {
-        public Guid Id { get; set; }
-        public InternalShiftGroup ShiftGroup { get; set; } = null!;
+        public Guid Id { get; init; }
+        public InternalShiftGroup ShiftGroup { get; init; } = null!;
     }
 
-    public class InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup : IMapFrom<ShiftGroup>
     {
-        public DateTime StartAt { get; set; }
-        public int? Shift { get; set; }
-        public InternalModule Module { get; set; } = null!;
+        public DateTime StartAt { get; init; }
+        public int? Shift { get; init; }
+        public InternalModule Module { get; init; } = null!;
     }
 
-    public class InternalModule : IMapFrom<Module>
+    public record InternalModule : IMapFrom<Module>
     {
-        public string DisplayId { get; set; } = null!;
-        public string Name { get; set; } = null!;
+        public string DisplayId { get; init; } = null!;
+        public string Name { get; init; } = null!;
+    }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Examination, GetGroupsByFacultyIdDto>();
+            CreateMap<FacultyShiftGroup, InternalFacultyShiftGroup>();
+            CreateMap<ShiftGroup, InternalShiftGroup>();
+            CreateMap<Module, InternalModule>();
+        }
     }
 }

@@ -1,20 +1,17 @@
-using ESM.Domain.Dtos.User;
 using ESM.Domain.Enums;
-using JetBrains.Annotations;
 
 namespace ESM.Domain.Dtos.Examination;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class ExaminationSummary
+public record ExaminationSummary
 {
-    public Guid Id { get; set; }
-    public string DisplayId { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string? Description { get; set; }
-    public DateTime? ExpectStartAt { get; set; }
-    public DateTime? ExpectEndAt { get; set; }
-    public ExaminationStatus Status { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-    public UserSummary CreatedBy { get; set; } = null!;
+    public Guid Id { get; init; }
+    public string DisplayId { get; init; } = null!;
+    public string Name { get; init; } = null!;
+    public string? Description { get; init; }
+    public DateTime? ExpectStartAt { get; init; }
+    public DateTime? ExpectEndAt { get; init; }
+    public ExaminationStatus Status { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime? UpdatedAt { get; init; }
+    public Guid CreatedBy { get; init; }
 }

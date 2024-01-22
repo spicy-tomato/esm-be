@@ -8,6 +8,10 @@ namespace ESM.Presentation.Filters;
 
 public class HttpResponseExceptionFilter : IExceptionFilter
 {
+    private readonly IHostEnvironment _hostEnvironment;
+
+    public HttpResponseExceptionFilter(IHostEnvironment hostEnvironment) => _hostEnvironment = hostEnvironment;
+
     public void OnException(ExceptionContext context)
     {
         var exception = context.Exception;
@@ -24,7 +28,7 @@ public class HttpResponseExceptionFilter : IExceptionFilter
             case FluentValidation.ValidationException validationException:
             {
                 var errorResponse = validationException.Errors
-                   .Select(e => new Error(e.PropertyName, e.ErrorMessage));
+                    .Select(e => new Error(e.PropertyName, e.ErrorMessage));
                 exceptionToHandle = new HttpException(HttpStatusCode.BadRequest, errorResponse);
                 break;
             }
@@ -32,10 +36,11 @@ public class HttpResponseExceptionFilter : IExceptionFilter
             {
                 var errorResponse = new List<Error>
                     { new(HttpStatusCode.InternalServerError, exception.Message) };
-                exceptionToHandle = new HttpException(HttpStatusCode.InternalServerError,
-                    errorResponse,
-                    exception.Message,
-                    exception);
+                var message = _hostEnvironment.IsEnvironment(Environments.Development)
+                    ? exception.Message
+                    : "Server error";
+                exceptionToHandle =
+                    new HttpException(HttpStatusCode.InternalServerError, errorResponse, message, exception);
                 break;
             }
         }

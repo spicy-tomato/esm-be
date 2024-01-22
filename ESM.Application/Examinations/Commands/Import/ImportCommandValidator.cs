@@ -8,6 +8,5 @@ public class ImportCommandValidator : AbstractValidator<ImportCommand>
     {
         RuleFor(e => e.ExaminationId).NotEmpty();
         RuleFor(e => e.File).NotEmpty();
-        RuleFor(e => e.CreatedAt).NotEmpty();
     }
 }

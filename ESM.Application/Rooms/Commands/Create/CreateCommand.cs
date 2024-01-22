@@ -2,12 +2,10 @@ using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Application.Rooms.Exceptions;
 using ESM.Domain.Entities;
-using JetBrains.Annotations;
 using MediatR;
 
 namespace ESM.Application.Rooms.Commands.Create;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public record CreateCommand(string DisplayId, int Capacity) : IRequest<Result<Guid>>;
 
 public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Guid>>

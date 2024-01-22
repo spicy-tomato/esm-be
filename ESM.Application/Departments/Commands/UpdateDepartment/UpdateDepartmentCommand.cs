@@ -3,17 +3,16 @@ using ESM.Application.Common.Models;
 using ESM.Application.Departments.Exceptions;
 using ESM.Application.Faculties.Exceptions;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.Application.Departments.Commands.UpdateDepartment;
 
-public class UpdateDepartmentCommand : IRequest<Result<bool>>
-{
-    [FromRoute] public string DepartmentId { get; set; } = null!;
+public record UpdateDepartmentParams(string DisplayId, string Name, string FacultyId) : IRequest<Result<bool>>;
 
-    public string DisplayId { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string FacultyId { get; set; } = null!;
+public record UpdateDepartmentCommand(string DisplayId, string Name, string FacultyId, string DepartmentId)
+    : IRequest<Result<bool>>
+{
+    public UpdateDepartmentCommand(UpdateDepartmentParams @params, string departmentId) : this(@params.DisplayId,
+        @params.Name, @params.FacultyId, departmentId) { }
 }
 
 public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, Result<bool>>

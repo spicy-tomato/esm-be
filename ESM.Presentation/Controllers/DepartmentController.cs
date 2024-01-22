@@ -40,12 +40,14 @@ public class DepartmentController : ApiControllerBase
     /// <summary>
     /// Update department
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="params"></param>
+    /// <param name="departmentId"></param>
     /// <returns></returns>
     /// <exception cref="NotFoundException"></exception>
     [HttpPut("{departmentId}", Name = "UpdateDepartment")]
-    public async Task<Result<bool>> Update(UpdateDepartmentCommand command)
+    public async Task<Result<bool>> Update(UpdateDepartmentParams @params, string departmentId)
     {
+        var command = new UpdateDepartmentCommand(@params, departmentId);
         return await Mediator.Send(command);
     }
 
@@ -57,8 +59,9 @@ public class DepartmentController : ApiControllerBase
     /// <exception cref="ConflictException"></exception>
     /// <exception cref="InternalServerErrorException"></exception>
     [HttpPost("{departmentId}/user", Name = nameof(CreateUser))]
-    public async Task<Result<Guid>> CreateUser(CreateUserInDepartmentCommand command)
+    public async Task<Result<Guid>> CreateUser(CreateUserInDepartmentParams @params, string departmentId)
     {
+        var command = new CreateUserInDepartmentCommand(@params, departmentId);
         return await Mediator.Send(command);
     }
 }

@@ -1,28 +1,24 @@
+using System.ComponentModel.DataAnnotations;
 using DocumentFormat.OpenXml.Packaging;
-using ESM.Application.Common.Exceptions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
-using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ESM.Application.Examinations.Commands.Import;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public record ImportCommand : IRequest<Result<bool>>
+public record ImportParams : IRequest<Result<bool>>
 {
-    [FromRoute]
-    public string ExaminationId { get; set; } = null!;
+    [Required]
+    public IFormFile File { get; set; } = null!;
+}
 
-    [FromForm]
-    public IFormFile? File { get; set; }
-
-    [FromForm]
-    public DateTime CreatedAt { get; set; }
+public record ImportCommand(IFormFile File, string ExaminationId) : IRequest<Result<bool>>
+{
+    public ImportCommand(ImportParams @params, string ExaminationId) : this(@params.File, ExaminationId) { }
 }
 
 public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
@@ -40,7 +36,7 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
     {
         var entity =
             _examinationService.CheckIfExaminationExistAndReturnEntity(request.ExaminationId, ExaminationStatus.Idle);
-        var file = request.File!;
+        var file = request.File;
 
         List<ExaminationData> readDataResult;
         try
