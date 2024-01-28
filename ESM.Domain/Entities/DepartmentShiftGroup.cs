@@ -18,6 +18,7 @@ public class DepartmentShiftGroup
     public Guid? UserId { get; set; }
     public ApplicationUser? User { get; set; }
     
+    [MaxLength(100)]
     public string? TemporaryInvigilatorName { get; set; }
 
     public Guid FacultyShiftGroupId { get; set; }

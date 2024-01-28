@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ESM.Domain.Common;
 using ESM.Domain.Enums;
@@ -8,10 +9,13 @@ namespace ESM.Domain.Entities;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Examination : BaseAuditableEntity
 {
+    [MaxLength(20)]
     public string? DisplayId { get; set; }
 
+    [MaxLength(100)]
     public string Name { get; set; } = null!;
 
+    [MaxLength(200)]
     public string? Description { get; set; }
 
     public DateTime? ExpectStartAt { get; set; }

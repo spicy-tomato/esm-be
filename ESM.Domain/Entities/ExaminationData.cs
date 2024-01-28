@@ -12,10 +12,13 @@ public class ExaminationData
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
+    [MaxLength(20)]
     public string? ModuleId { get; set; }
 
+    [MaxLength(100)]
     public string? ModuleName { get; set; }
 
+    [MaxLength(200)]
     public string? ModuleClass { get; set; }
 
     public int? Credit { get; set; }
@@ -34,10 +37,13 @@ public class ExaminationData
 
     public int? RoomsCount { get; set; }
 
+    [MaxLength(50)]
     public string? Rooms { get; set; }
 
+    [MaxLength(100)]
     public string? Faculty { get; set; }
 
+    [MaxLength(100)]
     public string? Department { get; set; }
 
     public bool? DepartmentAssign { get; set; }

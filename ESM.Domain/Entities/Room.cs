@@ -11,6 +11,7 @@ public class Room
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
+    [MaxLength(20)]
     public string DisplayId { get; set; } = null!;
 
     public int? Capacity { get; set; }

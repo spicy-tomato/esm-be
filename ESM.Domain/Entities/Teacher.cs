@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using ESM.Domain.Common;
 using ESM.Domain.Identity;
 using JetBrains.Annotations;
@@ -7,8 +8,10 @@ namespace ESM.Domain.Entities;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class Teacher : BaseAuditableEntity
 {
+    [MaxLength(20)]
     public string? TeacherId { get; set; }
 
+    [MaxLength(100)]
     public string FullName { get; set; } = null!;
 
     public bool IsMale { get; set; }

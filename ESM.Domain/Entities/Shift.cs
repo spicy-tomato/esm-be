@@ -18,6 +18,7 @@ public class Shift
 
     public int InvigilatorsCount { get; set; }
 
+    [MaxLength(10000)]
     public string? Report { get; set; }
 
     public Guid? HandedOverUserId { get; set; }

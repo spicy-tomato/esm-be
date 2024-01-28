@@ -11,8 +11,10 @@ public class Candidate
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
+    [MaxLength(20)]
     public string DisplayId { get; set; } = null!;
 
+    [MaxLength(100)]
     public string Name { get; set; } = null!;
 
     public bool IsStudent { get; set; }
