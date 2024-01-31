@@ -32,7 +32,7 @@ public class DepartmentController : ApiControllerBase
     /// <returns></returns>
     /// <exception cref="UnsupportedMediaTypeException"></exception>
     [HttpPost("import", Name = "ImportDepartment")]
-    public async Task<Result<bool>> Import(ImportDepartmentCommand command)
+    public async Task<Result<bool>> Import([FromForm] ImportDepartmentCommand command)
     {
         return await Mediator.Send(command);
     }

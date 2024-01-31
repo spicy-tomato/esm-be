@@ -43,12 +43,12 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
 
         var importResult = _departmentService.Import(file);
 
-        foreach (var (facultyNameWithAbbreviation, departments) in importResult)
+        foreach (var (facultyName, departments) in importResult)
         {
             EntityEntry<Faculty>? faculty = null;
-            if (facultyNameWithAbbreviation != "Khác")
+            if (facultyName != "Khác")
             {
-                await AddFacultyAndAccountsInFaculty(facultyNameWithAbbreviation);
+                await AddFacultyAndAccountsInFaculty(facultyName);
             }
 
             foreach (var (departmentName, teachers) in departments)
@@ -73,12 +73,12 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
         return Result<bool>.Get(true);
     }
 
-    private async Task AddFacultyAndAccountsInFaculty(string facultyNameWithAbbreviation)
+    private async Task AddFacultyAndAccountsInFaculty(string facultyName)
     {
-        var lastSpaceIndex = facultyNameWithAbbreviation.LastIndexOf(' ');
-        var facultyName = facultyNameWithAbbreviation[..lastSpaceIndex];
-        var abbreviation =
-            facultyNameWithAbbreviation[(lastSpaceIndex + 2)..^1];
+        var abbreviation = string.Join("", facultyName.Split(' ')
+            .Select(c => c[0])
+            .Where(c => c != '-')
+        ).ToUpper();
 
         var facultyEntity = new Faculty
         {
@@ -87,10 +87,11 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
         };
 
         _context.Faculties.Add(facultyEntity);
+        await _context.SaveChangesAsync();
 
         var createUserResponse = await _identityService.CreateUserAsync("K_" + abbreviation,
             StringHelper.RandomEmail());
-        var addToRoleResponse = await _identityService.AddUserToRoleAsync(facultyEntity.Id, "Teacher");
+        var addToRoleResponse = await _identityService.AddUserToRoleAsync(createUserResponse.UserId, "Teacher");
 
         if (createUserResponse.Result.Success && addToRoleResponse.Success)
         {
@@ -102,6 +103,7 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
             };
 
             _context.Teachers.Add(teacher);
+            await _context.SaveChangesAsync();
         }
     }
 
@@ -109,7 +111,7 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
     {
         var createUserResponse = await _identityService.CreateUserAsync("GV" + teacher.Key,
             StringHelper.RandomEmail());
-        var addToRoleResponse = await _identityService.AddUserToRoleAsync(departmentEntity.Id, "Teacher");
+        var addToRoleResponse = await _identityService.AddUserToRoleAsync(createUserResponse.UserId, "Teacher");
 
         if (createUserResponse.Result.Success && addToRoleResponse.Success)
         {

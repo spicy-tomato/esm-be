@@ -1,21 +1,22 @@
+using ESM.Application.Common.Models;
 using FluentValidation.Results;
 
 namespace ESM.Application.Common.Exceptions.Core;
 
-public class ValidationException : Exception
+[Serializable]
+public class ValidationException : BadRequestException
 {
-    private ValidationException() : base("One or more validation failures have occurred.")
-    {
-        Errors = new Dictionary<string, string[]>();
-    }
-
     public ValidationException(IEnumerable<ValidationFailure> failures)
-        : this()
+        : base("One or more validation failures have occurred.")
     {
         Errors = failures
-            .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
-            .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());
+            .Select(f => new Error(f.PropertyName, f.ErrorMessage));
     }
 
-    public IDictionary<string, string[]> Errors { get; }
+    private IEnumerable<Error> Errors { get; }
+
+    public override HttpException WrapException()
+    {
+        return new HttpException(Code, Errors, Message, this);
+    }
 }

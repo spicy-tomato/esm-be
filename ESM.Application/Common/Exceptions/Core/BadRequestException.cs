@@ -7,7 +7,7 @@ namespace ESM.Application.Common.Exceptions.Core;
 [Serializable]
 public abstract class BadRequestException : InnerException
 {
-    private const HttpStatusCode Code = HttpStatusCode.BadRequest;
+    protected const HttpStatusCode Code = HttpStatusCode.BadRequest;
 
     protected BadRequestException(string? message, Exception? innerException = null) : base(message, innerException) { }
 
