@@ -1,3 +1,4 @@
+using Diacritics.Extensions;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Helpers;
 using ESM.Application.Common.Interfaces;
@@ -5,7 +6,6 @@ using ESM.Application.Common.Models;
 using ESM.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ESM.Application.Departments.Commands.ImportDepartment;
 
@@ -45,10 +45,10 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
 
         foreach (var (facultyName, departments) in importResult)
         {
-            EntityEntry<Faculty>? faculty = null;
+            Faculty? faculty = null;
             if (facultyName != "Khác")
             {
-                await AddFacultyAndAccountsInFaculty(facultyName);
+                faculty = await AddFacultyAndAccountsInFaculty(facultyName);
             }
 
             foreach (var (departmentName, teachers) in departments)
@@ -56,10 +56,11 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
                 var departmentEntity = new Department
                 {
                     Name = departmentName,
-                    FacultyId = faculty?.Entity.Id
+                    FacultyId = faculty?.Id
                 };
 
                 _context.Departments.Add(departmentEntity);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 foreach (var teacher in teachers)
                 {
@@ -73,12 +74,13 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
         return Result<bool>.Get(true);
     }
 
-    private async Task AddFacultyAndAccountsInFaculty(string facultyName)
+    private async Task<Faculty> AddFacultyAndAccountsInFaculty(string facultyName)
     {
         var abbreviation = string.Join("", facultyName.Split(' ')
-            .Select(c => c[0])
-            .Where(c => c != '-')
-        ).ToUpper();
+                .Select(c => c[0])
+                .Where(c => c != '-'))
+            .ToUpper()
+            .RemoveDiacritics();
 
         var facultyEntity = new Faculty
         {
@@ -105,6 +107,8 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
             _context.Teachers.Add(teacher);
             await _context.SaveChangesAsync();
         }
+
+        return facultyEntity;
     }
 
     private async Task AddTeacherAccountToDepartment(KeyValuePair<string, string> teacher, Department departmentEntity)
@@ -119,7 +123,7 @@ public class ImportDepartmentCommandHandler : IRequestHandler<ImportDepartmentCo
             {
                 UserId = createUserResponse.UserId,
                 FullName = teacher.Value,
-                Department = departmentEntity,
+                DepartmentId = departmentEntity.Id,
                 TeacherId = teacher.Key
             };
 
