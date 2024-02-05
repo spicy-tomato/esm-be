@@ -1,10 +1,9 @@
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 
 namespace ESM.Application.Examinations.Queries.GetRelatedExaminations;
 
-public record RelatedExaminationDto : IMapFrom<Examination>
+public record RelatedExaminationDto
 {
     public Guid Id { get; init; }
     public string DisplayId { get; init; } = null!;

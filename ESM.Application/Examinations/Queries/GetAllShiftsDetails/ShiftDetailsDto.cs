@@ -1,5 +1,4 @@
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Dtos.Module;
 using ESM.Domain.Dtos.Room;
 using ESM.Domain.Entities;
@@ -9,7 +8,7 @@ using JetBrains.Annotations;
 namespace ESM.Application.Examinations.Queries.GetAllShiftsDetails;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public record ShiftDetailsDto : IMapFrom<Examination>
+public record ShiftDetailsDto
 {
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
     public RoomSummary Room { get; set; } = null!;
@@ -18,7 +17,7 @@ public record ShiftDetailsDto : IMapFrom<Examination>
     public bool IsDuplicated { get; set; }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup
     {
         public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
@@ -29,7 +28,7 @@ public record ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalInvigilatorShift : IMapFrom<InvigilatorShift>
+    public record InternalInvigilatorShift
     {
         public Guid Id { get; set; }
         public int OrderIndex { get; set; }
@@ -37,7 +36,7 @@ public record ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalTeacher : IMapFrom<Teacher>
+    public record InternalTeacher
     {
         public Guid Id { get; set; }
         public string FullName { get; set; } = null!;
@@ -46,7 +45,7 @@ public record ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment
     {
         public string? DisplayId { get; set; }
         public string Name { get; set; } = null!;
@@ -54,7 +53,7 @@ public record ShiftDetailsDto : IMapFrom<Examination>
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalFaculty : IMapFrom<Faculty>
+    public record InternalFaculty
     {
         public string? DisplayId { get; set; }
         public string Name { get; set; } = null!;

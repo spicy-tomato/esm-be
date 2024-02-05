@@ -1,10 +1,9 @@
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 
 namespace ESM.Application.Faculties.Queries.GetTeachers;
 
-public record GetTeachersDto : IMapFrom<Teacher>
+public record GetTeachersDto
 {
     public Guid Id { get; init; }
     public string? DisplayId { get; init; }

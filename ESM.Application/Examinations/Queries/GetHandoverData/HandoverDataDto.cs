@@ -1,11 +1,10 @@
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
 
 namespace ESM.Application.Examinations.Queries.GetHandoverData;
 
-public record HandoverDataDto : IMapFrom<Shift>
+public record HandoverDataDto
 {
     public Guid Id { get; init; }
     public InternalShiftGroup ShiftGroup { get; init; } = null!;
@@ -14,7 +13,7 @@ public record HandoverDataDto : IMapFrom<Shift>
     public Guid? HandedOverUserId { get; init; }
     public string? Report { get; init; }
 
-    public record InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup
     {
         public Guid Id { get; init; }
         public ExamMethod Method { get; init; }
@@ -24,32 +23,32 @@ public record HandoverDataDto : IMapFrom<Shift>
         public InternalModule Module { get; init; } = null!;
     }
 
-    public record InternalModule : IMapFrom<Module>
+    public record InternalModule
     {
         public string DisplayId { get; init; } = null!;
         public string Name { get; init; } = null!;
         public InternalFaculty Faculty { get; init; } = null!;
     }
 
-    public record InternalFaculty : IMapFrom<Faculty>
+    public record InternalFaculty
     {
         public string? DisplayId { get; init; }
         public string Name { get; init; } = null!;
     }
 
-    public record InternalRoom : IMapFrom<Room>
+    public record InternalRoom
     {
         public string DisplayId { get; init; } = null!;
     }
 
-    public record InternalInvigilatorShift : IMapFrom<InvigilatorShift>
+    public record InternalInvigilatorShift
     {
         public Guid Id { get; init; }
         public int OrderIndex { get; init; }
         public InternalUser? Invigilator { get; init; }
     }
 
-    public record InternalUser : IMapFrom<Teacher>
+    public record InternalUser
     {
         public Guid Id { get; init; }
         public string FullName { get; init; } = null!;
@@ -57,7 +56,7 @@ public record HandoverDataDto : IMapFrom<Shift>
         public InternalDepartment? Department { get; init; }
     }
 
-    public record InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment
     {
         public string? DisplayId { get; init; }
         public string Name { get; init; } = null!;

@@ -1,5 +1,4 @@
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
 using JetBrains.Annotations;
@@ -17,13 +16,13 @@ public record GetAllShiftDto
     public InternalShiftGroup ShiftGroup { get; set; } = null!;
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalRoom : IMapFrom<Room>
+    public record InternalRoom
     {
         public string DisplayId { get; set; } = null!;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalShiftGroup : IMapFrom<ShiftGroup>
+    public record InternalShiftGroup
     {
         public Guid Id { get; set; }
         public ExamMethod Method { get; set; }
@@ -34,7 +33,7 @@ public record GetAllShiftDto
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-    public record InternalModule : IMapFrom<Module>
+    public record InternalModule
     {
         public string DisplayId { get; set; } = null!;
         public string Name { get; set; } = null!;

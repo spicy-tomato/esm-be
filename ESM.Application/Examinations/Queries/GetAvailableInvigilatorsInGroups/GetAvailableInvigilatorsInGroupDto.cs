@@ -1,6 +1,5 @@
 using System.Runtime.Serialization;
 using AutoMapper;
-using ESM.Application.Common.Mappings;
 using ESM.Domain.Entities;
 
 namespace ESM.Application.Examinations.Queries.GetAvailableInvigilatorsInGroups;
@@ -21,21 +20,21 @@ public record GetAvailableInvigilatorsInGroupsItem
 
     public ICollection<InternalFacultyShiftGroup> FacultyShiftGroups { get; init; } = null!;
 
-    public record InternalFacultyShiftGroup : IMapFrom<FacultyShiftGroup>
+    public record InternalFacultyShiftGroup
     {
         public Guid FacultyId { get; init; }
 
         public ICollection<InternalDepartmentShiftGroup> DepartmentShiftGroups { get; init; } = null!;
     }
 
-    public record InternalDepartmentShiftGroup : IMapFrom<DepartmentShiftGroup>
+    public record InternalDepartmentShiftGroup
     {
         public InternalUser? User { get; init; }
         public string? TemporaryInvigilatorName { get; init; }
         public Guid? DepartmentId { get; init; }
     }
 
-    public record InternalUser : IMapFrom<Teacher>
+    public record InternalUser
     {
         public Guid Id { get; init; }
         public string FullName { get; init; } = null!;
@@ -44,14 +43,14 @@ public record GetAvailableInvigilatorsInGroupsItem
         public InternalDepartment? Department { get; init; }
     }
 
-    public record InternalDepartment : IMapFrom<Department>
+    public record InternalDepartment
     {
         public InternalFaculty? Faculty { get; init; }
 
         public string? Name { get; init; }
     }
 
-    public record InternalFaculty : IMapFrom<Faculty>
+    public record InternalFaculty
     {
         public Guid Id { get; init; }
         public string? Name { get; init; }
