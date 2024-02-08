@@ -1,5 +1,6 @@
 using System.Reflection;
 using ESM.Application.Common.Behaviours;
+using ESM.Application.Hubs;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,5 +20,7 @@ public static class ConfigureServices
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         });
+        services.AddSignalR();
+        services.AddScoped<AppHub>();
     }
 }

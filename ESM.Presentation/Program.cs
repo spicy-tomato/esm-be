@@ -1,4 +1,5 @@
 using ESM.Application;
+using ESM.Application.Hubs;
 using ESM.Infrastructure;
 using ESM.Infrastructure.Persistence;
 using ESM.Presentation;
@@ -49,9 +50,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 
-app.UseCors(options => options.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options =>
+{
+    options.WithOrigins("http://localhost:3600")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+});
+
+app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints => { endpoints.MapHub<AppHub>("/hubs"); });
 
 app.MapControllers();
 
