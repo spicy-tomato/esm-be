@@ -3,7 +3,6 @@ using DocumentFormat.OpenXml.Packaging;
 using ESM.Application.Common.Exceptions.Core;
 using ESM.Application.Common.Interfaces;
 using ESM.Application.Common.Models;
-using ESM.Application.Hubs;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
 using MediatR;
@@ -26,30 +25,30 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IExaminationService _examinationService;
-    private readonly AppHub _appHub;
+    private readonly IPusherService _pusherService;
 
     public ImportCommandHandler(IApplicationDbContext context, IExaminationService examinationService,
-        AppHub appHub)
+        IPusherService pusherService)
     {
         _context = context;
         _examinationService = examinationService;
-        _appHub = appHub;
+        _pusherService = pusherService;
     }
 
     public async Task<Result<bool>> Handle(ImportCommand request, CancellationToken cancellationToken)
     {
         var entity =
             _examinationService.CheckIfExaminationExistAndReturnEntity(request.ExaminationId, ExaminationStatus.Idle);
-        await _appHub.SendMessageImportExamination(request.ExaminationId, entity.Name, 0);
+        await _pusherService.SendMessageImportExamination(0);
 
         var file = request.File;
-        await _appHub.SendMessageImportExamination(request.ExaminationId, entity.Name, 25);
+        await _pusherService.SendMessageImportExamination(25);
 
         List<ExaminationData> readDataResult;
         try
         {
             readDataResult = _examinationService.Import(file, request.ExaminationId);
-            await _appHub.SendMessageImportExamination(request.ExaminationId, entity.Name, 50);
+            await _pusherService.SendMessageImportExamination(50);
         }
         catch (OpenXmlPackageException)
         {
@@ -58,7 +57,7 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
 
         await _context.ExaminationData.AddRangeAsync(readDataResult, cancellationToken);
         entity.Status = ExaminationStatus.Setup;
-        await _appHub.SendMessageImportExamination(request.ExaminationId, entity.Name, 75);
+        await _pusherService.SendMessageImportExamination(75);
 
         _context.ExaminationEvents.Add(new ExaminationEvent
         {
@@ -67,8 +66,29 @@ public class ImportCommandHandler : IRequestHandler<ImportCommand, Result<bool>>
         });
 
         await _context.SaveChangesAsync(cancellationToken);
-        await _appHub.SendMessageImportExamination(request.ExaminationId, entity.Name, 100);
+        await _pusherService.SendMessageImportExamination(100);
 
         return Result<bool>.Get(true);
     }
+
+    // private sealed class PercentageReporter
+    // {
+    //     private readonly IHubContext<AppHub> _appHub;
+    //     private readonly string? _userId;
+    //     private readonly string _examinationId;
+    //     private readonly string _examinationName;
+    //
+    //     public PercentageReporter(IHubContext<AppHub> appHub, string? userId, string examinationId, string examinationName)
+    //     {
+    //         _appHub = appHub;
+    //         _userId = userId;
+    //         _examinationId = examinationId;
+    //         _examinationName = examinationName;
+    //     }
+    //
+    //     public async Task SendPercentageReport(int percentage)
+    //     {
+    //         await _appHub.SendMessageImportExamination(_userId, _examinationId, _examinationName, percentage);
+    //     }
+    // }
 }

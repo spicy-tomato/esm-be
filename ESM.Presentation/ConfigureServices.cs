@@ -18,6 +18,7 @@ public static class ConfigureServices
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IShiftService, ShiftService>();
         services.AddScoped<ITeacherService, TeacherService>();
+        services.AddScoped<IPusherService, PusherService>();
         
         services.AddHttpContextAccessor();
         
