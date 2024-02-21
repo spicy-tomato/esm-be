@@ -6,7 +6,7 @@ using MediatR;
 
 namespace ESM.Application.Rooms.Commands.Create;
 
-public record CreateCommand(string DisplayId, int Capacity) : IRequest<Result<Guid>>;
+public record CreateCommand(string DisplayId, int? Capacity) : IRequest<Result<Guid>>;
 
 public class CreateCommandHandler : IRequestHandler<CreateCommand, Result<Guid>>
 {
