@@ -99,7 +99,7 @@ public class DepartmentService : IDepartmentService
             throw new DepartmentNotFoundException(id);
         }
 
-        var entity = _context.Faculties
+        var entity = _context.Departments
             .FirstOrDefault(f => f.Id == guid);
 
         if (entity == null)
