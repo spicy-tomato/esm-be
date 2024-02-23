@@ -1,4 +1,5 @@
 using ESM.Application.Common.Interfaces;
+using ESM.Application.Common.Mappings;
 using ESM.Application.Common.Models;
 using ESM.Domain.Entities;
 using ESM.Domain.Enums;
@@ -7,9 +8,9 @@ using RoomHelper = ESM.Application.Common.Helpers.RoomHelper;
 
 namespace ESM.Application.Examinations.Queries.GetTemporaryData;
 
-public record GetTemporaryDataQuery(string Id) : IRequest<Result<List<ExaminationData>>>;
+public record GetTemporaryDataQuery(string Id, int PageNumber, int PageSize) : IRequest<Result<PaginatedList<ExaminationData>>>;
 
-public class GetTemporaryDataQueryHandler : IRequestHandler<GetTemporaryDataQuery, Result<List<ExaminationData>>>
+public class GetTemporaryDataQueryHandler : IRequestHandler<GetTemporaryDataQuery, Result<PaginatedList<ExaminationData>>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IExaminationService _examinationService;
@@ -20,33 +21,32 @@ public class GetTemporaryDataQueryHandler : IRequestHandler<GetTemporaryDataQuer
         _context = context;
     }
 
-    public Task<Result<List<ExaminationData>>> Handle(GetTemporaryDataQuery request,
+    public async Task<Result<PaginatedList<ExaminationData>>> Handle(GetTemporaryDataQuery request,
         CancellationToken cancellationToken)
     {
         var guid = _examinationService.CheckIfExaminationExistAndReturnGuid(request.Id, ExaminationStatus.Setup);
 
-        var data = GetTemporaryData(guid);
+        var data = await GetTemporaryData(guid, request);
 
-        return Task.FromResult(Result<List<ExaminationData>>.Get(data));
+        return Result<PaginatedList<ExaminationData>>.Get(data);
     }
 
-    private List<ExaminationData> GetTemporaryData(Guid examinationId)
+    private async Task<PaginatedList<ExaminationData>> GetTemporaryData(Guid examinationId, GetTemporaryDataQuery request)
     {
-        var data = _context.ExaminationData
-            .Where(e => e.ExaminationId == examinationId);
+        var data = await _context.ExaminationData
+            .Where(e => e.ExaminationId == examinationId)
+            .PaginatedListAsync(request.PageNumber, request.PageSize);
 
-        if (data.Any())
+        if (!data.IsEmpty)
         {
             data = ValidateData(data);
         }
 
-        return data.ToList();
+        return data;
     }
 
-    private IQueryable<ExaminationData> ValidateData(IEnumerable<ExaminationData> data)
+    private PaginatedList<ExaminationData> ValidateData(PaginatedList<ExaminationData> data)
     {
-        var examinationData = data.ToList();
-
         var existedModules = _context.Modules
             .Select(m => m.DisplayId)
             .ToDictionary(m => m, _ => true);
@@ -54,7 +54,7 @@ public class GetTemporaryDataQueryHandler : IRequestHandler<GetTemporaryDataQuer
             .Select(m => m.DisplayId)
             .ToDictionary(m => m, _ => true);
 
-        foreach (var row in examinationData)
+        foreach (var row in data.Items)
         {
             var fields = new[]
             {
@@ -79,7 +79,7 @@ public class GetTemporaryDataQueryHandler : IRequestHandler<GetTemporaryDataQuer
             ValidateRoom(row, existedRooms);
         }
 
-        return examinationData.AsQueryable();
+        return data;
     }
 
     /// <summary>

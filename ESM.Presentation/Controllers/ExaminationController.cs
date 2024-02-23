@@ -340,11 +340,14 @@ public class ExaminationController : ApiControllerBase
     /// Get temporary data
     /// </summary>
     /// <param name="examinationId"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
     /// <returns></returns>
     [HttpGet("{examinationId}/temporary", Name = nameof(GetTemporaryData))]
-    public async Task<Result<List<ExaminationData>>> GetTemporaryData(string examinationId)
+    public async Task<Result<PaginatedList<ExaminationData>>> GetTemporaryData(string examinationId,
+        [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var command = new GetTemporaryDataQuery(examinationId);
+        var command = new GetTemporaryDataQuery(examinationId, pageNumber, pageSize);
         return await Mediator.Send(command);
     }
 
