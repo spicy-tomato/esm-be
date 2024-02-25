@@ -66,19 +66,5 @@ public class FacultyController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
-    /// <summary>
-    /// Create module
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotFoundException"></exception>
-    [HttpPost("{facultyId}/module", Name = "CreateModuleFaculty")]
-    [Obsolete]
-    public Result<bool> CreateModule(string facultyId, object key)
-    {
-        // Moved to /module
-
-        return Result<bool>.Get(true);
-    }
-
     #endregion
 }
